@@ -1,0 +1,38 @@
+{
+    "name": "dotplant/store",
+    "description": "The extension for DotPlant3 CMS that provides a rich store functional",
+    "type": "dotplant-extension",
+    "keywords": ["yii2", "extension", "dotplant", "dotplant3", "store", "shop", "goods", "ecommerce"],
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Pavel Fedotov",
+            "email": "fps.06@mail.ru"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.0",
+        "yiisoft/yii2": "~2.0.0",
+        "devgroup/yii2-extensions-manager": "dev-master",
+        "dotplant/entity-structure": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "DotPlant\\Store\\": "src/"
+        }
+    },
+    "extra": {
+        "yii2-extension": {
+            "name": "DotPlant Store",
+            "name_ru": "DotPlant Магазин",
+            "iconUrl": "",
+            "description_ru": "Расширение для DotPlant3 CMS которое предоставляет богатый функционал магазина"
+        },
+        "migrationPath": [
+            "src/migrations"
+        ],
+        "configurables": "src/configurables.php",
+        "translationCategory": "dotplant.store"
+    }
+}
