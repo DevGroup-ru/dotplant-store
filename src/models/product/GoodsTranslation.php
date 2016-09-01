@@ -1,6 +1,6 @@
 <?php
 
-namespace DotPlant\Store\models;
+namespace DotPlant\Store\models\product;
 
 use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SeoTrait;
@@ -52,7 +52,7 @@ class GoodsTranslation extends ActiveRecord
         return [
             'name' => Yii::t('dotplant.store', 'Name'),
             'url' => Yii::t('dotplant.store', 'Url'),
-            'is_active' => Yii::t('dotplant.store', 'Is Active'),
+            'is_active' => Yii::t('dotplant.store', 'Is active'),
             'announce' => Yii::t('dotplant.store', 'Announce'),
             'content' => Yii::t('dotplant.store', 'Content'),
         ];

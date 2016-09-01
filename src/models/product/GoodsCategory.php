@@ -1,6 +1,6 @@
 <?php
 
-namespace DotPlant\Store\models;
+namespace DotPlant\Store\models\product;
 
 use DevGroup\Entity\traits\BaseActionsInfoTrait;
 use DevGroup\Entity\traits\EntityTrait;
