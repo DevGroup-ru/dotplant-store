@@ -12,5 +12,8 @@ use DevGroup\AdminUtils\controllers\BaseController;
  */
 class GoodsCategoryManageController extends BaseController
 {
+    public function actionIndex()
+    {
 
+    }
 }

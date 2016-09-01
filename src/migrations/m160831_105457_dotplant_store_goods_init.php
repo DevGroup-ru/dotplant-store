@@ -2,6 +2,8 @@
 
 use yii\db\Migration;
 use DotPlant\EntityStructure\models\BaseStructure;
+use DevGroup\DataStructure\helpers\PropertiesTableGenerator;
+use DotPlant\Store\models\Goods;
 
 class m160831_105457_dotplant_store_goods_init extends Migration
 {
@@ -87,6 +89,7 @@ class m160831_105457_dotplant_store_goods_init extends Migration
 
         $this->createIndex('idx-g-t-model_id-lang_id', '{{%dotplant_store_goods_translation}}', ['model_id', 'language_id'], true);
         $this->addForeignKey('fk-g-t-goods', '{{%dotplant_store_goods_translation}}', 'model_id', '{{%dotplant_store_goods}}', 'id', 'CASCADE');
+        PropertiesTableGenerator::getInstance()->generate(Goods::class);
     }
 
     public function down()
@@ -106,6 +109,8 @@ class m160831_105457_dotplant_store_goods_init extends Migration
         $this->dropIndex('idx-goods_analog-id_analog_id', '{{%dotplant_store_goods_analog}}');
         $this->dropIndex('idx-g-c-struct_id-goods_id', '{{%dotplant_store_goods_category}}');
         $this->dropIndex('idx-g-t-model_id-lang_id', '{{%dotplant_store_goods_translation}}');
+
+        PropertiesTableGenerator::getInstance()->drop(Goods::class);
 
         $this->dropTable('{{%dotplant_store_goods}}');
         $this->dropTable('{{%dotplant_store_goods_analog}}');
