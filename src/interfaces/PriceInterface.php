@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\interfaces;
 
+use DotPlant\Store\models\goods\Goods;
 use DotPlant\Store\models\price\Price;
 
 /**
@@ -12,9 +13,10 @@ use DotPlant\Store\models\price\Price;
 interface PriceInterface
 {
     /**
+     * @param Goods $goods
      * @return Price
      */
-    public static function create();
+    public static function create(Goods $goods);
 
     public function getPrice();
 

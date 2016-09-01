@@ -4,6 +4,7 @@ namespace DotPlant\Store\models\goods;
 
 use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SeoTrait;
+use DotPlant\Store\models\price\PartPrice;
 
 /**
  * Class GoodsPart
@@ -15,13 +16,14 @@ class Part extends Goods
     use EntityTrait;
     use SeoTrait;
 
-    public $priceClass = null;
-    public $visibilityType = null;
-    public $isMeasurable = null;
-    public $isDownloadable = null;
-    public $isFilterable = null;
-    public $isService = null;
-    public $isOption = null;
-    public $isPart = null;
-    public $hasOptions = null;
+    public $_priceClass = PartPrice::class;
+
+    public $_visibilityType = null;
+    public $_isMeasurable = null;
+    public $_isDownloadable = null;
+    public $_isFilterable = null;
+    public $_isService = null;
+    public $_isOption = null;
+    public $_isPart = null;
+    public $_hasOptions = null;
 }

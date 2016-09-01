@@ -49,57 +49,57 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
      *
      * @var null
      */
-    public $priceClass = null;
-    public $visibilityType = null;
+    protected $_priceClass = null;
+    protected $_visibilityType = null;
 
     /**
      * Whether can we apply measures for product
      *
      * @var bool | null
      */
-    public $isMeasurable = null;
+    protected $_isMeasurable = null;
 
     /**
      * Whether can we download product
      *
      * @var bool | null
      */
-    public $isDownloadable = null;
+    protected $_isDownloadable = null;
 
     /**
      * Whether can use product if filters or in search
      *
      * @var bool | null
      */
-    public $isFilterable = null;
+    protected $_isFilterable = null;
 
     /**
      * Whether product is option
      *
      * @var bool | null
      */
-    public $isService = null;
+    protected $_isService = null;
 
     /**
      * Whether product is option
      *
      * @var bool | null
      */
-    public $isOption = null;
+    protected $_isOption = null;
 
     /**
      * Whether product is part
      *
      * @var bool | null
      */
-    public $isPart = null;
+    protected $_isPart = null;
 
     /**
      * Whether product has options
      *
      * @var bool | null
      */
-    public $hasOptions = null;
+    protected $_hasOptions = null;
 
     /** @var  Price | null */
     protected $_price = null;
@@ -322,12 +322,14 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         /** @var Goods $goods */
         $goods = new $goodsClass;
         $goods->type = $type;
-        if (null !== $goods->priceClass) {
+        if (null !== $goods->_priceClass) {
             /** @var Price $priceClass */
-            $priceClass = $goods->priceClass;
-            $goods->_price = $priceClass::create();
+            $priceClass = $goods->_priceClass;
+            $goods->_price = $priceClass::create($goods);
         } else {
-            $goods->_price = new DummyPrice();
+            throw new GoodsException(
+                Yii::t('dotplant.store', '\'priceClass\' property myst be valid heir of Price')
+            );
         }
         return $goods;
     }

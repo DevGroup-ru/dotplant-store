@@ -4,7 +4,9 @@ namespace DotPlant\Store\models\price;
 
 use DotPlant\EntityStructure\models\BaseStructure;
 use DotPlant\EntityStructure\models\Entity;
+use DotPlant\Store\exceptions\PriceException;
 use DotPlant\Store\interfaces\PriceInterface;
+use DotPlant\Store\models\goods\Goods;
 use Yii;
 use yii\db\ActiveRecord;
 
@@ -22,6 +24,10 @@ use yii\db\ActiveRecord;
  */
 class Price extends ActiveRecord implements PriceInterface
 {
+    protected $_calculatorClass = null;
+
+    private static $_priceMap = [];
+
     /**
      * @inheritdoc
      */
@@ -63,11 +69,34 @@ class Price extends ActiveRecord implements PriceInterface
     }
 
     /**
-     * @return Price
+     * @inheritdoc
      */
-    public static function create()
+    public static function create(Goods $goods)
     {
-
+        /** @var Price | string $priceClass */
+        $priceClass = get_called_class();
+        if (false === $priceClass instanceof Price) {
+            throw new PriceException(
+                Yii::t('dotplant.store', 'Attempting to get unknown price type')
+            );
+        }
+        if (false === isset(self::$_priceMap[$priceClass])) {
+            if (false === $goods->getIsNewRecord()) {
+                $price = $priceClass::find()->where([
+                    'entity_id' => 0,
+                    'entity_model_id' => $goods->id
+                ])->one();
+                if (null === $price) {
+                    $price = new $priceClass;
+                }
+            } else {
+                $price = new DummyPrice();
+            }
+            self::$_priceMap[$priceClass] = $price;
+        } else {
+            $price = self::$_priceMap[$priceClass];
+        }
+        return $price;
     }
 
 
