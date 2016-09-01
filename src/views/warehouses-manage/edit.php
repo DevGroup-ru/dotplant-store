@@ -1,11 +1,12 @@
 <?php
 
 use DevGroup\Multilingual\widgets\MultilingualFormTabs;
+use DotPlant\Store\models\warehouse\Warehouse;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
 
 /**
- * @var DotPlant\Store\models\Warehouse $model
+ * @var DotPlant\Store\models\warehouse\Warehouse $model
  * @var yii\web\View $this
  */
 
@@ -20,6 +21,11 @@ $this->params['breadcrumbs'] = [
 <div class="box">
     <div class="box-body">
         <?= $form->field($model, 'priority') ?>
+        <?=
+        $form
+            ->field($model, 'type')
+            ->dropDownList(Warehouse::getTypes())
+        ?>
         <?=
         DevGroup\Multilingual\widgets\MultilingualFormTabs::widget(
             [

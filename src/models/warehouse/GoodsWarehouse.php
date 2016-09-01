@@ -1,6 +1,6 @@
 <?php
 
-namespace DotPlant\Store\models;
+namespace DotPlant\Store\models\warehouse;
 
 use Yii;
 

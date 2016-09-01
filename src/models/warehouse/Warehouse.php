@@ -1,6 +1,6 @@
 <?php
 
-namespace DotPlant\Store\models;
+namespace DotPlant\Store\models\warehouse;
 
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
@@ -11,11 +11,23 @@ use yii\data\ActiveDataProvider;
  * This is the model class for table "{{%dotplant_store_warehouse}}".
  *
  * @property integer $id
+ * @property integer $type
  * @property integer $priority
  */
 class Warehouse extends \yii\db\ActiveRecord
 {
     use MultilingualTrait;
+
+    const TYPE_WAREHOUSE = 1;
+    const TYPE_SELLER = 2;
+
+    public static function getTypes()
+    {
+        return [
+            self::TYPE_WAREHOUSE => Yii::t('dotplant.store', 'Warehouse'),
+            self::TYPE_SELLER => Yii::t('dotplant.store', 'Seller'),
+        ];
+    }
 
     /**
      * @inheritdoc
@@ -45,7 +57,7 @@ class Warehouse extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['priority'], 'integer'],
+            [['priority', 'type'], 'integer'],
         ];
     }
 
@@ -56,6 +68,7 @@ class Warehouse extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('dotplant.store', 'ID'),
+            'type' => Yii::t('dotplant.store', 'Type'),
             'priority' => Yii::t('dotplant.store', 'Priority'),
         ];
     }
@@ -69,5 +82,6 @@ class Warehouse extends \yii\db\ActiveRecord
                 'pagination' => [],
             ]
         );
+        return $dataProvider;
     }
 }

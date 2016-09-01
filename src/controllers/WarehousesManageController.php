@@ -4,9 +4,8 @@ namespace DotPlant\Store\controllers;
 
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use Yii;
-use DotPlant\Store\models\Warehouse;
+use DotPlant\Store\models\warehouse\Warehouse;
 use yii\data\ActiveDataProvider;
-use yii\helpers\VarDumper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;

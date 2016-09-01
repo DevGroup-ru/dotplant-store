@@ -1,9 +1,9 @@
 <?php
 
-use DotPlant\Store\models\Goods;
-use DotPlant\Store\models\GoodsWarehouse;
-use DotPlant\Store\models\Warehouse;
-use DotPlant\Store\models\WarehouseTranslation;
+use DotPlant\Store\models\goods\Goods;
+use DotPlant\Store\models\warehouse\GoodsWarehouse;
+use DotPlant\Store\models\warehouse\Warehouse;
+use DotPlant\Store\models\warehouse\WarehouseTranslation;
 use yii\db\Migration;
 
 class m160901_072910_dotplant_store_warehouse_init extends Migration
@@ -17,6 +17,7 @@ class m160901_072910_dotplant_store_warehouse_init extends Migration
             Warehouse::tableName(),
             [
                 'id' => $this->primaryKey(),
+                'type' => $this->smallInteger()->notNull()->defaultValue(Warehouse::TYPE_WAREHOUSE),
                 'priority' => $this->smallInteger()->defaultValue(1),
             ],
             $tableOptions
