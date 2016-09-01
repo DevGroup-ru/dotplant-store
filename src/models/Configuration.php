@@ -58,6 +58,12 @@ class Configuration extends BaseConfigurationModel
                     ],
                 ],
             ],
+            'modules' => [
+                'store' => [
+                    'class' => Module::class,
+                    'layout' => '@app/views/layouts/admin',
+                ],
+            ],
         ];
     }
     /**
