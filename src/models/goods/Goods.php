@@ -1,6 +1,6 @@
 <?php
 
-namespace DotPlant\Store\models\product;
+namespace DotPlant\Store\models\goods;
 
 use DevGroup\DataStructure\behaviors\HasProperties;
 use DevGroup\DataStructure\traits\PropertiesTrait;
@@ -12,6 +12,7 @@ use DotPlant\Store\exceptions\GoodsException;
 use DotPlant\Store\interfaces\GoodsInterface;
 use DotPlant\Store\interfaces\GoodsTypesInterface;
 use DotPlant\Store\models\price\DummyPrice;
+use DotPlant\Store\models\price\Price;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -107,14 +108,14 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
      *
      * @var array
      */
-    private static $_productsMap = [
-        self::TYPE_PRODUCT => GoodsProduct::class,
-        self::TYPE_BUNDLE => GoodsBundle::class,
-        self::TYPE_SET => GoodsSet::class,
-        self::TYPE_PART => GoodsPart::class,
-        self::TYPE_OPTION => GoodsOption::class,
-        self::TYPE_SERVICE => GoodsService::class,
-        self::TYPE_FILE => GoodsFile::class,
+    private static $_goodsMap = [
+        self::TYPE_PRODUCT => Product::class,
+        self::TYPE_BUNDLE => Bundle::class,
+        self::TYPE_SET => Set::class,
+        self::TYPE_PART => Part::class,
+        self::TYPE_OPTION => Option::class,
+        self::TYPE_SERVICE => Service::class,
+        self::TYPE_FILE => File::class,
     ];
 
     /**
@@ -241,10 +242,10 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
     {
         return [
             'id' => Yii::t('dotplant.store', 'ID'),
-            'seller_id' => Yii::t('dotplant.store', 'Seller id'),
-            'vendor_id' => Yii::t('dotplant.store', 'Vendor id'),
-            'parent_id' => Yii::t('dotplant.store', 'Parent id'),
-            'main_structure_id' => Yii::t('dotplant.store', 'Main structure id'),
+            'seller_id' => Yii::t('dotplant.store', 'Seller'),
+            'vendor_id' => Yii::t('dotplant.store', 'Vendor'),
+            'parent_id' => Yii::t('dotplant.store', 'Parent'),
+            'main_structure_id' => Yii::t('dotplant.store', 'Main structure ID'),
             'type' => Yii::t('dotplant.store', 'Type'),
             'role' => Yii::t('dotplant.store', 'Role'),
             'sku' => Yii::t('dotplant.store', 'Sku'),
@@ -317,11 +318,12 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
                 Yii::t('dotplant.store', 'Attempting to create unknown type of goods')
             );
         }
-        $goodsClass = self::$_productsMap[$type];
+        $goodsClass = self::$_goodsMap[$type];
         /** @var Goods $goods */
         $goods = new $goodsClass;
         $goods->type = $type;
         if (null !== $goods->priceClass) {
+            /** @var Price $priceClass */
             $priceClass = $goods->priceClass;
             $goods->_price = $priceClass::create();
         } else {

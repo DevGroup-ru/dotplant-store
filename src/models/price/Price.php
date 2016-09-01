@@ -4,9 +4,7 @@ namespace DotPlant\Store\models\price;
 
 use DotPlant\EntityStructure\models\BaseStructure;
 use DotPlant\EntityStructure\models\Entity;
-use DotPlant\Store\interfaces\CalculatorInterface;
 use DotPlant\Store\interfaces\PriceInterface;
-use DotPlant\Store\models\product\Goods;
 use Yii;
 use yii\db\ActiveRecord;
 
@@ -80,8 +78,8 @@ class Price extends ActiveRecord implements PriceInterface
     {
         return [
             'id' => Yii::t('dotplant.store', 'ID'),
-            'entity_id' => Yii::t('dotplant.store', 'Entity id'),
-            'entity_model_id' => Yii::t('dotplant.store', 'Entity model id'),
+            'entity_id' => Yii::t('dotplant.store', 'Entity'),
+            'entity_model_id' => Yii::t('dotplant.store', 'Entity model'),
             'start_time' => Yii::t('dotplant.store', 'Start time'),
             'end_time' => Yii::t('dotplant.store', 'End time'),
             'is_percent' => Yii::t('dotplant.store', 'Is percent'),

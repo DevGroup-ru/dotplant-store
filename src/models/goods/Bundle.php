@@ -1,6 +1,6 @@
 <?php
 
-namespace DotPlant\Store\models\product;
+namespace DotPlant\Store\models\goods;
 
 use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SeoTrait;
@@ -10,7 +10,7 @@ use DevGroup\Entity\traits\SeoTrait;
  *
  * @package DotPlant\Store\models
  */
-class GoodsBundle extends Goods
+class Bundle extends Goods
 {
     use EntityTrait;
     use SeoTrait;

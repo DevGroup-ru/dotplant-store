@@ -2,7 +2,7 @@
 
 namespace DotPlant\Store\interfaces;
 use DotPlant\Store\exceptions\GoodsException;
-use DotPlant\Store\models\product\Goods;
+use DotPlant\Store\models\goods\Goods;
 
 /**
  * Interface CalculatorInterface

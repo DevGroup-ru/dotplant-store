@@ -1,16 +1,16 @@
 <?php
 
-namespace DotPlant\Store\models\product;
+namespace DotPlant\Store\models\goods;
 
 use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SeoTrait;
 
 /**
- * Class GoodsService
+ * Class GoodsProduct
  *
  * @package DotPlant\Store\models
  */
-class GoodsService extends Goods
+class Product extends Goods
 {
     use EntityTrait;
     use SeoTrait;

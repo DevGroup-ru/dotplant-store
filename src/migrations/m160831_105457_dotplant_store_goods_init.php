@@ -3,7 +3,7 @@
 use yii\db\Migration;
 use DotPlant\EntityStructure\models\BaseStructure;
 use DevGroup\DataStructure\helpers\PropertiesTableGenerator;
-use DotPlant\Store\models\product\Goods;
+use DotPlant\Store\models\goods\Goods;
 
 class m160831_105457_dotplant_store_goods_init extends Migration
 {
