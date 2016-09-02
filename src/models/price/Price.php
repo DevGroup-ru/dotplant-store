@@ -75,7 +75,7 @@ class Price extends ActiveRecord implements PriceInterface
     {
         /** @var Price | string $priceClass */
         $priceClass = get_called_class();
-        if (false === $priceClass instanceof Price) {
+        if (false === is_subclass_of($priceClass, Price::class)) {
             throw new PriceException(
                 Yii::t('dotplant.store', 'Attempting to get unknown price type')
             );
@@ -99,7 +99,6 @@ class Price extends ActiveRecord implements PriceInterface
         return $price;
     }
 
-
     /**
      * @inheritdoc
      */
@@ -116,4 +115,26 @@ class Price extends ActiveRecord implements PriceInterface
             'mode' => Yii::t('dotplant.store', 'Mode'),
         ];
     }
+
+
+    public static function convert($from, $to)
+    {
+        // TODO: Implement convert() method.
+    }
+
+    public static function format($price, $format)
+    {
+        // TODO: Implement format() method.
+    }
+
+    public function getPrice()
+    {
+        // TODO: Implement getPrice() method.
+    }
+
+    public function setPrice($price)
+    {
+        // TODO: Implement setPrice() method.
+    }
+
 }

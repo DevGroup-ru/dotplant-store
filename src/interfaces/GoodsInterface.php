@@ -3,6 +3,7 @@
 namespace DotPlant\Store\interfaces;
 use DotPlant\Store\models\goods\Goods;
 use DotPlant\Store\exceptions\GoodsException;
+use yii\web\NotFoundHttpException;
 
 /**
  * Interface GoodsInterface
@@ -19,4 +20,15 @@ interface GoodsInterface
      * @throws GoodsException
      */
     public static function create($type);
+
+    /**
+     * Returns properly instantiated Goods model if found
+     *
+     * @param int $id
+     * @return Goods
+     * @throws GoodsException
+     */
+    public static function get($id);
+
+    public function getPrice();
 }

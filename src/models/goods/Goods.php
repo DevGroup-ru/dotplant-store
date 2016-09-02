@@ -11,12 +11,14 @@ use DevGroup\TagDependencyHelper\TagDependencyTrait;
 use DotPlant\Store\exceptions\GoodsException;
 use DotPlant\Store\interfaces\GoodsInterface;
 use DotPlant\Store\interfaces\GoodsTypesInterface;
-use DotPlant\Store\models\price\DummyPrice;
 use DotPlant\Store\models\price\Price;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
+use yii\helpers\StringHelper;
+use yii\web\NotFoundHttpException;
 
 /**
  * This is the model class for table "{{%dotplant_goods}}".
@@ -49,60 +51,76 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
      *
      * @var null
      */
-    protected $_priceClass = null;
-    protected $_visibilityType = null;
+    protected $priceClass = null;
+    protected $visibilityType = null;
 
     /**
      * Whether can we apply measures for product
      *
      * @var bool | null
      */
-    protected $_isMeasurable = null;
+    protected $isMeasurable = null;
 
     /**
      * Whether can we download product
      *
      * @var bool | null
      */
-    protected $_isDownloadable = null;
+    protected $isDownloadable = null;
 
     /**
      * Whether can use product if filters or in search
      *
      * @var bool | null
      */
-    protected $_isFilterable = null;
+    protected $isFilterable = null;
 
     /**
      * Whether product is option
      *
      * @var bool | null
      */
-    protected $_isService = null;
+    protected $isService = null;
 
     /**
      * Whether product is option
      *
      * @var bool | null
      */
-    protected $_isOption = null;
+    protected $isOption = null;
 
     /**
      * Whether product is part
      *
      * @var bool | null
      */
-    protected $_isPart = null;
+    protected $isPart = null;
 
     /**
      * Whether product has options
      *
      * @var bool | null
      */
-    protected $_hasOptions = null;
+    protected $hasOptions = null;
 
     /** @var  Price | null */
-    protected $_price = null;
+    protected $price = null;
+
+    /**
+     * @inheritdoc
+     */
+    protected static $tablePrefix = 'dotplant_store_goods';
+
+    /**
+     * Workaround for DataStructureTools to store all goods properties it the one table set
+     *
+     * @return mixed
+     */
+    public static function getApplicableClass()
+    {
+        return self::class;
+    }
+
     /**
      * Type to class associations
      *
@@ -177,6 +195,11 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         return false;
     }
 
+    public function getPrice()
+    {
+        return $this->price;
+    }
+
     /**
      * @inheritdoc
      */
@@ -215,24 +238,19 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
             [
                 [
                     [
-                        'seller_id',
                         'vendor_id',
                         'parent_id',
                         'main_structure_id',
                         'type',
                         'role',
-                        'is_deleted',
-                        'created_at',
-                        'created_by',
-                        'updated_at',
-                        'updated_by'
                     ],
                     'integer'
                 ],
                 [['sku'], 'required'],
                 [['sku', 'inner_sku'], 'string', 'max' => 255],
             ],
-            $this->propertiesRules());
+            $this->propertiesRules()
+        );
     }
 
     /**
@@ -260,18 +278,19 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
 
     /**
      * Override safe attributes to include translation attributes
+     *
      * @return array
      */
     public function safeAttributes()
     {
         $t = new GoodsTranslation();
-        return ArrayHelper::merge(static::safeAttributes(), $t->safeAttributes());
+        return ArrayHelper::merge(parent::safeAttributes(), $t->safeAttributes());
     }
 
     /**
      * Override for filtering in grid
-     * @param string $attribute
      *
+     * @param string $attribute
      * @return bool
      */
     public function isAttributeActive($attribute)
@@ -311,7 +330,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
     /**
      * @inheritdoc
      */
-    public static function create($type = self::TYPE_PRODUCT)
+    public static function create($type)
     {
         if (false === isset(static::getTypes()[$type])) {
             throw new GoodsException(
@@ -322,15 +341,133 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         /** @var Goods $goods */
         $goods = new $goodsClass;
         $goods->type = $type;
-        if (null !== $goods->_priceClass) {
+        self::injectPriceObject($goods);
+        return $goods;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function get($id)
+    {
+        $goods = null;
+        $record = self::find()->where(['id' => $id])->asArray(true)->one();
+        if (null !== $record) {
+            $type = empty($record['role']) ? $record['type'] : $record['role'];
+            if (false === isset(self::$_goodsMap[$type])) {
+                throw new GoodsException(
+                    Yii::t('dotplant.store', 'Attempting to create unknown type of goods')
+                );
+            }
+            $productClass = self::$_goodsMap[$type];
+            /** @var self $model */
+            $goods = new $productClass;
+            self::populateRecord($goods, $record);
+            self::injectPriceObject($goods);
+        }
+        return $goods;
+    }
+
+    /**
+     * Injects according Price object into Goods model for further calculations
+     *
+     * @param $goods
+     * @throws GoodsException
+     * @throws \DotPlant\Store\exceptions\PriceException
+     */
+    private static function injectPriceObject($goods)
+    {
+        if (null !== $goods->priceClass) {
             /** @var Price $priceClass */
-            $priceClass = $goods->_priceClass;
-            $goods->_price = $priceClass::create($goods);
+            $priceClass = $goods->priceClass;
+            $goods->price = $priceClass::create($goods);
         } else {
             throw new GoodsException(
                 Yii::t('dotplant.store', '\'priceClass\' property myst be valid heir of Price')
             );
         }
-        return $goods;
+    }
+
+    /**
+     * Finds models
+     *
+     * @param $params
+     * @return ActiveDataProvider
+     */
+    public function search($params)
+    {
+        /* @var $query ActiveQuery */
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query = static::find(),
+            'pagination' => [
+                //TODO configure it
+                'pageSize' => 15
+            ],
+        ]);
+        if (null != $this->parent_id) {
+            $query->andWhere(['parent_id' => $this->parent_id]);
+        }
+        $dataProvider->sort->attributes['name'] = [
+            'asc' => [GoodsTranslation::tableName() . '.name' => SORT_ASC],
+            'desc' => [GoodsTranslation::tableName() . '.name' => SORT_DESC],
+        ];
+        $dataProvider->sort->attributes['title'] = [
+            'asc' => [GoodsTranslation::tableName() . '.title' => SORT_ASC],
+            'desc' => [GoodsTranslation::tableName() . '.title' => SORT_DESC],
+        ];
+        $dataProvider->sort->attributes['is_active'] = [
+            'asc' => [GoodsTranslation::tableName() . '.is_active' => SORT_ASC],
+            'desc' => [GoodsTranslation::tableName() . '.is_active' => SORT_DESC],
+        ];
+        $dataProvider->sort->attributes['slug'] = [
+            'asc' => [GoodsTranslation::tableName() . '.slug' => SORT_ASC],
+            'desc' => [GoodsTranslation::tableName() . '.slug' => SORT_DESC],
+        ];
+        if (false === $this->load($params)) {
+            return $dataProvider;
+        }
+        $query->andFilterWhere(['id' => $this->id]);
+        $query->andFilterWhere(['is_deleted' => $this->is_deleted]);
+        $translation = new GoodsTranslation();
+        if (false === $translation->load(static::fetchParams($params, static::class, $translation))) {
+            return $dataProvider;
+        }
+        $query->andFilterWhere(['like', GoodsTranslation::tableName() . '.name', $this->name]);
+        $query->andFilterWhere(['like', GoodsTranslation::tableName() . '.title', $this->title]);
+        $query->andFilterWhere(['like', GoodsTranslation::tableName() . '.h1', $this->h1]);
+        $query->andFilterWhere(['like', GoodsTranslation::tableName() . '.slug', $this->slug]);
+        $query->andFilterWhere([GoodsTranslation::tableName() . '.is_active' => $this->is_active]);
+        return $dataProvider;
+    }
+
+    /**
+     * Workaround to have ability use Model::load() method instead assigning values from request by hand
+     *
+     * @param array $params
+     * @param string $fromClass class name
+     * @param ActiveRecord $toModel
+     * @return array
+     */
+    public static function fetchParams($params, $fromClass, $toModel)
+    {
+        if (true === empty($params)
+            || false === class_exists($fromClass)
+            || false === $toModel instanceof ActiveRecord
+        ) {
+            return [];
+        }
+        $outParams = [];
+        $toClass = get_class($toModel);
+        $fromName = array_pop(explode('\\', $fromClass));
+        $toName = array_pop(explode('\\', $toClass));
+        if (true === isset($params[$fromName])) {
+            foreach ($params[$fromName] as $key => $value) {
+                if (true === in_array($key, $toModel->attributes())) {
+                    $outParams[$toName][$key] = $value;
+                }
+            }
+        }
+        return $outParams;
     }
 }

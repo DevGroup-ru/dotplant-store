@@ -9,13 +9,13 @@ namespace DotPlant\Store\interfaces;
  */
 interface GoodsTypesInterface
 {
-    const TYPE_PRODUCT = 0;
-    const TYPE_BUNDLE = 1;
-    const TYPE_SET = 2;
-    const TYPE_PART = 3;
-    const TYPE_OPTION = 4;
-    const TYPE_SERVICE = 5;
-    const TYPE_FILE = 6;
+    const TYPE_PRODUCT = 1;
+    const TYPE_BUNDLE = 2;
+    const TYPE_SET = 3;
+    const TYPE_PART = 4;
+    const TYPE_OPTION = 5;
+    const TYPE_SERVICE = 6;
+    const TYPE_FILE = 7;
 
     /**
      * Returns all acceptable product types

@@ -16,14 +16,14 @@ class Option extends Goods
     use EntityTrait;
     use SeoTrait;
 
-    public $_priceClass = OptionPrice::class;
+    protected $priceClass = OptionPrice::class;
 
-    public $_visibilityType = null;
-    public $_isMeasurable = null;
-    public $_isDownloadable = null;
-    public $_isFilterable = null;
-    public $_isService = null;
-    public $_isOption = null;
-    public $_isPart = null;
-    public $_hasOptions = null;
+    protected $visibilityType = null;
+    protected $isMeasurable = null;
+    protected $isDownloadable = null;
+    protected $isFilterable = null;
+    protected $isService = null;
+    protected $isOption = null;
+    protected $isPart = null;
+    protected $hasOptions = null;
 }
