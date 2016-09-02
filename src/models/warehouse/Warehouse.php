@@ -4,22 +4,36 @@ namespace DotPlant\Store\models\warehouse;
 
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
+use DotPlant\Store\interfaces\WarehouseInterface;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "{{%dotplant_store_warehouse}}".
+ *
+ * @todo: Add indexes for all queries
  *
  * @property integer $id
  * @property integer $type
  * @property integer $priority
  */
-class Warehouse extends \yii\db\ActiveRecord
+class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
 {
     use MultilingualTrait;
 
     const TYPE_WAREHOUSE = 1;
     const TYPE_SELLER = 2;
+
+    const STATUS_IN_STOCK = 1;
+    const STATUS_BY_REQUEST = 2;
+    const STATUS_OUT_OF_STOCK = 3;
+
+    private static $_typesMap = [
+        self::TYPE_WAREHOUSE => TypeWarehouse::class,
+        self::TYPE_SELLER => TypeSeller::class,
+    ];
 
     public static function getTypes()
     {
@@ -28,6 +42,92 @@ class Warehouse extends \yii\db\ActiveRecord
             self::TYPE_SELLER => Yii::t('dotplant.store', 'Seller'),
         ];
     }
+
+    /**
+     * =================================================================================================================
+     */
+
+    /**
+     * @inheritdoc
+     */
+    public static function getWarehouses($goodsId, $asArray = true, $allowedOnly = true)
+    {
+        $warehouses = static::find()
+            ->indexBy('id')
+            ->orderBy('priority')
+            ->asArray(true)
+            ->all(); // @todo: cache it. It will be used for any query
+        $warehouseIds = array_keys($warehouses);
+        $condition = ['goods_id' => $goodsId, 'warehouse_id' => $warehouseIds];
+        if ($allowedOnly) {
+            $condition['is_allowed'] = 1;
+        }
+        $goodsWarehouses = GoodsWarehouse::find()
+            ->where($condition)
+            ->indexBy('warehouse_id')
+            ->orderBy(new Expression('FIELD(warehouse_id, ' . implode(', ', $warehouseIds) . ')'))
+            ->asArray(true)
+            ->all();
+        if ($asArray) {
+            return $goodsWarehouses;
+        }
+        foreach ($goodsWarehouses as $warehouseId => $goodsWarehouse) {
+            // @todo: refactor it. Split all rows by types and populate it as batch
+            if (isset(self::$_typesMap[$warehouses[$warehouseId]['type']])) {
+                $activeQuery = new ActiveQuery(self::$_typesMap[$warehouses[$warehouseId]['type']]);
+                $records = $activeQuery->populate([$goodsWarehouse]);
+                $goodsWarehouses[$warehouseId] = $records[0];
+            }
+        }
+        return $goodsWarehouses;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function isAvailable($goodsId)
+    {
+        return static::getStatusCode($goodsId) !== self::STATUS_OUT_OF_STOCK;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function getStatusCode($goodsId)
+    {
+        $row = GoodsWarehouse::find()
+            ->select(['is_unlimited', 'available_count'])
+            ->where(['goods_id' => $goodsId, 'is_allowed' => 1])
+            ->orderBy(['is_unlimited' => SORT_DESC, 'available_count' => SORT_DESC])
+            ->limit(1)
+            ->asArray(true)
+            ->one();
+        if ($row === null) {
+            return self::STATUS_OUT_OF_STOCK;
+        }
+        return $row['is_unlimited'] == 0 || $row['available_count'] > 0
+            ? self::STATUS_IN_STOCK
+            : self::STATUS_BY_REQUEST;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function getMinPrice($goodsId, $isRetailPrice = true)
+    {
+        $priceField = $isRetailPrice ? 'retail_price' : 'wholesale_price';
+        return GoodsWarehouse::find()
+            ->select([new Expression('MIN(`' . $priceField . '`) AS `price`'), 'currency_iso_code'])
+            ->where(['goods_id' => $goodsId, 'is_allowed' => 1])
+            ->groupBy('currency_iso_code')
+            ->orderBy([$priceField => SORT_ASC])
+            ->asArray(true)
+            ->all();
+    }
+
+    /**
+     * =================================================================================================================
+     */
 
     /**
      * @inheritdoc

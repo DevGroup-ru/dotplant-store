@@ -20,7 +20,7 @@ class m160901_114152_dotplant_store_add_warehouse_to_menu extends Migration
                     'sort_order' => 0,
                     'rbac_check' => 'backend-view',
                     'css_class' => '',
-                    'route' => '',
+                    'route' => '/store/warehouses-manage',
                     'translation_category' => 'dotplant.store',
                     'added_by_ext' => 'store',
                 ]

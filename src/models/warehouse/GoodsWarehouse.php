@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\models\warehouse;
 
+use DotPlant\Store\models\goods\Goods;
 use Yii;
 
 /**
@@ -61,14 +62,14 @@ class GoodsWarehouse extends \yii\db\ActiveRecord
         return [
             'goods_id' => Yii::t('dotplant.store', 'Goods ID'),
             'warehouse_id' => Yii::t('dotplant.store', 'Warehouse ID'),
-            'currency_iso_code' => Yii::t('dotplant.store', 'Currency Iso Code'),
-            'seller_price' => Yii::t('dotplant.store', 'Seller Price'),
-            'retail_price' => Yii::t('dotplant.store', 'Retail Price'),
-            'wholesale_price' => Yii::t('dotplant.store', 'Wholesale Price'),
-            'available_count' => Yii::t('dotplant.store', 'Available Count'),
-            'reserved_count' => Yii::t('dotplant.store', 'Reserved Count'),
-            'is_unlimited' => Yii::t('dotplant.store', 'Is Unlimited'),
-            'is_allowed' => Yii::t('dotplant.store', 'Is Allowed'),
+            'currency_iso_code' => Yii::t('dotplant.store', 'Currency iso code'),
+            'seller_price' => Yii::t('dotplant.store', 'Seller price'),
+            'retail_price' => Yii::t('dotplant.store', 'Retail price'),
+            'wholesale_price' => Yii::t('dotplant.store', 'Wholesale price'),
+            'available_count' => Yii::t('dotplant.store', 'Available count'),
+            'reserved_count' => Yii::t('dotplant.store', 'Reserved count'),
+            'is_unlimited' => Yii::t('dotplant.store', 'Is unlimited'),
+            'is_allowed' => Yii::t('dotplant.store', 'Is allowed'),
         ];
     }
 }
