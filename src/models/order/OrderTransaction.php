@@ -38,6 +38,8 @@ class OrderTransaction extends \yii\db\ActiveRecord
             [['sum'], 'number'],
             [['packed_json_data', 'packed_json_result'], 'string'],
             [['currency_iso_code'], 'string', 'max' => 3],
+            [['payment_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStorePayment::className(), 'targetAttribute' => ['payment_id' => 'id']],
+            [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreOrder::className(), 'targetAttribute' => ['order_id' => 'id']],
         ];
     }
 

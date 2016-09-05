@@ -8,6 +8,7 @@ use Yii;
  * This is the model class for table "{{%dotplant_store_cart}}".
  *
  * @property integer $id
+ * @property integer $context_id
  * @property integer $is_locked
  * @property integer $is_retail
  * @property string $currency_iso_code
@@ -34,8 +35,8 @@ class Cart extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['is_locked', 'is_retail', 'created_by', 'created_at', 'updated_at'], 'integer'],
-            [['currency_iso_code'], 'required'],
+            [['context_id', 'currency_iso_code'], 'required'],
+            [['context_id', 'is_locked', 'is_retail', 'created_by', 'created_at', 'updated_at'], 'integer'],
             [['items_count', 'total_price_with_discount', 'total_price_without_discount'], 'number'],
             [['currency_iso_code'], 'string', 'max' => 3],
         ];
@@ -48,6 +49,7 @@ class Cart extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('dotplant.store', 'ID'),
+            'context_id' => Yii::t('dotplant.store', 'Context ID'),
             'is_locked' => Yii::t('dotplant.store', 'Is Locked'),
             'is_retail' => Yii::t('dotplant.store', 'Is Retail'),
             'currency_iso_code' => Yii::t('dotplant.store', 'Currency Iso Code'),

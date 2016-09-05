@@ -32,6 +32,7 @@ class DeliveryTranslation extends \yii\db\ActiveRecord
             [['model_id', 'language_id'], 'integer'],
             [['description'], 'string'],
             [['name'], 'string', 'max' => 255],
+            [['model_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreDelivery::className(), 'targetAttribute' => ['model_id' => 'id']],
         ];
     }
 

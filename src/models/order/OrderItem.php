@@ -36,6 +36,10 @@ class OrderItem extends \yii\db\ActiveRecord
             [['cart_id', 'order_id', 'goods_id', 'warehouse_id'], 'required'],
             [['cart_id', 'order_id', 'goods_id', 'warehouse_id'], 'integer'],
             [['quantity', 'total_price_with_discount', 'total_price_without_discount', 'seller_price'], 'number'],
+            [['warehouse_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreWarehouse::className(), 'targetAttribute' => ['warehouse_id' => 'id']],
+            [['cart_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreCart::className(), 'targetAttribute' => ['cart_id' => 'id']],
+            [['goods_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreGoods::className(), 'targetAttribute' => ['goods_id' => 'id']],
+            [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreOrder::className(), 'targetAttribute' => ['order_id' => 'id']],
         ];
     }
 

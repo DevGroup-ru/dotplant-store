@@ -31,7 +31,8 @@ class m160904_143215_dotplant_store_order_init extends Migration
         $this->createTable(
             Delivery::tableName(),
             [
-                'id' => $this->unsignedPrimaryKey($length = null),
+                'id' => $this->unsignedPrimaryKey(),
+                'context_id' => $this->integer()->unsigned()->notNull(),
                 'handler_class_name' => $this->string(255),
                 'packed_json_handler_params' => $this->text(),
                 'sort_order' => $this->integer()->defaultValue(1),
@@ -50,18 +51,27 @@ class m160904_143215_dotplant_store_order_init extends Migration
             $tableOptions
         );
         $this->addPrimaryKey(
-            'pk-dotplant_store_delivery_translation',
+            'pk-dotplant_store_delivery_translation-model_id-language_id',
             DeliveryTranslation::tableName(),
             ['model_id', 'language_id']
         );
-        // @todo: add fk to main table
+        $this->addForeignKey(
+            'fk-dotplant_store_delivery_translation-model_id-delivery-id',
+            DeliveryTranslation::tableName(),
+            'model_id',
+            Delivery::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
         /**
          * Payment
          */
         $this->createTable(
             Payment::tableName(),
             [
-                'id' => $this->unsignedPrimaryKey($length = null),
+                'id' => $this->unsignedPrimaryKey(),
+                'context_id' => $this->integer()->unsigned()->notNull(),
                 'handler_class_name' => $this->string(255),
                 'packed_json_handler_params' => $this->text(),
                 'sort_order' => $this->integer()->defaultValue(1),
@@ -80,9 +90,18 @@ class m160904_143215_dotplant_store_order_init extends Migration
             $tableOptions
         );
         $this->addPrimaryKey(
-            'pk-dotplant_store_payment_translation',
+            'pk-dotplant_store_payment_translation-model_id-language_id',
             PaymentTranslation::tableName(),
             ['model_id', 'language_id']
+        );
+        $this->addForeignKey(
+            'fk-dotplant_store_payment_translation-model_id-payment-id',
+            PaymentTranslation::tableName(),
+            'model_id',
+            Payment::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
         );
         /**
          * Order status
@@ -90,7 +109,8 @@ class m160904_143215_dotplant_store_order_init extends Migration
         $this->createTable(
             OrderStatus::tableName(),
             [
-                'id' => $this->unsignedPrimaryKey($length = null),
+                'id' => $this->unsignedPrimaryKey(),
+                'context_id' => $this->integer()->unsigned()->notNull(),
                 'label_class' => $this->string(255),
                 'is_active' => $this->boolean()->notNull()->defaultValue(true),
             ],
@@ -108,18 +128,27 @@ class m160904_143215_dotplant_store_order_init extends Migration
             $tableOptions
         );
         $this->addPrimaryKey(
-            'pk-dotplant_store_order_status_translation',
+            'pk-dotplant_store_order_status_translation-model_id-language_id',
             OrderStatusTranslation::tableName(),
             ['model_id', 'language_id']
         );
-        // @todo: add fk to main table
+        $this->addForeignKey(
+            'fk-dotplant_store_order_status_translation-order_status',
+            OrderStatusTranslation::tableName(),
+            'model_id',
+            OrderStatus::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
         /**
          * Cart
          */
         $this->createTable(
             Cart::tableName(),
             [
-                'id' => $this->unsignedPrimaryKey($length = null),
+                'id' => $this->unsignedPrimaryKey(),
+                'context_id' => $this->integer()->unsigned()->notNull(),
                 'is_locked' => $this->boolean()->notNull()->defaultValue(false),
                 'is_retail' => $this->boolean()->notNull()->defaultValue(true),
                 'currency_iso_code' => $this->char(3)->notNull(),
@@ -138,7 +167,8 @@ class m160904_143215_dotplant_store_order_init extends Migration
         $this->createTable(
             Order::tableName(),
             [
-                'id' => $this->unsignedPrimaryKey($length = null),
+                'id' => $this->unsignedPrimaryKey(),
+                'context_id' => $this->integer()->unsigned()->notNull(),
                 'status_id' => $this->integer()->unsigned()->notNull(),
                 'delivery_id' => $this->integer()->unsigned()->notNull(),
                 'payment_id' => $this->integer()->unsigned()->notNull(),
@@ -167,6 +197,35 @@ class m160904_143215_dotplant_store_order_init extends Migration
             'hash',
             true
         );
+        $this->addForeignKey(
+            'fk-dotplant_store_order-status_id-order_status-id',
+            Order::tableName(),
+            'status_id',
+            OrderStatus::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+        $this->addForeignKey(
+            'fk-dotplant_store_order-delivery_id-delivery-id',
+            Order::tableName(),
+            'delivery_id',
+            Delivery::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+        $this->addForeignKey(
+            'fk-dotplant_store_order-payment_id-payment-id',
+            Order::tableName(),
+            'payment_id',
+            Payment::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+        // @todo: fk to manager
+        // @todo: fk to promocode
         /**
          * Order item
          */
@@ -185,10 +244,42 @@ class m160904_143215_dotplant_store_order_init extends Migration
             ],
             $tableOptions
         );
-        // @todo: fk to cart table
-        // @todo: fk to order table
-        // @todo: fk to goods table
-        // @todo: fk to warehouse table
+        $this->addForeignKey(
+            'fk-dotplant_store_order_item-cart_id-cart-id',
+            OrderItem::tableName(),
+            'cart_id',
+            Cart::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+        $this->addForeignKey(
+            'fk-dotplant_store_order_item-order_id-order-id',
+            OrderItem::tableName(),
+            'order_id',
+            Order::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+        $this->addForeignKey(
+            'fk-dotplant_store_order_item-goods_id-goods-id',
+            OrderItem::tableName(),
+            'goods_id',
+            \DotPlant\Store\models\goods\Goods::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+        $this->addForeignKey(
+            'fk-dotplant_store_order_item-warehouse_id-warehouse-id',
+            OrderItem::tableName(),
+            'warehouse_id',
+            \DotPlant\Store\models\warehouse\Warehouse::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
         /**
          * Order transaction
          */
@@ -207,8 +298,24 @@ class m160904_143215_dotplant_store_order_init extends Migration
             ],
             $tableOptions
         );
-        // @todo: fk to order table
-        // @todo: fk to payment table
+        $this->addForeignKey(
+            'fk-dotplant_store_order_transaction-order_id-order-id',
+            OrderTransaction::tableName(),
+            'order_id',
+            Order::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+        $this->addForeignKey(
+            'fk-dotplant_store_order_transaction-order_id-payment-id',
+            OrderTransaction::tableName(),
+            'payment_id',
+            Payment::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
         /**
          * Order delivery information
          */
@@ -216,6 +323,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
             OrderDeliveryInformation::tableName(),
             [
                 'id' => $this->unsignedPrimaryKey(),
+                'context_id' => $this->integer()->unsigned()->notNull(),
                 'order_id' => $this->integer()->unsigned()->notNull(),
                 'user_id' => $this->integer()->notNull(),
                 'country_id' => $this->integer(),
@@ -226,13 +334,38 @@ class m160904_143215_dotplant_store_order_init extends Migration
             ],
             $tableOptions
         );
-        // @todo: fk to order table
-        // @todo: fk to user table
+        $this->addForeignKey(
+            'fk-dotplant_store_order_delivery_information-order_id-order-id',
+            OrderDeliveryInformation::tableName(),
+            'order_id',
+            Order::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+        $this->addForeignKey(
+            'fk-dotplant_store_order_delivery_information-user_id-user-id',
+            OrderDeliveryInformation::tableName(),
+            'user_id',
+            \DevGroup\Users\models\User::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
     }
 
     public function down()
     {
-        echo "m160904_143215_dotplant_store_order_init cannot be reverted.\n";
-        return false;
+        $this->dropTable(OrderDeliveryInformation::tableName());
+        $this->dropTable(OrderTransaction::tableName());
+        $this->dropTable(OrderItem::tableName());
+        $this->dropTable(Order::tableName());
+        $this->dropTable(Cart::tableName());
+        $this->dropTable(OrderStatusTranslation::tableName());
+        $this->dropTable(OrderStatus::tableName());
+        $this->dropTable(PaymentTranslation::tableName());
+        $this->dropTable(Payment::tableName());
+        $this->dropTable(DeliveryTranslation::tableName());
+        $this->dropTable(Delivery::tableName());
     }
 }

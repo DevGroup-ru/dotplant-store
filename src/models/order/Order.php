@@ -8,6 +8,7 @@ use Yii;
  * This is the model class for table "{{%dotplant_store_order}}".
  *
  * @property integer $id
+ * @property integer $context_id
  * @property integer $status_id
  * @property integer $delivery_id
  * @property integer $payment_id
@@ -44,13 +45,16 @@ class Order extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['status_id', 'delivery_id', 'payment_id', 'currency_iso_code', 'hash'], 'required'],
-            [['status_id', 'delivery_id', 'payment_id', 'is_retail', 'manager_id', 'promocode_id', 'created_by', 'created_at', 'updated_by', 'updated_at', 'forming_time'], 'integer'],
+            [['context_id', 'status_id', 'delivery_id', 'payment_id', 'currency_iso_code', 'hash'], 'required'],
+            [['context_id', 'status_id', 'delivery_id', 'payment_id', 'is_retail', 'manager_id', 'promocode_id', 'created_by', 'created_at', 'updated_by', 'updated_at', 'forming_time'], 'integer'],
             [['items_count', 'total_price_with_discount', 'total_price_without_discount', 'promocode_discount', 'rate_to_main_currency'], 'number'],
             [['currency_iso_code'], 'string', 'max' => 3],
             [['promocode_name'], 'string', 'max' => 255],
             [['hash'], 'string', 'max' => 32],
             [['hash'], 'unique'],
+            [['payment_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStorePayment::className(), 'targetAttribute' => ['payment_id' => 'id']],
+            [['delivery_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreDelivery::className(), 'targetAttribute' => ['delivery_id' => 'id']],
+            [['status_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreOrderStatus::className(), 'targetAttribute' => ['status_id' => 'id']],
         ];
     }
 
@@ -61,6 +65,7 @@ class Order extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('dotplant.store', 'ID'),
+            'context_id' => Yii::t('dotplant.store', 'Context ID'),
             'status_id' => Yii::t('dotplant.store', 'Status ID'),
             'delivery_id' => Yii::t('dotplant.store', 'Delivery ID'),
             'payment_id' => Yii::t('dotplant.store', 'Payment ID'),
