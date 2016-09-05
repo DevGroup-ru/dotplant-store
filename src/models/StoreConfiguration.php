@@ -5,7 +5,7 @@ namespace DotPlant\Store\models;
 use DevGroup\ExtensionsManager\models\BaseConfigurationModel;
 use DotPlant\Store\Module;
 
-class Configuration extends BaseConfigurationModel
+class StoreConfiguration extends BaseConfigurationModel
 {
     /**
      * @inheritdoc

@@ -10,9 +10,6 @@ use Yii;
 /**
  * Class Order
  *
- * @todo: set created_by for cart model after login
- * @todo: set created_by for order model after login
- *
  * @package DotPlant\Store\components
  */
 class Order
@@ -25,7 +22,7 @@ class Order
         $model->loadDefaultValues();
         $model->context_id = Yii::$app->multilingual->context_id;
         $model->created_by = Yii::$app->user->id;
-        $model->currency_iso_code = CurrencyHelper::getUserCurrency()->iso_code; // @todo: get user currency iso code
+        $model->currency_iso_code = CurrencyHelper::getUserCurrency()->iso_code;
         if (!$model->save()) {
             throw new OrderException(Yii::t('dotplant.store', 'Can not create a new cart'));
         }

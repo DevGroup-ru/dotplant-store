@@ -43,8 +43,10 @@ class CartController extends \yii\web\Controller
 
     public function actionClear()
     {
-        $model = Order::getCart();
-        $model->clear();
+        $model = Order::getCart(false);
+        if ($model !== null) {
+            $model->clear();
+        }
         Yii::$app->session->setFlash('success', Yii::t('dotlant.store', 'Cart has been cleared'));
         return $this->redirect(Yii::$app->request->referrer);
     }

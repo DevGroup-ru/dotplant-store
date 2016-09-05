@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c3b9461839620915a352633ebd2c3e03",
-    "content-hash": "78a7ee7806f8ee3eb935075535b2f3a8",
+    "hash": "ae708bf0731c4a9ecb69b0225b379bbd",
+    "content-hash": "67736a4f15690d010a205cadfbe1ee9b",
     "packages": [
         {
             "name": "arogachev/yii2-sortable",
@@ -919,6 +919,63 @@
             "time": "2016-09-04 14:52:27"
         },
         {
+            "name": "devgroup/yii2-users-module",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DevGroup-ru/yii2-users-module.git",
+                "reference": "fc083752fd43b4b0a210117a0df2949d2c9eaf07"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DevGroup-ru/yii2-users-module/zipball/fc083752fd43b4b0a210117a0df2949d2c9eaf07",
+                "reference": "fc083752fd43b4b0a210117a0df2949d2c9eaf07",
+                "shasum": ""
+            },
+            "require": {
+                "devgroup/yii2-admin-utils": "dev-master",
+                "devgroup/yii2-data-structure-tools": "*",
+                "devgroup/yii2-frontend-utils": "dev-master",
+                "devgroup/yii2-tag-dependency-helper": "^1.3.0",
+                "php": ">=5.5",
+                "yiisoft/yii2": "^2.0.6",
+                "yiisoft/yii2-authclient": "^2.0.5"
+            },
+            "require-dev": {
+                "devgroup/dotplant-dev": "*"
+            },
+            "type": "yii2-extension",
+            "extra": {
+                "yii2-extension": {
+                    "name": "Users module",
+                    "name_ru": "Модуль пользователей",
+                    "description_ru": "Модуль пользователей и RBAC для yii2"
+                },
+                "migrationPath": [
+                    "src/migrations"
+                ],
+                "configurables": "src/configurables.php",
+                "translationCategory": "users",
+                "bootstrap": "DevGroup\\Users\\Bootstrap"
+            },
+            "autoload": {
+                "psr-4": {
+                    "DevGroup\\Users\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Yii2 users and rbac module",
+            "keywords": [
+                "Users",
+                "rbac",
+                "yii2"
+            ],
+            "time": "2016-08-29 12:06:36"
+        },
+        {
             "name": "dmstr/yii2-migrate-command",
             "version": "0.3.1",
             "source": {
@@ -1031,12 +1088,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/DevGroup-ru/dotplant-currencies.git",
-                "reference": "a03240937ac370a37fed3afa2baebccb9685084e"
+                "reference": "02c8c9dfe74569ceb1965d5fcc8e57905d80f3dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DevGroup-ru/dotplant-currencies/zipball/a03240937ac370a37fed3afa2baebccb9685084e",
-                "reference": "a03240937ac370a37fed3afa2baebccb9685084e",
+                "url": "https://api.github.com/repos/DevGroup-ru/dotplant-currencies/zipball/02c8c9dfe74569ceb1965d5fcc8e57905d80f3dd",
+                "reference": "02c8c9dfe74569ceb1965d5fcc8e57905d80f3dd",
                 "shasum": ""
             },
             "require": {
@@ -1072,7 +1129,7 @@
                 }
             ],
             "description": "DotPlant currencies subsystem",
-            "time": "2016-09-05 13:22:01"
+            "time": "2016-09-05 13:57:06"
         },
         {
             "name": "dotplant/entity-structure",
@@ -1080,12 +1137,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/DevGroup-ru/dotplant-entity-structure.git",
-                "reference": "41da96247897c80ce8c73f68b279bf660e94973b"
+                "reference": "42586e1969dd5e896ce60a9334886b9826f855d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DevGroup-ru/dotplant-entity-structure/zipball/41da96247897c80ce8c73f68b279bf660e94973b",
-                "reference": "41da96247897c80ce8c73f68b279bf660e94973b",
+                "url": "https://api.github.com/repos/DevGroup-ru/dotplant-entity-structure/zipball/42586e1969dd5e896ce60a9334886b9826f855d9",
+                "reference": "42586e1969dd5e896ce60a9334886b9826f855d9",
                 "shasum": ""
             },
             "require": {
@@ -1137,7 +1194,7 @@
                 "structure",
                 "yii2"
             ],
-            "time": "2016-09-05 08:28:37"
+            "time": "2016-09-05 13:46:11"
         },
         {
             "name": "egeloen/http-adapter",
@@ -2559,6 +2616,54 @@
             "time": "2016-09-05 11:49:16"
         },
         {
+            "name": "yiisoft/yii2-authclient",
+            "version": "2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yiisoft/yii2-authclient.git",
+                "reference": "5ed7ebfda270d87197f7640b2a9c046297080cac"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yiisoft/yii2-authclient/zipball/5ed7ebfda270d87197f7640b2a9c046297080cac",
+                "reference": "5ed7ebfda270d87197f7640b2a9c046297080cac",
+                "shasum": ""
+            },
+            "require": {
+                "yiisoft/yii2-httpclient": "~2.0.1"
+            },
+            "type": "yii2-extension",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "yii\\authclient\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Paul Klimov",
+                    "email": "klimov.paul@gmail.com"
+                }
+            ],
+            "description": "External authentication via OAuth and OpenID for the Yii framework",
+            "keywords": [
+                "OpenId",
+                "api",
+                "auth",
+                "oauth",
+                "yii2"
+            ],
+            "time": "2016-08-29 09:21:09"
+        },
+        {
             "name": "yiisoft/yii2-bootstrap",
             "version": "dev-master",
             "source": {
@@ -2654,6 +2759,53 @@
                 "yii2"
             ],
             "time": "2016-06-05 20:34:32"
+        },
+        {
+            "name": "yiisoft/yii2-httpclient",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yiisoft/yii2-httpclient.git",
+                "reference": "1cf89e11d543a03a69573077f7a52c92e1145e0a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yiisoft/yii2-httpclient/zipball/1cf89e11d543a03a69573077f7a52c92e1145e0a",
+                "reference": "1cf89e11d543a03a69573077f7a52c92e1145e0a",
+                "shasum": ""
+            },
+            "require": {
+                "yiisoft/yii2": "~2.0.0"
+            },
+            "type": "yii2-extension",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "yii\\httpclient\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Paul Klimov",
+                    "email": "klimov.paul@gmail.com"
+                }
+            ],
+            "description": "HTTP client extension for the Yii framework",
+            "keywords": [
+                "curl",
+                "http",
+                "httpclient",
+                "yii2"
+            ],
+            "time": "2016-09-03 19:36:23"
         },
         {
             "name": "yiisoft/yii2-jui",
@@ -2762,7 +2914,8 @@
     "stability-flags": {
         "devgroup/yii2-extensions-manager": 20,
         "dotplant/entity-structure": 20,
-        "dotplant/currencies": 20
+        "dotplant/currencies": 20,
+        "devgroup/yii2-users-module": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
