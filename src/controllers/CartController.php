@@ -5,13 +5,20 @@ namespace DotPlant\Store\controllers;
 use DotPlant\Store\components\Order;
 use Yii;
 
+/**
+ * Class CartController
+ *
+ * @todo: Add a parameters check for all actions
+ *
+ * @package DotPlant\Store\controllers
+ */
 class CartController extends \yii\web\Controller
 {
     public function actionAdd()
     {
         $goodsId = Yii::$app->request->post('goodsId');
         $quantity = Yii::$app->request->post('quantity');
-        $warehouseId = Yii::$app->request->post('warehouseId');
+        $warehouseId = Yii::$app->request->post('warehouseId'); // This parameter is not required.
         try {
             $model = Order::getCart();
             $model->addItem($goodsId, $quantity, $warehouseId);

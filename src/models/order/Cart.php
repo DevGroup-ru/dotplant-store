@@ -76,6 +76,9 @@ class Cart extends ActiveRecord
     public function addItem($goodsId, $quantity, $warehouseId)
     {
         $this->checkLock();
+        if ($quantity <= 0) {
+            throw new OrderException(Yii::t('dotplant.store', 'The quantity must be more than zero'));
+        }
         $item = $this->findItem(
             [
                 'cart_id' => $this->id,
@@ -102,7 +105,7 @@ class Cart extends ActiveRecord
     public function changeItemQuantity($id, $quantity)
     {
         $this->checkLock();
-        $item = $this->findItem($id);
+        $item = $this->findItem(['id' => $id, 'cart_id' => $this->id]);
         if ($quantity > 0) {
             $item->quantity = $quantity;
         } else {
@@ -114,7 +117,7 @@ class Cart extends ActiveRecord
     public function removeItem($id)
     {
         $this->checkLock();
-        $item = $this->findItem($id);
+        $item = $this->findItem(['id' => $id, 'cart_id' => $this->id]);
         $item->delete();
         // @todo: Recalculate cart total price and discount
     }

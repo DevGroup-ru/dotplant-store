@@ -24,9 +24,8 @@ class Order
         $model->loadDefaultValues();
         $model->context_id = Yii::$app->multilingual->context_id;
         $model->created_by = Yii::$app->user->id;
-        $model->currency_iso_code = 'XYZ'; // @todo: get user currency iso code
+        $model->currency_iso_code = CurrencyHelper::getUserCurrency()->iso_code; // @todo: get user currency iso code
         if (!$model->save()) {
-            var_dump($model->errors);die;
             throw new OrderException(Yii::t('dotplant.store', 'Can not create a new cart'));
         }
         Yii::$app->session->set(self::CART_SESSION_KEY, $model->id);
