@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\components;
 
+use DotPlant\Currencies\helpers\CurrencyHelper;
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\models\order\Cart;
 use Yii;
