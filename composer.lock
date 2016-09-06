@@ -410,12 +410,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/DevGroup-ru/yii2-admin-utils.git",
-                "reference": "36eca4742a68623343e3bd704dd22765cca23236"
+                "reference": "90fba554a414086fb72b6b0dbd2a7e7f6c0907e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DevGroup-ru/yii2-admin-utils/zipball/36eca4742a68623343e3bd704dd22765cca23236",
-                "reference": "36eca4742a68623343e3bd704dd22765cca23236",
+                "url": "https://api.github.com/repos/DevGroup-ru/yii2-admin-utils/zipball/90fba554a414086fb72b6b0dbd2a7e7f6c0907e0",
+                "reference": "90fba554a414086fb72b6b0dbd2a7e7f6c0907e0",
                 "shasum": ""
             },
             "require": {
@@ -428,7 +428,7 @@
                 "yiisoft/yii2": "^2.0.6"
             },
             "require-dev": {
-                "devgroup/dotplant-dev": "*",
+                "devgroup/dotplant-dev": "~1.0.0",
                 "yiisoft/yii2-bootstrap": "^2.0@dev"
             },
             "type": "yii2-extension",
@@ -456,7 +456,7 @@
                 "extension",
                 "yii2"
             ],
-            "time": "2016-08-31 06:17:11"
+            "time": "2016-09-05 21:28:42"
         },
         {
             "name": "devgroup/yii2-data-structure-tools",
@@ -2429,12 +2429,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yii2tech/ar-role.git",
-                "reference": "889b6f95d3b81455700271f1528498908eef0180"
+                "reference": "36a1820a548507d5d84c249a1e7d33d09a94da2b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yii2tech/ar-role/zipball/889b6f95d3b81455700271f1528498908eef0180",
-                "reference": "889b6f95d3b81455700271f1528498908eef0180",
+                "url": "https://api.github.com/repos/yii2tech/ar-role/zipball/36a1820a548507d5d84c249a1e7d33d09a94da2b",
+                "reference": "36a1820a548507d5d84c249a1e7d33d09a94da2b",
                 "shasum": ""
             },
             "require": {
@@ -2471,7 +2471,7 @@
                 "table",
                 "yii2"
             ],
-            "time": "2016-07-06 10:54:55"
+            "time": "2016-09-06 08:39:51"
         },
         {
             "name": "yii2tech/filedb",

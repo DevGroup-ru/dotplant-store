@@ -4,6 +4,8 @@ namespace DotPlant\Store\models\warehouse;
 
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
+use DevGroup\TagDependencyHelper\CacheableActiveRecord;
+use DevGroup\TagDependencyHelper\TagDependencyTrait;
 use DotPlant\Store\interfaces\WarehouseInterface;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -22,6 +24,7 @@ use yii\db\Expression;
 class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
 {
     use MultilingualTrait;
+    use TagDependencyTrait;
 
     const TYPE_WAREHOUSE = 1;
     const TYPE_SELLER = 2;
@@ -29,6 +32,8 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
     const STATUS_IN_STOCK = 1;
     const STATUS_BY_REQUEST = 2;
     const STATUS_OUT_OF_STOCK = 3;
+
+    private static $_identityMap = [];
 
     private static $_typesMap = [
         self::TYPE_WAREHOUSE => TypeWarehouse::class,
@@ -47,16 +52,53 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
      * =================================================================================================================
      */
 
+    private static function fillMap()
+    {
+        if (empty(static::$_identityMap)) {
+            static::$_identityMap = static::find()
+                ->indexBy('id')
+                ->orderBy(['priority' => SORT_ASC])
+                ->all();
+        }
+    }
+
+    public static function getMap()
+    {
+        static::fillMap();
+        return static::$_identityMap;
+    }
+
+    public static function getFromMap($id)
+    {
+        static::fillMap();
+        return isset(static::$_identityMap[$id]) ? static::$_identityMap[$id] : null;
+    }
+
+    public static function getWarehouse($goodsId, $warehouseId, $asArray = true)
+    {
+        $warehouse = static::getFromMap($warehouseId);
+        $goodsWarehouse = GoodsWarehouse::find()
+            ->where(
+                [
+                    'goods_id' => $goodsId,
+                    'warehouse_id' => $warehouseId,
+                ]
+            )
+            ->asArray(true)
+            ->limit(1)
+            ->one();
+        if ($asArray) {
+            return $goodsWarehouse;
+        }
+        return null;
+    }
+
     /**
      * @inheritdoc
      */
     public static function getWarehouses($goodsId, $asArray = true, $allowedOnly = true)
     {
-        $warehouses = static::find()
-            ->indexBy('id')
-            ->orderBy('priority')
-            ->asArray(true)
-            ->all(); // @todo: cache it. It will be used for any query
+        $warehouses = static::getMap();
         $warehouseIds = array_keys($warehouses);
         $condition = ['goods_id' => $goodsId, 'warehouse_id' => $warehouseIds];
         if ($allowedOnly) {
@@ -73,8 +115,8 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
         }
         foreach ($goodsWarehouses as $warehouseId => $goodsWarehouse) {
             // @todo: refactor it. Split all rows by types and populate it as batch
-            if (isset(self::$_typesMap[$warehouses[$warehouseId]['type']])) {
-                $activeQuery = new ActiveQuery(self::$_typesMap[$warehouses[$warehouseId]['type']]);
+            if (isset(self::$_typesMap[$warehouses[$warehouseId]->type])) {
+                $activeQuery = new ActiveQuery(self::$_typesMap[$warehouses[$warehouseId]->type]);
                 $records = $activeQuery->populate([$goodsWarehouse]);
                 $goodsWarehouses[$warehouseId] = $records[0];
             }
@@ -139,6 +181,9 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
                 'class' => MultilingualActiveRecord::class,
                 'translationModelClass' => WarehouseTranslation::class,
                 'translationPublishedAttribute' => false,
+            ],
+            'cacheable' => [
+                'class' => CacheableActiveRecord::class,
             ],
         ];
     }

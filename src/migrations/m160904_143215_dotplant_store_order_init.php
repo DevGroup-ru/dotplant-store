@@ -233,10 +233,10 @@ class m160904_143215_dotplant_store_order_init extends Migration
             OrderItem::tableName(),
             [
                 'id' => $this->unsignedPrimaryKey(),
-                'cart_id' => $this->integer()->unsigned()->notNull(),
-                'order_id' => $this->integer()->unsigned()->notNull(),
+                'cart_id' => $this->integer()->unsigned(),
+                'order_id' => $this->integer()->unsigned(),
                 'goods_id' => $this->integer()->notNull(), // @todo: make it as unsigned column
-                'warehouse_id' => $this->integer()->notNull(), // @todo: make it as unsigned column
+                'warehouse_id' => $this->integer(), // @todo: make it as unsigned column
                 'quantity' => $this->double()->notNull()->defaultValue(0),
                 'total_price_with_discount' => $this->decimal(10, 2),
                 'total_price_without_discount' => $this->decimal(10, 2),

@@ -2,6 +2,9 @@
 
 namespace DotPlant\Store\models\order;
 
+use DotPlant\Store\exceptions\OrderException;
+use DotPlant\Store\models\goods\Goods;
+use DotPlant\Store\models\warehouse\Warehouse;
 use Yii;
 
 /**
@@ -33,14 +36,22 @@ class OrderItem extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['cart_id', 'order_id', 'goods_id', 'warehouse_id'], 'required'],
+            [['goods_id'], 'required'],
             [['cart_id', 'order_id', 'goods_id', 'warehouse_id'], 'integer'],
             [['quantity', 'total_price_with_discount', 'total_price_without_discount', 'seller_price'], 'number'],
-            [['warehouse_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreWarehouse::className(), 'targetAttribute' => ['warehouse_id' => 'id']],
-            [['cart_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreCart::className(), 'targetAttribute' => ['cart_id' => 'id']],
-            [['goods_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreGoods::className(), 'targetAttribute' => ['goods_id' => 'id']],
-            [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreOrder::className(), 'targetAttribute' => ['order_id' => 'id']],
+            [['warehouse_id'], 'exist', 'skipOnError' => true, 'targetClass' => Warehouse::className(), 'targetAttribute' => ['warehouse_id' => 'id']],
+            [['cart_id'], 'exist', 'skipOnError' => true, 'targetClass' => Cart::className(), 'targetAttribute' => ['cart_id' => 'id']],
+            [['goods_id'], 'exist', 'skipOnError' => true, 'targetClass' => Goods::className(), 'targetAttribute' => ['goods_id' => 'id']],
+            [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => Order::className(), 'targetAttribute' => ['order_id' => 'id']],
+            [['warehouse_id'], 'validateWarehouse'],
         ];
+    }
+
+    public function validateWarehouse()
+    {
+        if (!empty($this->order_id) && empty($this->warehouse_id)) {
+            $this->addError('warehouse_id', Yii::t('yii', '{attribute} cannot be blank.'));
+        }
     }
 
     /**
@@ -50,14 +61,56 @@ class OrderItem extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('dotplant.store', 'ID'),
-            'cart_id' => Yii::t('dotplant.store', 'Cart ID'),
-            'order_id' => Yii::t('dotplant.store', 'Order ID'),
-            'goods_id' => Yii::t('dotplant.store', 'Goods ID'),
-            'warehouse_id' => Yii::t('dotplant.store', 'Warehouse ID'),
+            'cart_id' => Yii::t('dotplant.store', 'Cart'),
+            'order_id' => Yii::t('dotplant.store', 'Order'),
+            'goods_id' => Yii::t('dotplant.store', 'Goods'),
+            'warehouse_id' => Yii::t('dotplant.store', 'Warehouse'),
             'quantity' => Yii::t('dotplant.store', 'Quantity'),
-            'total_price_with_discount' => Yii::t('dotplant.store', 'Total Price With Discount'),
-            'total_price_without_discount' => Yii::t('dotplant.store', 'Total Price Without Discount'),
-            'seller_price' => Yii::t('dotplant.store', 'Seller Price'),
+            'total_price_with_discount' => Yii::t('dotplant.store', 'Total price with discount'),
+            'total_price_without_discount' => Yii::t('dotplant.store', 'Total price without discount'),
+            'seller_price' => Yii::t('dotplant.store', 'Seller price'),
         ];
+    }
+
+    public function calculate()
+    {
+        $goods = $this->findGoods($this->goods_id);
+        $warehouses = Warehouse::getWarehouses($this->goods_id);
+        if (!empty($this->warehouse_id)) {
+            if (!isset($warehouses[$this->warehouse_id])) {
+                throw new OrderException(Yii::t('dotplant.store', 'The warehouse is not available'));
+            }
+            if ($warehouses[$this->warehouse_id]['available_count'] < $this->quantity) {
+                throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
+            }
+        } else {
+            /**
+             * @todo: There will be a autoselecting of warehouse by priority or another logic
+             * Now we just check that one of warehouses has enough items
+             */
+            $hasEnough = false;
+            foreach ($warehouses as $warehouseIs => $warehouse) {
+                if ($warehouse['available_count'] >= $this->quantity) {
+                    $hasEnough = true;
+                    break;
+                }
+            }
+            if (!$hasEnough) {
+                throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
+            }
+        }
+        // @todo: Add a check warehouse count
+        // @todo: Calculate price and discount. Dummy calculation below
+        $this->total_price_with_discount = $this->quantity * $goods->getPrice();
+        $this->total_price_without_discount = $this->quantity * $goods->getPrice();
+    }
+
+    protected function findGoods($id)
+    {
+        $model = Goods::get($id);
+        if ($model === null) {
+            throw new OrderException(Yii::t('dotplant.store', 'Goods not found'));
+        }
+        return $model;
     }
 }

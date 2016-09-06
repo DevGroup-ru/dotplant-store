@@ -22,6 +22,8 @@ use yii\db\ActiveRecord;
  * @property integer $created_by
  * @property integer $created_at
  * @property integer $updated_at
+ *
+ * @property OrderItem[] $items
  */
 class Cart extends ActiveRecord
 {
@@ -82,8 +84,8 @@ class Cart extends ActiveRecord
         $item = $this->findItem(
             [
                 'cart_id' => $this->id,
-                'goodsId' => $goodsId,
-                'warehouseId' => $warehouseId,
+                'goods_id' => $goodsId,
+                'warehouse_id' => $warehouseId,
             ],
             false
         );
@@ -95,9 +97,9 @@ class Cart extends ActiveRecord
             $item->warehouse_id = $warehouseId;
         }
         $item->quantity += $quantity;
-        // @todo: Calculate price and discount
+        $item->calculate();
         if (!$item->save()) {
-            throw new OrderException(Yii::t('dotplant.store', 'Can not add a goods to cart'));
+            throw new OrderException(Yii::t('dotplant.store', 'Can not add a goods to cart' . print_r($item->errors, true)));
         }
         // @todo: Recalculate cart total price and discount
     }
@@ -108,6 +110,10 @@ class Cart extends ActiveRecord
         $item = $this->findItem(['id' => $id, 'cart_id' => $this->id]);
         if ($quantity > 0) {
             $item->quantity = $quantity;
+            $item->calculate();
+            if (!$item->save()) {
+                throw new OrderException(Yii::t('dotplant.store', 'Can not change a goods quantity'));
+            }
         } else {
             $item->delete();
         }
@@ -139,6 +145,14 @@ class Cart extends ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getItems()
+    {
+        return $this->hasMany(OrderItem::class, ['cart_id' => 'id']);
+    }
+
+    /**
      * @throws OrderException
      */
     protected function checkLock()
@@ -159,7 +173,7 @@ class Cart extends ActiveRecord
     protected function findItem($condition, $throwException = true)
     {
         $model = OrderItem::findOne($condition);
-        if ($model !== null && $throwException) {
+        if ($model === null && $throwException) {
             throw new OrderException(Yii::t('dotplant.store', 'Item not found'));
         }
         return $model;
