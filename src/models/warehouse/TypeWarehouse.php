@@ -7,17 +7,26 @@ use DotPlant\Store\interfaces\WarehouseTypeInterface;
 
 class TypeWarehouse extends GoodsWarehouse implements WarehouseTypeInterface
 {
-    public function reserve($goodsId, $quantity)
+    /**
+     * @inheritdoc
+     */
+    public function reserve($quantity)
     {
         throw new WarehouseException(__METHOD__ . ' is not implemented yet');
     }
 
-    public function release($goodsId, $quantity)
+    /**
+     * @inheritdoc
+     */
+    public function release($quantity)
     {
         throw new WarehouseException(__METHOD__ . ' is not implemented yet');
     }
 
-    public function reduce($goodsId, $quantity)
+    /**
+     * @inheritdoc
+     */
+    public function reduce($quantity)
     {
         throw new WarehouseException(__METHOD__ . ' is not implemented yet');
     }

@@ -6,25 +6,22 @@ interface WarehouseTypeInterface
 {
     /**
      * Reserve goods
-     * @param $goodsId integer
      * @param $quantity integer
      * @return mixed
      */
-    public function reserve($goodsId, $quantity);
+    public function reserve($quantity);
 
     /**
      * Release goods
-     * @param $goodsId integer
      * @param $quantity integer
      * @return mixed
      */
-    public function release($goodsId, $quantity);
+    public function release($quantity);
 
     /**
      * Reduce goods
-     * @param $goodsId integer
      * @param $quantity integer
      * @return mixed
      */
-    public function reduce($goodsId, $quantity);
+    public function reduce($quantity);
 }
