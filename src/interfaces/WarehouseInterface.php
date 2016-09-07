@@ -5,6 +5,14 @@ namespace DotPlant\Store\interfaces;
 interface WarehouseInterface
 {
     /**
+     * @param $goodsId
+     * @param $warehouseId
+     * @param bool $asArray
+     * @return array|\DotPlant\Store\models\warehouse\GoodsWarehouse|WarehouseTypeInterface
+     */
+    public static function getWarehouse($goodsId, $warehouseId, $asArray = true);
+
+    /**
      * Get warehouses list
      * @param integer $goodsId
      * @param boolean $asArray

@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\models\warehouse;
 
+use DotPlant\Store\interfaces\WarehousePriceInterface;
 use DotPlant\Store\models\goods\Goods;
 use Yii;
 
@@ -19,7 +20,7 @@ use Yii;
  * @property integer $is_unlimited
  * @property integer $is_allowed
  */
-class GoodsWarehouse extends \yii\db\ActiveRecord
+class GoodsWarehouse extends \yii\db\ActiveRecord implements WarehousePriceInterface
 {
     /**
      * @inheritdoc
@@ -71,5 +72,13 @@ class GoodsWarehouse extends \yii\db\ActiveRecord
             'is_unlimited' => Yii::t('dotplant.store', 'Is unlimited'),
             'is_allowed' => Yii::t('dotplant.store', 'Is allowed'),
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPrice($priceType)
+    {
+        return rand(1, 9999);
     }
 }

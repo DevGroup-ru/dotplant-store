@@ -7,6 +7,7 @@ use DevGroup\Multilingual\traits\MultilingualTrait;
 use DevGroup\TagDependencyHelper\CacheableActiveRecord;
 use DevGroup\TagDependencyHelper\TagDependencyTrait;
 use DotPlant\Store\interfaces\WarehouseInterface;
+use DotPlant\Store\interfaces\WarehouseTypeInterface;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
@@ -74,6 +75,9 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
         return isset(static::$_identityMap[$id]) ? static::$_identityMap[$id] : null;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getWarehouse($goodsId, $warehouseId, $asArray = true)
     {
         $warehouse = static::getFromMap($warehouseId);
@@ -87,10 +91,9 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
             ->asArray(true)
             ->limit(1)
             ->one();
-        if ($asArray) {
-            return $goodsWarehouse;
-        }
-        return null;
+        return $asArray
+            ? $goodsWarehouse
+            : static::populateRecord(static::$_typesMap[$warehouse['type']], $goodsWarehouse);
     }
 
     /**
