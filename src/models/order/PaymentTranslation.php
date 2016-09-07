@@ -32,7 +32,7 @@ class PaymentTranslation extends \yii\db\ActiveRecord
             [['model_id', 'language_id'], 'integer'],
             [['description'], 'string'],
             [['name'], 'string', 'max' => 255],
-            [['model_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStorePayment::className(), 'targetAttribute' => ['model_id' => 'id']],
+            [['model_id'], 'exist', 'skipOnError' => true, 'targetClass' => Payment::className(), 'targetAttribute' => ['model_id' => 'id']],
         ];
     }
 
@@ -42,8 +42,8 @@ class PaymentTranslation extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'model_id' => Yii::t('dotplant.store', 'Model ID'),
-            'language_id' => Yii::t('dotplant.store', 'Language ID'),
+            'model_id' => Yii::t('dotplant.store', 'Model'),
+            'language_id' => Yii::t('dotplant.store', 'Language'),
             'name' => Yii::t('dotplant.store', 'Name'),
             'description' => Yii::t('dotplant.store', 'Description'),
         ];

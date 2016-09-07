@@ -44,11 +44,11 @@ class Delivery extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('dotplant.store', 'ID'),
-            'context_id' => Yii::t('dotplant.store', 'Context ID'),
-            'handler_class_name' => Yii::t('dotplant.store', 'Handler Class Name'),
-            'packed_json_handler_params' => Yii::t('dotplant.store', 'Packed Json Handler Params'),
-            'sort_order' => Yii::t('dotplant.store', 'Sort Order'),
-            'is_active' => Yii::t('dotplant.store', 'Is Active'),
+            'context_id' => Yii::t('dotplant.store', 'Context'),
+            'handler_class_name' => Yii::t('dotplant.store', 'Handler class name'),
+            'packed_json_handler_params' => Yii::t('dotplant.store', 'Handler params'),
+            'sort_order' => Yii::t('dotplant.store', 'Sort order'),
+            'is_active' => Yii::t('dotplant.store', 'Is active'),
         ];
     }
 }

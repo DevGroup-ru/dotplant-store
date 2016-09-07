@@ -2,7 +2,7 @@
 
 namespace DotPlant\Store\models\warehouse;
 
-use DotPlant\Store\exceptions\WarehouseException;
+use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\interfaces\WarehouseTypeInterface;
 
 class TypeWarehouse extends GoodsWarehouse implements WarehouseTypeInterface
@@ -12,7 +12,12 @@ class TypeWarehouse extends GoodsWarehouse implements WarehouseTypeInterface
      */
     public function reserve($quantity)
     {
-        throw new WarehouseException(__METHOD__ . ' is not implemented yet');
+        $this->lockForUpdate();
+        if ($quantity > $this->getCount()) {
+            throw new OrderException(\Yii::t('dotplant.store', 'The warehouse has no enough goods'));
+        }
+        $this->reserved_count += $quantity;
+        $this->save();
     }
 
     /**
@@ -20,7 +25,9 @@ class TypeWarehouse extends GoodsWarehouse implements WarehouseTypeInterface
      */
     public function release($quantity)
     {
-        throw new WarehouseException(__METHOD__ . ' is not implemented yet');
+        $this->lockForUpdate();
+        $this->reserved_count -= $quantity;
+        $this->save();
     }
 
     /**
@@ -28,6 +35,9 @@ class TypeWarehouse extends GoodsWarehouse implements WarehouseTypeInterface
      */
     public function reduce($quantity)
     {
-        throw new WarehouseException(__METHOD__ . ' is not implemented yet');
+        $this->lockForUpdate();
+        $this->available_count -= $quantity;
+        $this->reserved_count -= $quantity;
+        $this->save();
     }
 }

@@ -51,3 +51,5 @@ $this->registerJs($js);
         </tr>
     <?php endforeach; ?>
 </table>
+
+<a href="<?= \yii\helpers\Url::toRoute(['/store/order/create']) ?>" class="btn btn-primary">Create order</a>

@@ -29,11 +29,11 @@ class OrderStatusTranslation extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['model_id', 'language_id', 'label'], 'required'],
+            [['label'], 'required'],
             [['model_id', 'language_id'], 'integer'],
             [['description'], 'string'],
             [['name', 'label'], 'string', 'max' => 255],
-            [['model_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreOrderStatus::className(), 'targetAttribute' => ['model_id' => 'id']],
+            [['model_id'], 'exist', 'skipOnError' => true, 'targetClass' => OrderStatus::className(), 'targetAttribute' => ['model_id' => 'id']],
         ];
     }
 
@@ -43,8 +43,8 @@ class OrderStatusTranslation extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'model_id' => Yii::t('dotplant.store', 'Model ID'),
-            'language_id' => Yii::t('dotplant.store', 'Language ID'),
+            'model_id' => Yii::t('dotplant.store', 'Model'),
+            'language_id' => Yii::t('dotplant.store', 'Language'),
             'name' => Yii::t('dotplant.store', 'Name'),
             'label' => Yii::t('dotplant.store', 'Label'),
             'description' => Yii::t('dotplant.store', 'Description'),

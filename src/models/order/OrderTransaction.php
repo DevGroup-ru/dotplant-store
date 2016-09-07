@@ -38,8 +38,8 @@ class OrderTransaction extends \yii\db\ActiveRecord
             [['sum'], 'number'],
             [['packed_json_data', 'packed_json_result'], 'string'],
             [['currency_iso_code'], 'string', 'max' => 3],
-            [['payment_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStorePayment::className(), 'targetAttribute' => ['payment_id' => 'id']],
-            [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreOrder::className(), 'targetAttribute' => ['order_id' => 'id']],
+            [['payment_id'], 'exist', 'skipOnError' => true, 'targetClass' => Payment::className(), 'targetAttribute' => ['payment_id' => 'id']],
+            [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => Order::className(), 'targetAttribute' => ['order_id' => 'id']],
         ];
     }
 
@@ -50,14 +50,14 @@ class OrderTransaction extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('dotplant.store', 'ID'),
-            'order_id' => Yii::t('dotplant.store', 'Order ID'),
-            'payment_id' => Yii::t('dotplant.store', 'Payment ID'),
-            'start_time' => Yii::t('dotplant.store', 'Start Time'),
-            'end_time' => Yii::t('dotplant.store', 'End Time'),
+            'order_id' => Yii::t('dotplant.store', 'Order'),
+            'payment_id' => Yii::t('dotplant.store', 'Payment'),
+            'start_time' => Yii::t('dotplant.store', 'Start Ttme'),
+            'end_time' => Yii::t('dotplant.store', 'End time'),
             'sum' => Yii::t('dotplant.store', 'Sum'),
-            'currency_iso_code' => Yii::t('dotplant.store', 'Currency Iso Code'),
-            'packed_json_data' => Yii::t('dotplant.store', 'Packed Json Data'),
-            'packed_json_result' => Yii::t('dotplant.store', 'Packed Json Result'),
+            'currency_iso_code' => Yii::t('dotplant.store', 'Currency iso code'),
+            'packed_json_data' => Yii::t('dotplant.store', 'Data'),
+            'packed_json_result' => Yii::t('dotplant.store', 'Result'),
         ];
     }
 }

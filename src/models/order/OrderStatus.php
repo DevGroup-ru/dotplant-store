@@ -2,6 +2,8 @@
 
 namespace DotPlant\Store\models\order;
 
+use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
+use DevGroup\Multilingual\traits\MultilingualTrait;
 use Yii;
 
 /**
@@ -14,6 +16,18 @@ use Yii;
  */
 class OrderStatus extends \yii\db\ActiveRecord
 {
+    use MultilingualTrait;
+
+    public function behaviors()
+    {
+        return [
+            'multilingual' => [
+                'class' => MultilingualActiveRecord::class,
+                'translationPublishedAttribute' => false,
+            ],
+        ];
+    }
+
     /**
      * @inheritdoc
      */
@@ -41,9 +55,9 @@ class OrderStatus extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('dotplant.store', 'ID'),
-            'context_id' => Yii::t('dotplant.store', 'Context ID'),
-            'label_class' => Yii::t('dotplant.store', 'Label Class'),
-            'is_active' => Yii::t('dotplant.store', 'Is Active'),
+            'context_id' => Yii::t('dotplant.store', 'Context'),
+            'label_class' => Yii::t('dotplant.store', 'Label class'),
+            'is_active' => Yii::t('dotplant.store', 'Is active'),
         ];
     }
 }

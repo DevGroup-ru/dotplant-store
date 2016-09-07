@@ -2,8 +2,10 @@
 
 namespace DotPlant\Store\models\warehouse;
 
+use DotPlant\Store\exceptions\WarehouseException;
 use DotPlant\Store\interfaces\WarehousePriceInterface;
 use DotPlant\Store\models\goods\Goods;
+use DotPlant\Store\models\price\Price;
 use Yii;
 
 /**
@@ -22,6 +24,12 @@ use Yii;
  */
 class GoodsWarehouse extends \yii\db\ActiveRecord implements WarehousePriceInterface
 {
+    private static $_pricesMap = [
+        Price::TYPE_SELLER => 'seller_price',
+        Price::TYPE_RETAIL => 'retail_price',
+        Price::TYPE_WHOLESALE => 'wholesale_price',
+    ];
+
     /**
      * @inheritdoc
      */
@@ -79,6 +87,32 @@ class GoodsWarehouse extends \yii\db\ActiveRecord implements WarehousePriceInter
      */
     public function getPrice($priceType)
     {
-        return rand(1, 9999);
+        if (!isset(self::$_pricesMap[$priceType])) {
+            throw new WarehouseException(Yii::t('dotplant.store', 'Unknown price type'));
+        }
+        return [
+            'iso_code' => $this->currency_iso_code,
+            'value' => $this->{self::$_pricesMap[$priceType]}
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function lockForUpdate()
+    {
+        $sql = self::find()
+            ->where(['goods_id' => $this->goods_id, 'warehouse_id' => $this->warehouse_id])
+            ->createCommand()
+            ->getRawSql() . ' FOR UPDATE';
+        $this->setAttributes(self::findBySql($sql)->asArray(true)->one());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCount()
+    {
+        return $this->available_count - $this->reserved_count;
     }
 }

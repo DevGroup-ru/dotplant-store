@@ -6,8 +6,8 @@ use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DevGroup\TagDependencyHelper\CacheableActiveRecord;
 use DevGroup\TagDependencyHelper\TagDependencyTrait;
+use DotPlant\Store\exceptions\WarehouseException;
 use DotPlant\Store\interfaces\WarehouseInterface;
-use DotPlant\Store\interfaces\WarehouseTypeInterface;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
@@ -76,6 +76,23 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
     }
 
     /**
+     * This method returns an optimal warehouse
+     * @todo: Move this method to interface and implement different types
+     * Now it is implemented by priority
+     * @param integer $goodsId
+     * @param double $quantity
+     */
+    public static function getOptimalWarehouse($goodsId, $quantity)
+    {
+        foreach (static::getWarehouses($goodsId, false) as $warehouse) {
+            if ($warehouse->getCount() >= $quantity) {
+                return $warehouse;
+            }
+        }
+        throw new WarehouseException(Yii::t('dotplant.store', 'No one of warehouses has enough goods'));
+    }
+
+    /**
      * @inheritdoc
      */
     public static function getWarehouse($goodsId, $warehouseId, $asArray = true)
@@ -91,9 +108,12 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
             ->asArray(true)
             ->limit(1)
             ->one();
-        return $asArray
-            ? $goodsWarehouse
-            : static::populateRecord(static::$_typesMap[$warehouse['type']], $goodsWarehouse);
+        if ($asArray) {
+            return $goodsWarehouse;
+        }
+        $model = new static::$_typesMap[$warehouse['type']];
+        static::populateRecord($model, $goodsWarehouse);
+        return $model;
     }
 
     /**
@@ -117,11 +137,10 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
             return $goodsWarehouses;
         }
         foreach ($goodsWarehouses as $warehouseId => $goodsWarehouse) {
-            // @todo: refactor it. Split all rows by types and populate it as batch
             if (isset(self::$_typesMap[$warehouses[$warehouseId]->type])) {
-                $activeQuery = new ActiveQuery(self::$_typesMap[$warehouses[$warehouseId]->type]);
-                $records = $activeQuery->populate([$goodsWarehouse]);
-                $goodsWarehouses[$warehouseId] = $records[0];
+                $model = new self::$_typesMap[$warehouses[$warehouseId]['type']];
+                static::populateRecord($model, $goodsWarehouse);
+                $goodsWarehouses[$warehouseId] = $model;
             }
         }
         return $goodsWarehouses;
@@ -162,7 +181,7 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
     {
         $priceField = $isRetailPrice ? 'retail_price' : 'wholesale_price';
         return GoodsWarehouse::find()
-            ->select([new Expression('MIN(`' . $priceField . '`) AS `price`'), 'currency_iso_code'])
+            ->select(new Expression('currency_iso_code AS `iso_code`, MIN(`' . $priceField . '`) AS `value`'))
             ->where(['goods_id' => $goodsId, 'is_allowed' => 1])
             ->groupBy('currency_iso_code')
             ->orderBy([$priceField => SORT_ASC])

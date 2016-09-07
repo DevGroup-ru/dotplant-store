@@ -5,6 +5,7 @@ namespace DotPlant\Store\models\order;
 use DevGroup\Entity\traits\BaseActionsInfoTrait;
 use DevGroup\Entity\traits\EntityTrait;
 use DotPlant\Store\exceptions\OrderException;
+use DotPlant\Store\models\warehouse\Warehouse;
 use Yii;
 use yii\db\ActiveRecord;
 
@@ -81,6 +82,9 @@ class Cart extends ActiveRecord
         if ($quantity <= 0) {
             throw new OrderException(Yii::t('dotplant.store', 'The quantity must be more than zero'));
         }
+        if (empty($warehouseId)) {
+            $warehouseId = Warehouse::getOptimalWarehouse($goodsId, $quantity)->warehouse_id;
+        }
         $item = $this->findItem(
             [
                 'cart_id' => $this->id,
@@ -150,6 +154,27 @@ class Cart extends ActiveRecord
     public function getItems()
     {
         return $this->hasMany(OrderItem::class, ['cart_id' => 'id']);
+    }
+
+    public function prepare()
+    {
+        foreach ($this->items as $item) {
+            if (!empty($item->warehouse_id)) {
+                continue;
+            }
+            $item->warehouse_id = Warehouse::getOptimalWarehouse($item->goods_id, $item->quantity)->warehouse_id;
+            if (!$item->save(true, ['warehouse_id'])) {
+                var_dump($item->errors);
+                die;
+            }
+        }
+    }
+
+    public function reserve()
+    {
+        foreach ($this->items as $item) {
+            Warehouse::getWarehouse($item->goods_id, $item->warehouse_id, false)->reserve($item->quantity);
+        }
     }
 
     /**

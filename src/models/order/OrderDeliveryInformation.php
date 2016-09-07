@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\models\order;
 
+use DevGroup\Users\models\User;
 use Yii;
 
 /**
@@ -33,13 +34,13 @@ class OrderDeliveryInformation extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['context_id', 'order_id', 'user_id', 'full_name'], 'required'],
+            [['context_id', 'full_name'], 'required'],
             [['context_id', 'order_id', 'user_id', 'country_id', 'is_allowed'], 'integer'],
             [['address'], 'string'],
             [['full_name'], 'string', 'max' => 255],
             [['zip_code'], 'string', 'max' => 50],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
-            [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => DotplantStoreOrder::className(), 'targetAttribute' => ['order_id' => 'id']],
+            [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => Order::className(), 'targetAttribute' => ['order_id' => 'id']],
         ];
     }
 
@@ -50,14 +51,14 @@ class OrderDeliveryInformation extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('dotplant.store', 'ID'),
-            'context_id' => Yii::t('dotplant.store', 'Context ID'),
-            'order_id' => Yii::t('dotplant.store', 'Order ID'),
-            'user_id' => Yii::t('dotplant.store', 'User ID'),
-            'country_id' => Yii::t('dotplant.store', 'Country ID'),
-            'full_name' => Yii::t('dotplant.store', 'Full Name'),
-            'zip_code' => Yii::t('dotplant.store', 'Zip Code'),
+            'context_id' => Yii::t('dotplant.store', 'Context'),
+            'order_id' => Yii::t('dotplant.store', 'Order'),
+            'user_id' => Yii::t('dotplant.store', 'User'),
+            'country_id' => Yii::t('dotplant.store', 'Country'),
+            'full_name' => Yii::t('dotplant.store', 'Full name'),
+            'zip_code' => Yii::t('dotplant.store', 'Zip code'),
             'address' => Yii::t('dotplant.store', 'Address'),
-            'is_allowed' => Yii::t('dotplant.store', 'Is Allowed'),
+            'is_allowed' => Yii::t('dotplant.store', 'Is allowed'),
         ];
     }
 }

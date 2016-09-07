@@ -15,6 +15,7 @@
         "php": ">=5.5.0",
         "yiisoft/yii2": "~2.0.0",
         "devgroup/yii2-extensions-manager": "dev-master",
+        "devgroup/yii2-multilingual": "dev-master",
         "dotplant/entity-structure": "dev-master",
         "dotplant/currencies": "dev-master",
         "devgroup/yii2-users-module": "dev-master"

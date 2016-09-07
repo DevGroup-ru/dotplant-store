@@ -2,6 +2,8 @@
 
 namespace DotPlant\Store\models\order;
 
+use DotPlant\Currencies\CurrenciesModule;
+use DotPlant\Currencies\helpers\CurrencyHelper;
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\models\goods\Goods;
 use DotPlant\Store\models\warehouse\Warehouse;
@@ -89,7 +91,7 @@ class OrderItem extends \yii\db\ActiveRecord
              * Now we just check that one of warehouses has enough items
              */
             $hasEnough = false;
-            foreach ($warehouses as $warehouseIs => $warehouse) {
+            foreach ($warehouses as $warehouseId => $warehouse) {
                 if ($warehouse['available_count'] >= $this->quantity) {
                     $hasEnough = true;
                     break;
@@ -101,8 +103,17 @@ class OrderItem extends \yii\db\ActiveRecord
         }
         // @todo: Add a check warehouse count
         // @todo: Calculate price and discount. Dummy calculation below
-        $this->total_price_with_discount = $this->quantity * $goods->getPrice();
-        $this->total_price_without_discount = $this->quantity * $goods->getPrice();
+        $price = $goods->getPrice($this->warehouse_id);
+        $this->total_price_with_discount = CurrencyHelper::convertCurrencies(
+            $price['value'],
+            CurrencyHelper::findCurrencyByIso($price['iso_code']),
+            CurrencyHelper::getUserCurrency()
+        ) * $this->quantity;
+        $this->total_price_without_discount = CurrencyHelper::convertCurrencies(
+            isset($price['original_value']) ? $price['original_value'] : $price['value'],
+            CurrencyHelper::findCurrencyByIso($price['iso_code']),
+            CurrencyHelper::getUserCurrency()
+        ) * $this->quantity;
     }
 
     protected function findGoods($id)

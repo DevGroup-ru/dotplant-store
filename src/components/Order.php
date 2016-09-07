@@ -5,7 +5,10 @@ namespace DotPlant\Store\components;
 use DotPlant\Currencies\helpers\CurrencyHelper;
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\models\order\Cart;
+use DotPlant\Store\models\order\OrderItem;
+use DotPlant\Store\Module;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class Order
@@ -15,6 +18,7 @@ use Yii;
 class Order
 {
     const CART_SESSION_KEY = 'DotPlant:Store:CartId';
+    const ORDER_HASHES_SESSION_KEY = 'DotPlant:Store:OrderHashes';
 
     protected static function createCart()
     {
@@ -60,5 +64,49 @@ class Order
             $model = static::createCart();
         }
         return $model;
+    }
+
+    public static function createOrder($cartId)
+    {
+        $cart = Cart::findOne($cartId);
+        if ($cart === null || $cart->items_count == 0) {
+            throw new OrderException(Yii::t('dotplant.store', 'Can not create an order. Cart is empty.'));
+        }
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            // check items quantity and set warehouses
+            $cart->prepare();
+            // reserve items
+            $cart->reserve();
+            // lock cart
+            $cart->is_locked = 1;
+            $cart->save(true, ['is_locked']);
+            // save order
+            $order = new \DotPlant\Store\models\order\Order;
+            $order->attributes = [
+                'context_id' => $cart->context_id,
+                'currency_iso_code' => $cart->currency_iso_code,
+                'status_id' => Module::module()->newOrderStatusId,
+                'is_retail' => $cart->is_retail,
+            ];
+            if (!$order->save()) {
+                throw new \Exception(print_r($order->errors, true));
+            }
+            // set order_id for order_items
+            if (OrderItem::updateAll(['order_id' => $order->id], ['cart_id' => $cart->id]) < count($cart->items)) {
+                throw new OrderException('QQQQQQQQQqqqqqqqqqqqqqqqqqqqqqqQQQQQQQQQQQQQQQQqqqqqqqqqqQQQQQQQQQQQQqqqqqqqqQQQQQQQQQQQ');
+            }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw new \Exception($e->getMessage());
+            return null;
+        }
+        // set hash to session
+        Yii::$app->session->set(
+            self::ORDER_HASHES_SESSION_KEY,
+            ArrayHelper::merge(Yii::$app->session->get(self::ORDER_HASHES_SESSION_KEY, []), [$order->hash])
+        );
+        return $order;
     }
 }
