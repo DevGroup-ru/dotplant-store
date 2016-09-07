@@ -11,6 +11,7 @@ use DevGroup\TagDependencyHelper\TagDependencyTrait;
 use DotPlant\Store\exceptions\GoodsException;
 use DotPlant\Store\interfaces\GoodsInterface;
 use DotPlant\Store\interfaces\GoodsTypesInterface;
+use DotPlant\Store\interfaces\PriceInterface;
 use DotPlant\Store\models\price\Price;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -195,9 +196,9 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         return false;
     }
 
-    public function getPrice()
+    public function getPrice($warehouseId = null, $priceType = PriceInterface::TYPE_RETAIL, $withDiscount = true)
     {
-        return $this->price;
+        return $this->price->getPrice($warehouseId, $priceType, $withDiscount);
     }
 
     /**

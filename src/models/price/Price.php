@@ -5,6 +5,7 @@ namespace DotPlant\Store\models\price;
 use DotPlant\EntityStructure\models\BaseStructure;
 use DotPlant\EntityStructure\models\Entity;
 use DotPlant\Store\exceptions\PriceException;
+use DotPlant\Store\interfaces\GoodsInterface;
 use DotPlant\Store\interfaces\PriceInterface;
 use DotPlant\Store\models\goods\Goods;
 use Yii;
@@ -24,9 +25,22 @@ use yii\db\ActiveRecord;
  */
 class Price extends ActiveRecord implements PriceInterface
 {
+
     protected $_calculatorClass = null;
 
+    protected $_goodsId = null;
+
+    protected $_warehouseId = null;
+
+    protected $_priceType = null;
+
+    /**
+     * @var null
+     */
+    protected $_withDiscount = null;
+
     private static $_priceMap = [];
+
 
     /**
      * @inheritdoc
@@ -96,6 +110,8 @@ class Price extends ActiveRecord implements PriceInterface
         } else {
             $price = self::$_priceMap[$priceClass];
         }
+        /* @var $price Price */
+        $price->_goodsId = $goods->id;
         return $price;
     }
 
@@ -127,14 +143,53 @@ class Price extends ActiveRecord implements PriceInterface
         // TODO: Implement format() method.
     }
 
-    public function getPrice()
+
+    /**
+     * @param null $warehouseId
+     * @param string $priceType
+     * @param bool|true $withDiscount
+     * @return mixed
+     */
+    public function getPrice($warehouseId = null, $priceType = PriceInterface::TYPE_RETAIL, $withDiscount = true)
     {
-        // TODO: Implement getPrice() method.
+        $this->_warehouseId = $warehouseId;
+        $this->_priceType = $priceType;
+        $this->_withDiscount = $withDiscount;
+        $calculatorClass = $this->_calculatorClass;
+        return $calculatorClass::calculate($this);
     }
 
+    /**
+     * @return int
+     */
+    public function getWarehouseId()
+    {
+        return $this->_warehouseId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPriceType()
+    {
+        return $this->_priceType;
+    }
+
+    /**
+     * @param $price
+     */
     public function setPrice($price)
     {
         // TODO: Implement setPrice() method.
     }
+
+    /**
+     * @return Goods
+     */
+    public function getGoodsId()
+    {
+        return $this->_goodsId;
+    }
+
 
 }

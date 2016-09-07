@@ -3,6 +3,8 @@
 namespace DotPlant\Store\components\calculator;
 
 use DotPlant\Store\interfaces\CalculatorInterface;
+use DotPlant\Store\interfaces\PriceInterface;
+use DotPlant\Store\models\warehouse\Warehouse;
 
 /**
  * Class ProductCalculator
@@ -11,5 +13,12 @@ use DotPlant\Store\interfaces\CalculatorInterface;
  */
 class ProductCalculator implements CalculatorInterface
 {
-
+    public static function calculate(PriceInterface $price)
+    {
+        return Warehouse::getWarehouse(
+            $price->getGoodsId(),
+            $price->getWarehouseId(),
+            false
+        )->getPrice($price->getPriceType());
+    }
 }

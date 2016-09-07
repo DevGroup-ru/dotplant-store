@@ -2,7 +2,6 @@
 
 namespace DotPlant\Store\interfaces;
 use DotPlant\Store\exceptions\GoodsException;
-use DotPlant\Store\models\goods\Goods;
 
 /**
  * Interface CalculatorInterface
@@ -14,9 +13,9 @@ interface CalculatorInterface
     /**
      * Calculates product price according to product type
      *
-     * @param Goods $goods
+     * @param PriceInterface $price
      * @throws GoodsException
      * @return float unformatted product price
      */
-    public function calculate(Goods $goods);
+    public static function calculate(PriceInterface $price);
 }

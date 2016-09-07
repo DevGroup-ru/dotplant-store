@@ -12,17 +12,28 @@ use DotPlant\Store\models\price\Price;
  */
 interface PriceInterface
 {
+
+    const TYPE_RETAIL = 'retail';
+    const TYPE_WHOLESALE = 'wholesale';
+    const TYPE_SELLER = 'seller';
+
     /**
      * @param Goods $goods
      * @return Price
      */
     public static function create(Goods $goods);
 
-    public function getPrice();
+    public function getPrice($warehouseId, $priceType, $withDiscount);
 
     public function setPrice($price);
 
     public static function convert($from, $to);
 
     public static function format($price, $format);
+
+    public function getWarehouseId();
+
+    public function getPriceType();
+
+    public function getGoodsId();
 }
