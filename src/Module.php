@@ -2,6 +2,14 @@
 
 namespace DotPlant\Store;
 
+/**
+ * Class Module
+ *
+ * @todo: Add scenarios for Order model
+ * @todo: Add scenarios for OrderDeliveryInformation
+ *
+ * @package DotPlant\Store
+ */
 class Module extends \yii\base\Module
 {
     const EVENT_ORDER_AFTER_STATUS_CHANGE = 'dotplant.store.orderAfterStatusChange';

@@ -18,9 +18,9 @@ use Yii;
  * @property integer $goods_id
  * @property integer $warehouse_id
  * @property double $quantity
- * @property string $total_price_with_discount
- * @property string $total_price_without_discount
- * @property string $seller_price
+ * @property double $total_price_with_discount
+ * @property double $total_price_without_discount
+ * @property double $seller_price
  *
  * @property Order $order
  * @property Cart $cart

@@ -6,6 +6,7 @@ use DevGroup\Entity\traits\BaseActionsInfoTrait;
 use DevGroup\Entity\traits\EntityTrait;
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\models\warehouse\Warehouse;
+use DotPlant\Store\Module;
 use Yii;
 use yii\db\ActiveRecord;
 
@@ -18,8 +19,8 @@ use yii\db\ActiveRecord;
  * @property integer $is_retail
  * @property string $currency_iso_code
  * @property double $items_count
- * @property string $total_price_with_discount
- * @property string $total_price_without_discount
+ * @property double $total_price_with_discount
+ * @property double $total_price_without_discount
  * @property integer $created_by
  * @property integer $created_at
  * @property integer $updated_at
@@ -105,7 +106,7 @@ class Cart extends ActiveRecord
         if (!$item->save()) {
             throw new OrderException(Yii::t('dotplant.store', 'Can not add a goods to cart'));
         }
-        // @todo: Recalculate cart total price and discount
+        $this->calculate();
     }
 
     public function changeItemQuantity($id, $quantity)
@@ -121,7 +122,7 @@ class Cart extends ActiveRecord
         } else {
             $item->delete();
         }
-        // @todo: Recalculate cart total price and discount
+        $this->calculate();
     }
 
     public function removeItem($id)
@@ -129,7 +130,7 @@ class Cart extends ActiveRecord
         $this->checkLock();
         $item = $this->findItem(['id' => $id, 'cart_id' => $this->id]);
         $item->delete();
-        // @todo: Recalculate cart total price and discount
+        $this->calculate();
     }
 
     public function clear()
@@ -146,6 +147,23 @@ class Cart extends ActiveRecord
             'items_count' => 0,
         ];
         $this->save();
+    }
+
+    public function calculate() // @todo: public or private?
+    {
+        $this->items_count = 0;
+        $this->total_price_with_discount = 0;
+        $this->total_price_without_discount = 0;
+        foreach ($this->items as $item) {
+            $this->total_price_with_discount += $item->total_price_with_discount;
+            $this->total_price_without_discount += $item->total_price_without_discount;
+            if ($item->goods_id == 0) {
+                continue; // It's a delivery. Do not count it as an order item
+            }
+            $this->items_count += Module::module()->countUniqueItemsOnly == 1 ? 1 : $item->quantity;
+        }
+        // @todo: Add another calculation (discounts, etc)
+        $this->save(true, ['items_count', 'total_price_with_discount', 'total_price_without_discount']);
     }
 
     /**

@@ -6,7 +6,7 @@
  * @var \yii\web\View $this
  */
 
-$statuses = \DotPlant\Store\models\order\OrderStatus::find()->select(['name', 'id'])->asArray(true)->indexBy('id')->column();
+$statuses = \DotPlant\Store\models\order\OrderStatus::listData();
 
 use kartik\switchinput\SwitchInput;
 

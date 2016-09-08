@@ -41,6 +41,7 @@ class OrderDeliveryInformation extends \yii\db\ActiveRecord
             [['address'], 'string'],
             [['full_name'], 'string', 'max' => 255],
             [['email'], 'string', 'max' => 100],
+            [['email'], 'email'],
             [['phone'], 'string', 'max' => 20],
             [['zip_code'], 'string', 'max' => 50],
             [

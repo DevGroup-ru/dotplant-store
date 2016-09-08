@@ -33,6 +33,8 @@ use Yii;
  * @property integer $updated_at
  * @property integer $forming_time
  * @property string $hash
+ *
+ * @property OrderDeliveryInformation $deliveryInformation
  */
 class Order extends \yii\db\ActiveRecord
 {
@@ -87,6 +89,29 @@ class Order extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
+    public function scenarios()
+    {
+        $baseActionsInfoAttributes = ['created_by', 'created_at', 'updated_by', 'updated_at'];
+        return [
+            'order-creation' => [
+                'context_id',
+                'currency_iso_code',
+                'status_id',
+                'is_retail',
+                'items_count',
+                'total_price_with_discount',
+                'total_price_without_discount',
+            ] + $baseActionsInfoAttributes,
+            'single-step-order' => [
+                'payment_id',
+                'delivery_id',
+            ] + $baseActionsInfoAttributes,
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function attributeLabels()
     {
         return [
@@ -112,6 +137,11 @@ class Order extends \yii\db\ActiveRecord
             'forming_time' => Yii::t('dotplant.store', 'Forming time'),
             'hash' => Yii::t('dotplant.store', 'Hash'),
         ];
+    }
+
+    public function getDeliveryInformation()
+    {
+        return $this->hasOne(OrderDeliveryInformation::class, ['order_id' => 'id']);
     }
 
     /**

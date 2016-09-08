@@ -60,4 +60,18 @@ class OrderStatus extends \yii\db\ActiveRecord
             'is_active' => Yii::t('dotplant.store', 'Is active'),
         ];
     }
+
+    /**
+     * Get list data for dropdown
+     * @return string[]
+     */
+    public static function listData()
+    {
+        return static::find()
+            ->select(['label', 'id'])
+            ->where(['is_active' => 1])
+            ->indexBy('id')
+//            ->orderBy(['sort_order' => SORT_ASC])
+            ->column();
+    }
 }

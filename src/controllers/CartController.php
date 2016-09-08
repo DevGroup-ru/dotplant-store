@@ -2,7 +2,7 @@
 
 namespace DotPlant\Store\controllers;
 
-use DotPlant\Store\components\Order;
+use DotPlant\Store\components\Store;
 use Yii;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
@@ -43,7 +43,7 @@ class CartController extends \yii\web\Controller
         $quantity = Yii::$app->request->post('quantity', 1);
         $warehouseId = Yii::$app->request->post('warehouseId'); // This parameter is not required.
         try {
-            $model = Order::getCart();
+            $model = Store::getCart();
             $model->addItem($goodsId, $quantity, $warehouseId);
         } catch (\Exception $e) {
             $result['errorMessage'] = $e->getMessage();
@@ -57,7 +57,7 @@ class CartController extends \yii\web\Controller
         $quantity = $this->getRequiredPostParam('quantity');
         $result = [];
         try {
-            $model = Order::getCart();
+            $model = Store::getCart();
             $model->changeItemQuantity($itemId, $quantity);
         } catch (\Exception $e) {
             $result['errorMessage'] = $e->getMessage();
@@ -67,7 +67,7 @@ class CartController extends \yii\web\Controller
 
     public function actionClear()
     {
-        $model = Order::getCart(false);
+        $model = Store::getCart(false);
         if ($model !== null) {
             $model->clear();
         }
@@ -77,7 +77,7 @@ class CartController extends \yii\web\Controller
 
     public function actionIndex()
     {
-        $model = Order::getCart(false);
+        $model = Store::getCart(false);
         return $this->render('index', ['model' => $model]);
     }
 
@@ -86,7 +86,7 @@ class CartController extends \yii\web\Controller
         $itemId = $this->getRequiredPostParam('id');
         $result = [];
         try {
-            $model = Order::getCart();
+            $model = Store::getCart();
             $model->removeItem($itemId);
             $result['successMessage'] = Yii::t('dotplant.store', 'Item has been removed');
         } catch (\Exception $e) {

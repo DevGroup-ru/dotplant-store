@@ -15,7 +15,7 @@ use yii\helpers\ArrayHelper;
  *
  * @package DotPlant\Store\components
  */
-class Order
+class Store
 {
     const CART_SESSION_KEY = 'DotPlant:Store:CartId';
     const ORDER_HASHES_SESSION_KEY = 'DotPlant:Store:OrderHashes';
@@ -66,9 +66,29 @@ class Order
         return $model;
     }
 
-    public static function createOrder($cartId)
+    /**
+     * Get order
+     * @param string $hash
+     * @return \DotPlant\Store\models\order\Order
+     */
+    public static function getOrder($hash)
     {
-        $cart = Cart::findOne($cartId);
+        $model = \DotPlant\Store\models\order\Order::findOne(
+            [
+                'hash' => $hash,
+                'context_id' => Yii::$app->multilingual->context_id,
+            ]
+        );
+        return $model;
+    }
+
+    /**
+     * @param Cart $cart
+     * @return \DotPlant\Store\models\order\Order|null
+     * @throws OrderException
+     */
+    public static function createOrder($cart)
+    {
         if ($cart === null || $cart->items_count == 0) {
             throw new OrderException(Yii::t('dotplant.store', 'Can not create an order. Cart is empty.'));
         }
@@ -78,16 +98,21 @@ class Order
             $cart->prepare();
             // reserve items
             $cart->reserve();
+            $cart->calculate();
             // lock cart
             $cart->is_locked = 1;
             $cart->save(true, ['is_locked']);
             // save order
             $order = new \DotPlant\Store\models\order\Order;
+            $order->scenario = 'order-creation';
             $order->attributes = [
                 'context_id' => $cart->context_id,
                 'currency_iso_code' => $cart->currency_iso_code,
                 'status_id' => Module::module()->newOrderStatusId,
                 'is_retail' => $cart->is_retail,
+                'items_count' => $cart->items_count,
+                'total_price_with_discount' => $cart->total_price_with_discount,
+                'total_price_without_discount' => $cart->total_price_without_discount,
             ];
             if (!$order->save()) {
                 throw new OrderException(Yii::t('dotplant.store', 'Can not save a new order'));
