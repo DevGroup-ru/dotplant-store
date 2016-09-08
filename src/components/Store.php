@@ -5,6 +5,7 @@ namespace DotPlant\Store\components;
 use DotPlant\Currencies\helpers\CurrencyHelper;
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\models\order\Cart;
+use DotPlant\Store\models\order\Order;
 use DotPlant\Store\models\order\OrderItem;
 use DotPlant\Store\Module;
 use Yii;
@@ -103,7 +104,7 @@ class Store
             $cart->is_locked = 1;
             $cart->save(true, ['is_locked']);
             // save order
-            $order = new \DotPlant\Store\models\order\Order;
+            $order = new Order;
             $order->scenario = 'order-creation';
             $order->attributes = [
                 'context_id' => $cart->context_id,

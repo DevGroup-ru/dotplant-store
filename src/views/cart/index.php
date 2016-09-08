@@ -50,6 +50,12 @@ $this->registerJs($js);
                 </td>
             </tr>
         <?php endforeach; ?>
+        <tr>
+            <td><?= Yii::t('dotplant.store', 'Summary') ?></td>
+            <td><?= $model->items_count ?></td>
+            <td><?= $model->total_price_with_discount ?></td>
+            <td></td>
+        </tr>
     </table>
     <?php if ($model->is_locked == 1): ?>
         <a href="<?= \yii\helpers\Url::toRoute(['/store/order/create', 'hash' => $model->items[0]->order->hash]) ?>" class="btn btn-primary">Edit an order</a>

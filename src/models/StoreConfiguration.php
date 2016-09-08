@@ -106,6 +106,10 @@ class StoreConfiguration extends BaseConfigurationModel
                 'store' => [
                     'class' => Module::class,
                     'layout' => '@app/views/layouts/admin',
+                    'allowToAddSameGoods' => $this->allowToAddSameGoods,
+                    'countUniqueItemsOnly' => $this->countUniqueItemsOnly,
+                    'singlePriceForWarehouses' => $this->singlePriceForWarehouses,
+                    'registerGuestInCart' => $this->registerGuestInCart,
                     'newOrderStatusId' => $this->newOrderStatusId,
                     'paidOrderStatusId' => $this->paidOrderStatusId,
                     'doneOrderStatusId' => $this->doneOrderStatusId,
