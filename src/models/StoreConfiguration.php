@@ -27,28 +27,32 @@ class StoreConfiguration extends BaseConfigurationModel
                 'exist',
                 'skipOnError' => false,
                 'targetClass' => OrderStatus::class,
-                'targetAttribute' => ['newOrderStatusId' => 'id']
+                'targetAttribute' => ['newOrderStatusId' => 'id'],
             ],
             [
                 ['paidOrderStatusId'],
                 'exist',
                 'skipOnError' => false,
                 'targetClass' => OrderStatus::class,
-                'targetAttribute' => ['paidOrderStatusId' => 'id']
+                'targetAttribute' => ['paidOrderStatusId' => 'id'],
             ],
             [
                 ['doneOrderStatusId'],
                 'exist',
                 'skipOnError' => false,
                 'targetClass' => OrderStatus::class,
-                'targetAttribute' => ['doneOrderStatusId' => 'id']
+                'targetAttribute' => ['doneOrderStatusId' => 'id'],
             ],
             [
                 ['canceledOrderStatusId'],
                 'exist',
                 'skipOnError' => false,
                 'targetClass' => OrderStatus::class,
-                'targetAttribute' => ['canceledOrderStatusId' => 'id']
+                'targetAttribute' => ['canceledOrderStatusId' => 'id'],
+            ],
+            [
+                ['allowToAddSameGoods', 'countUniqueItemsOnly', 'singlePriceForWarehouses', 'registerGuestInCart'],
+                'boolean',
             ],
         ];
     }
@@ -62,6 +66,10 @@ class StoreConfiguration extends BaseConfigurationModel
             'paidOrderStatusId' => \Yii::t('dotplant.store', 'Paid'),
             'doneOrderStatusId' => \Yii::t('dotplant.store', 'Done'),
             'canceledOrderStatusId' => \Yii::t('dotplant.store', 'Canceled'),
+            'allowToAddSameGoods' => \Yii::t('dotplant.store', 'Allow to add same goods to cart'),
+            'countUniqueItemsOnly' => \Yii::t('dotplant.store', 'Count unique cart items only'),
+            'singlePriceForWarehouses' => \Yii::t('dotplant.store', 'Use a single price for warehouses'),
+            'registerGuestInCart' => \Yii::t('dotplant.store', 'Register guest in cart'),
         ];
     }
     /**

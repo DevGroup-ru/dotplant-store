@@ -51,5 +51,9 @@ $this->registerJs($js);
         </tr>
     <?php endforeach; ?>
 </table>
+<?php if ($model->is_locked == 1): ?>
+    <a href="<?= \yii\helpers\Url::toRoute(['/store/order/create', 'hash' => $model->items[0]->order->hash]) ?>" class="btn btn-primary">Edit an order</a>
+<?php else: ?>
+    <a href="<?= \yii\helpers\Url::toRoute(['/store/order/create']) ?>" class="btn btn-primary">Create an order</a>
+<?php endif; ?>
 
-<a href="<?= \yii\helpers\Url::toRoute(['/store/order/create']) ?>" class="btn btn-primary">Create order</a>

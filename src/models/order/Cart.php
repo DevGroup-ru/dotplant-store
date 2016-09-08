@@ -103,7 +103,7 @@ class Cart extends ActiveRecord
         $item->quantity += $quantity;
         $item->calculate();
         if (!$item->save()) {
-            throw new OrderException(Yii::t('dotplant.store', 'Can not add a goods to cart' . print_r($item->errors, true)));
+            throw new OrderException(Yii::t('dotplant.store', 'Can not add a goods to cart'));
         }
         // @todo: Recalculate cart total price and discount
     }

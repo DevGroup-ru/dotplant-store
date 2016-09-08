@@ -4,6 +4,14 @@ namespace DotPlant\Store;
 
 class Module extends \yii\base\Module
 {
+    const EVENT_ORDER_AFTER_STATUS_CHANGE = 'dotplant.store.orderAfterStatusChange';
+
+    // cart
+    public $allowToAddSameGoods = 0;
+    public $countUniqueItemsOnly = 0;
+    public $singlePriceForWarehouses = 0;
+    public $registerGuestInCart = 1;
+    // order statuses
     public $newOrderStatusId;
     public $paidOrderStatusId;
     public $doneOrderStatusId;

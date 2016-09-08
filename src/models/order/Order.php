@@ -2,6 +2,11 @@
 
 namespace DotPlant\Store\models\order;
 
+use DevGroup\Entity\traits\BaseActionsInfoTrait;
+use DevGroup\Entity\traits\EntityTrait;
+use DotPlant\Store\events\OrderAfterStatusChangeEvent;
+use DotPlant\Store\events\OrderEvent;
+use DotPlant\Store\Module;
 use Yii;
 
 /**
@@ -31,6 +36,9 @@ use Yii;
  */
 class Order extends \yii\db\ActiveRecord
 {
+    use EntityTrait;
+    use BaseActionsInfoTrait;
+
     /**
      * @inheritdoc
      */
@@ -52,9 +60,27 @@ class Order extends \yii\db\ActiveRecord
             [['promocode_name'], 'string', 'max' => 255],
             [['hash'], 'string', 'max' => 32],
             [['hash'], 'unique'],
-            [['payment_id'], 'exist', 'skipOnError' => true, 'targetClass' => Payment::className(), 'targetAttribute' => ['payment_id' => 'id']],
-            [['delivery_id'], 'exist', 'skipOnError' => true, 'targetClass' => Delivery::className(), 'targetAttribute' => ['delivery_id' => 'id']],
-            [['status_id'], 'exist', 'skipOnError' => true, 'targetClass' => OrderStatus::className(), 'targetAttribute' => ['status_id' => 'id']],
+            [
+                ['payment_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Payment::className(),
+                'targetAttribute' => ['payment_id' => 'id']
+            ],
+            [
+                ['delivery_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Delivery::className(),
+                'targetAttribute' => ['delivery_id' => 'id']
+            ],
+            [
+                ['status_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => OrderStatus::className(),
+                'targetAttribute' => ['status_id' => 'id']
+            ],
         ];
     }
 
@@ -88,11 +114,34 @@ class Order extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
     public function beforeSave($insert)
     {
         if ($insert) {
             $this->hash = md5(uniqid() . time());
         }
         return parent::beforeSave($insert);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        if (isset($changedAttributes['status_id'])) {
+            Module::module()->trigger(
+                Module::EVENT_ORDER_AFTER_STATUS_CHANGE,
+                new OrderAfterStatusChangeEvent(
+                    [
+                        'orderId' => $this->id,
+                        'statusId' => $this->status_id,
+                        'oldStatusId' => $changedAttributes['status_id'],
+                    ]
+                )
+            );
+        }
     }
 }

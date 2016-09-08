@@ -90,16 +90,15 @@ class Order
                 'is_retail' => $cart->is_retail,
             ];
             if (!$order->save()) {
-                throw new \Exception(print_r($order->errors, true));
+                throw new OrderException(Yii::t('dotplant.store', 'Can not save a new order'));
             }
             // set order_id for order_items
             if (OrderItem::updateAll(['order_id' => $order->id], ['cart_id' => $cart->id]) < count($cart->items)) {
-                throw new OrderException('QQQQQQQQQqqqqqqqqqqqqqqqqqqqqqqQQQQQQQQQQQQQQQQqqqqqqqqqqQQQQQQQQQQQQqqqqqqqqQQQQQQQQQQQ');
+                throw new OrderException(Yii::t('dotplant.store', 'Can not update order items'));
             }
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
-            throw new \Exception($e->getMessage());
             return null;
         }
         // set hash to session

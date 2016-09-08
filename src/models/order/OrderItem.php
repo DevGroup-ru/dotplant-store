@@ -21,6 +21,9 @@ use Yii;
  * @property string $total_price_with_discount
  * @property string $total_price_without_discount
  * @property string $seller_price
+ *
+ * @property Order $order
+ * @property Cart $cart
  */
 class OrderItem extends \yii\db\ActiveRecord
 {
@@ -72,6 +75,24 @@ class OrderItem extends \yii\db\ActiveRecord
             'total_price_without_discount' => Yii::t('dotplant.store', 'Total price without discount'),
             'seller_price' => Yii::t('dotplant.store', 'Seller price'),
         ];
+    }
+
+    /**
+     * Cart relation
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCart()
+    {
+        return $this->hasOne(Cart::class, ['id' => 'cart_id']);
+    }
+
+    /**
+     * Order relation
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrder()
+    {
+        return $this->hasOne(Order::class, ['id' => 'order_id']);
     }
 
     public function calculate()
