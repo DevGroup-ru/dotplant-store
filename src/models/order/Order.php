@@ -35,6 +35,7 @@ use Yii;
  * @property string $hash
  *
  * @property OrderDeliveryInformation $deliveryInformation
+ * @property OrderItem[] $items
  */
 class Order extends \yii\db\ActiveRecord
 {
@@ -139,9 +140,20 @@ class Order extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getDeliveryInformation()
     {
         return $this->hasOne(OrderDeliveryInformation::class, ['order_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getItems()
+    {
+        return $this->hasMany(OrderItem::class, ['order_id' => 'id']);
     }
 
     /**

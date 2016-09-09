@@ -3,6 +3,7 @@
 namespace DotPlant\Store\components;
 
 use DotPlant\Currencies\helpers\CurrencyHelper;
+use DotPlant\Store\events\RetailCheckEvent;
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\models\order\Cart;
 use DotPlant\Store\models\order\Order;
@@ -23,11 +24,12 @@ class Store
 
     protected static function createCart()
     {
-        $model = new Cart();
+        $model = new Cart;
         $model->loadDefaultValues();
         $model->context_id = Yii::$app->multilingual->context_id;
         $model->created_by = Yii::$app->user->id;
         $model->currency_iso_code = CurrencyHelper::getUserCurrency()->iso_code;
+        $model->is_retail = (int) static::isRetail();
         if (!$model->save()) {
             throw new OrderException(Yii::t('dotplant.store', 'Can not create a new cart'));
         }
@@ -133,5 +135,16 @@ class Store
             ArrayHelper::merge(Yii::$app->session->get(self::ORDER_HASHES_SESSION_KEY, []), [$order->hash])
         );
         return $order;
+    }
+
+    /**
+     * Whether to show a retail price
+     * @return bool true - retail, false - wholesale
+     */
+    public static function isRetail()
+    {
+        $event = new RetailCheckEvent;
+        Module::module()->trigger(Module::EVENT_RETAIL_CHECK, $event);
+        return $event->isRetail;
     }
 }

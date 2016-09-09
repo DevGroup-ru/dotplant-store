@@ -345,6 +345,56 @@
             "description": "A web-based tool to view, edit and format JSON"
         },
         {
+            "name": "bower-asset/jstree",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vakata/jstree.git",
+                "reference": "34ca09fd332469455b34b0811f587cec31796fd3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vakata/jstree/zipball/34ca09fd332469455b34b0811f587cec31796fd3",
+                "reference": "34ca09fd332469455b34b0811f587cec31796fd3",
+                "shasum": ""
+            },
+            "require": {
+                "bower-asset/jquery": ">=1.9.1"
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": [
+                    "./dist/jstree.js",
+                    "./dist/themes/default/style.css"
+                ],
+                "bower-asset-ignore": [
+                    "**/.*",
+                    "docs",
+                    "demo",
+                    "libs",
+                    "node_modules",
+                    "test",
+                    "libs",
+                    "jstree.jquery.json",
+                    "gruntfile.js",
+                    "package.json",
+                    "bower.json",
+                    "component.json",
+                    "LICENCE-MIT",
+                    "README.md"
+                ],
+                "branch-alias": {
+                    "dev-master": "3.3.2-dev"
+                }
+            },
+            "keywords": [
+                "jstree",
+                "tree",
+                "ui"
+            ],
+            "time": "2016-09-01 21:00:02"
+        },
+        {
             "name": "bower-asset/polyglot",
             "version": "v0.4.5",
             "source": {
@@ -613,12 +663,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/DevGroup-ru/yii2-admin-utils.git",
-                "reference": "e78b74935eb2aad665de28169f9ecedb81f08f6b"
+                "reference": "5523a31ba4bef97631d32a2176a407a744614172"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DevGroup-ru/yii2-admin-utils/zipball/e78b74935eb2aad665de28169f9ecedb81f08f6b",
-                "reference": "e78b74935eb2aad665de28169f9ecedb81f08f6b",
+                "url": "https://api.github.com/repos/DevGroup-ru/yii2-admin-utils/zipball/5523a31ba4bef97631d32a2176a407a744614172",
+                "reference": "5523a31ba4bef97631d32a2176a407a744614172",
                 "shasum": ""
             },
             "require": {
@@ -659,7 +709,7 @@
                 "extension",
                 "yii2"
             ],
-            "time": "2016-09-06 12:49:45"
+            "time": "2016-09-09 08:46:15"
         },
         {
             "name": "devgroup/yii2-data-structure-tools",
@@ -802,12 +852,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/DevGroup-ru/yii2-entity.git",
-                "reference": "4f2ff819b6b024bde0b4b6a60da5ffc6a49d480b"
+                "reference": "82d714bba1fe44ba243b3f94e5e2e9cb4db679ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DevGroup-ru/yii2-entity/zipball/4f2ff819b6b024bde0b4b6a60da5ffc6a49d480b",
-                "reference": "4f2ff819b6b024bde0b4b6a60da5ffc6a49d480b",
+                "url": "https://api.github.com/repos/DevGroup-ru/yii2-entity/zipball/82d714bba1fe44ba243b3f94e5e2e9cb4db679ce",
+                "reference": "82d714bba1fe44ba243b3f94e5e2e9cb4db679ce",
                 "shasum": ""
             },
             "require": {
@@ -846,7 +896,7 @@
                 "extension",
                 "yii2"
             ],
-            "time": "2016-09-04 19:22:40"
+            "time": "2016-09-09 08:26:55"
         },
         {
             "name": "devgroup/yii2-extensions-manager",
@@ -924,12 +974,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/DevGroup-ru/yii2-frontend-utils.git",
-                "reference": "a1d906ac9ae8b4ea1bd398a067f26911d9da197d"
+                "reference": "ae9d23310ea8b5b2f82ed2754a04ebf2e495e061"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DevGroup-ru/yii2-frontend-utils/zipball/a1d906ac9ae8b4ea1bd398a067f26911d9da197d",
-                "reference": "a1d906ac9ae8b4ea1bd398a067f26911d9da197d",
+                "url": "https://api.github.com/repos/DevGroup-ru/yii2-frontend-utils/zipball/ae9d23310ea8b5b2f82ed2754a04ebf2e495e061",
+                "reference": "ae9d23310ea8b5b2f82ed2754a04ebf2e495e061",
                 "shasum": ""
             },
             "require": {
@@ -972,7 +1022,7 @@
                 "frontend-monster",
                 "yii2"
             ],
-            "time": "2016-09-06 13:15:26"
+            "time": "2016-09-07 13:27:27"
         },
         {
             "name": "devgroup/yii2-jsoneditor",
@@ -1027,6 +1077,63 @@
                 "yii2"
             ],
             "time": "2014-12-16 14:27:06"
+        },
+        {
+            "name": "devgroup/yii2-jstree-widget",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DevGroup-ru/yii2-jstree-widget.git",
+                "reference": "c48ece4cdff1c5b24e8eafa33e837983ca82517d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DevGroup-ru/yii2-jstree-widget/zipball/c48ece4cdff1c5b24e8eafa33e837983ca82517d",
+                "reference": "c48ece4cdff1c5b24e8eafa33e837983ca82517d",
+                "shasum": ""
+            },
+            "require": {
+                "bower-asset/jstree": "*",
+                "devgroup/yii2-tag-dependency-helper": "~1.4.0",
+                "yiisoft/yii2": "~2.0.0"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "devgroup\\JsTreeWidget\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alexander Kozhevnikov",
+                    "email": "b37hr3z3n@gmail.com"
+                },
+                {
+                    "name": "Evgeny Dubovitsky",
+                    "email": "flynn068@gmail.com"
+                },
+                {
+                    "name": "Pavel Fedotov",
+                    "email": "fps.06@mail.ru"
+                },
+                {
+                    "name": "Pavel Naumov",
+                    "email": "huggbies@email.su"
+                }
+            ],
+            "description": "jsTree widget for yii2",
+            "keywords": [
+                "jstree",
+                "nested-sets",
+                "tree",
+                "widget",
+                "yii2"
+            ],
+            "time": "2016-09-08 11:49:55"
         },
         {
             "name": "devgroup/yii2-measure",
@@ -1538,19 +1645,22 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/DevGroup-ru/dotplant-entity-structure.git",
-                "reference": "42586e1969dd5e896ce60a9334886b9826f855d9"
+                "reference": "f148e55902f91905349a63ef84ca62dac26c768a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DevGroup-ru/dotplant-entity-structure/zipball/42586e1969dd5e896ce60a9334886b9826f855d9",
-                "reference": "42586e1969dd5e896ce60a9334886b9826f855d9",
+                "url": "https://api.github.com/repos/DevGroup-ru/dotplant-entity-structure/zipball/f148e55902f91905349a63ef84ca62dac26c768a",
+                "reference": "f148e55902f91905349a63ef84ca62dac26c768a",
                 "shasum": ""
             },
             "require": {
                 "devgroup/yii2-admin-utils": "dev-master",
                 "devgroup/yii2-data-structure-tools": "*",
                 "devgroup/yii2-entity": "*",
+                "devgroup/yii2-jstree-widget": "dev-master",
                 "devgroup/yii2-multilingual": "*",
+                "kartik-v/yii2-widget-select2": "@dev",
+                "kartik-v/yii2-widget-switchinput": "*",
                 "php": ">=5.5.0",
                 "yii2tech/ar-role": "^1.0",
                 "yiisoft/yii2": "~2.0.0"
@@ -1595,7 +1705,7 @@
                 "structure",
                 "yii2"
             ],
-            "time": "2016-09-05 13:46:11"
+            "time": "2016-09-09 09:51:27"
         },
         {
             "name": "egeloen/http-adapter",
@@ -3206,12 +3316,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Studio-42/elFinder.git",
-                "reference": "22857040b1e4a9f8efd0de40ee52d2cf220b5fef"
+                "reference": "784402c1321ef2191444926c4b952caadd1e0cf0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Studio-42/elFinder/zipball/22857040b1e4a9f8efd0de40ee52d2cf220b5fef",
-                "reference": "22857040b1e4a9f8efd0de40ee52d2cf220b5fef",
+                "url": "https://api.github.com/repos/Studio-42/elFinder/zipball/784402c1321ef2191444926c4b952caadd1e0cf0",
+                "reference": "784402c1321ef2191444926c4b952caadd1e0cf0",
                 "shasum": ""
             },
             "require": {
@@ -3256,7 +3366,7 @@
             ],
             "description": "File manager for web",
             "homepage": "http://elfinder.org",
-            "time": "2016-09-07 08:57:32"
+            "time": "2016-09-07 15:11:01"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -3627,12 +3737,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-framework.git",
-                "reference": "fb0202ffa61f1bdaa91a4a10cb87865831764985"
+                "reference": "848ac51fcf222c8e1e67e3368100ebcfa269f112"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/fb0202ffa61f1bdaa91a4a10cb87865831764985",
-                "reference": "fb0202ffa61f1bdaa91a4a10cb87865831764985",
+                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/848ac51fcf222c8e1e67e3368100ebcfa269f112",
+                "reference": "848ac51fcf222c8e1e67e3368100ebcfa269f112",
                 "shasum": ""
             },
             "require": {
@@ -3713,7 +3823,7 @@
                 "framework",
                 "yii2"
             ],
-            "time": "2016-09-07 09:05:32"
+            "time": "2016-09-09 10:41:28"
         },
         {
             "name": "yiisoft/yii2-authclient",
@@ -4065,12 +4175,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-diactoros.git",
-                "reference": "7ab19bf3e31a8eef2e72feea5948da61cf04e5db"
+                "reference": "ead5f6f7c7ea4077352461fa8beda2008b6be259"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/7ab19bf3e31a8eef2e72feea5948da61cf04e5db",
-                "reference": "7ab19bf3e31a8eef2e72feea5948da61cf04e5db",
+                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/ead5f6f7c7ea4077352461fa8beda2008b6be259",
+                "reference": "ead5f6f7c7ea4077352461fa8beda2008b6be259",
                 "shasum": ""
             },
             "require": {
@@ -4081,7 +4191,7 @@
                 "psr/http-message-implementation": "~1.0.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.6",
+                "phpunit/phpunit": "^4.6 || ^5.5",
                 "squizlabs/php_codesniffer": "^2.3.1"
             },
             "type": "library",
@@ -4107,7 +4217,7 @@
                 "psr",
                 "psr-7"
             ],
-            "time": "2016-04-28 14:57:31"
+            "time": "2016-09-07 17:58:04"
         }
     ],
     "packages-dev": [],

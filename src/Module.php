@@ -13,6 +13,7 @@ namespace DotPlant\Store;
 class Module extends \yii\base\Module
 {
     const EVENT_ORDER_AFTER_STATUS_CHANGE = 'dotplant.store.orderAfterStatusChange';
+    const EVENT_RETAIL_CHECK = 'dotplant.store.retailCheck';
 
     // cart
     public $allowToAddSameGoods = 0;
