@@ -21,10 +21,10 @@ class Module extends \yii\base\Module
     public $singlePriceForWarehouses = 0;
     public $registerGuestInCart = 1;
     // order statuses
-    public $newOrderStatusId;
-    public $paidOrderStatusId;
-    public $doneOrderStatusId;
-    public $canceledOrderStatusId;
+    public $newOrderStatusId = [];
+    public $paidOrderStatusId = [];
+    public $doneOrderStatusId = [];
+    public $canceledOrderStatusId = [];
 
     /**
      * @return self Module instance in application

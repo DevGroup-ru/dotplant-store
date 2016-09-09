@@ -21,34 +21,46 @@ class StoreConfiguration extends BaseConfigurationModel
     public function rules()
     {
         return [
-            [['newOrderStatusId', 'paidOrderStatusId', 'doneOrderStatusId', 'canceledOrderStatusId'], 'required'],
+//            [['newOrderStatusId', 'paidOrderStatusId', 'doneOrderStatusId', 'canceledOrderStatusId'], 'required'],
             [
                 ['newOrderStatusId'],
-                'exist',
-                'skipOnError' => false,
-                'targetClass' => OrderStatus::class,
-                'targetAttribute' => ['newOrderStatusId' => 'id'],
+                'each',
+                'rule' => [
+                    'exist',
+                    'skipOnError' => true,
+                    'targetClass' => OrderStatus::class,
+                    'targetAttribute' => ['newOrderStatusId' => 'id'],
+                ],
             ],
             [
                 ['paidOrderStatusId'],
-                'exist',
-                'skipOnError' => false,
-                'targetClass' => OrderStatus::class,
-                'targetAttribute' => ['paidOrderStatusId' => 'id'],
+                'each',
+                'rule' => [
+                    'exist',
+                    'skipOnError' => true,
+                    'targetClass' => OrderStatus::class,
+                    'targetAttribute' => ['paidOrderStatusId' => 'id'],
+                ],
             ],
             [
                 ['doneOrderStatusId'],
-                'exist',
-                'skipOnError' => false,
-                'targetClass' => OrderStatus::class,
-                'targetAttribute' => ['doneOrderStatusId' => 'id'],
+                'each',
+                'rule' => [
+                    'exist',
+                    'skipOnError' => true,
+                    'targetClass' => OrderStatus::class,
+                    'targetAttribute' => ['doneOrderStatusId' => 'id'],
+                ],
             ],
             [
                 ['canceledOrderStatusId'],
-                'exist',
-                'skipOnError' => false,
-                'targetClass' => OrderStatus::class,
-                'targetAttribute' => ['canceledOrderStatusId' => 'id'],
+                'each',
+                'rule' => [
+                    'exist',
+                    'skipOnError' => true,
+                    'targetClass' => OrderStatus::class,
+                    'targetAttribute' => ['canceledOrderStatusId' => 'id'],
+                ],
             ],
             [
                 ['allowToAddSameGoods', 'countUniqueItemsOnly', 'singlePriceForWarehouses', 'registerGuestInCart'],

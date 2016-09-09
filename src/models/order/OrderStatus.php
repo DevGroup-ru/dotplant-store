@@ -65,11 +65,11 @@ class OrderStatus extends \yii\db\ActiveRecord
      * Get list data for dropdown
      * @return string[]
      */
-    public static function listData()
+    public static function listData($contextId)
     {
         return static::find()
             ->select(['label', 'id'])
-            ->where(['is_active' => 1])
+            ->where(['context_id' => $contextId, 'is_active' => 1])
             ->indexBy('id')
 //            ->orderBy(['sort_order' => SORT_ASC])
             ->column();

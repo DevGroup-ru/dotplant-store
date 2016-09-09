@@ -111,7 +111,7 @@ class Store
             $order->attributes = [
                 'context_id' => $cart->context_id,
                 'currency_iso_code' => $cart->currency_iso_code,
-                'status_id' => Module::module()->newOrderStatusId,
+                'status_id' => static::getNewOrderStatusId($cart->context_id),
                 'is_retail' => $cart->is_retail,
                 'items_count' => $cart->items_count,
                 'total_price_with_discount' => $cart->total_price_with_discount,
@@ -146,5 +146,23 @@ class Store
         $event = new RetailCheckEvent;
         Module::module()->trigger(Module::EVENT_RETAIL_CHECK, $event);
         return $event->isRetail;
+    }
+
+    /**
+     * @param int|null $contextId
+     * @return int|null
+     */
+    public static function getNewOrderStatusId($contextId = null)
+    {
+        return static::getStatusId('newOrderStatusId', $contextId);
+    }
+
+    protected static function getStatusId($type, $contextId = null)
+    {
+        if ($contextId === null) {
+            $contextId = Yii::$app->multilingual->context_id;
+        }
+        $statusesList = Module::module()->$type;
+        return isset($statusesList[$contextId]) ? $statusesList[$contextId] : null;
     }
 }

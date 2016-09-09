@@ -6,9 +6,23 @@
  * @var \yii\web\View $this
  */
 
-$statuses = \DotPlant\Store\models\order\OrderStatus::listData();
-
 use kartik\switchinput\SwitchInput;
+
+$contexts = \DevGroup\Multilingual\models\Context::find()->all();
+$tabs = [];
+foreach ($contexts as $context) {
+    $tabs[] = [
+        'label' => $context->name,
+        'content' => $this->render(
+            '_order-statuses-tab',
+            [
+                'context' => $context,
+                'form' => $form,
+                'model' => $model,
+            ]
+        ),
+    ];
+}
 
 ?>
 <div class="row">
@@ -27,10 +41,13 @@ use kartik\switchinput\SwitchInput;
         <div class="box">
             <div class="box-header with-border"><h3 class="box-title"><?= Yii::t('dotplant.store', 'Order statuses') ?></h3></div>
             <div class="box-body">
-                <?= $form->field($model, 'newOrderStatusId')->dropDownList($statuses) ?>
-                <?= $form->field($model, 'paidOrderStatusId')->dropDownList($statuses) ?>
-                <?= $form->field($model, 'doneOrderStatusId')->dropDownList($statuses) ?>
-                <?= $form->field($model, 'canceledOrderStatusId')->dropDownList($statuses) ?>
+                <?=
+                \yii\bootstrap\Tabs::widget(
+                    [
+                        'items' => $tabs,
+                    ]
+                )
+                ?>
             </div>
         </div>
     </div>
