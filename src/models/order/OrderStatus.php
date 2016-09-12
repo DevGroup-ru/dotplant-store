@@ -66,16 +66,20 @@ class OrderStatus extends \yii\db\ActiveRecord
      * Get list data for dropdown
      * @return string[]
      */
-    public static function listData($contextId)
+    public static function listData($contextId = null)
     {
+        $condition = ['is_active' => 1];
+        if ($contextId !== null) {
+            $condition['context_id'] = $contextId;
+        }
         return (new Query())
             ->select(['label', 'id'])
             ->from(static::tableName())
             ->innerJoin(OrderStatusTranslation::tableName(), 'id = model_id')
-            ->groupBy('language_id')
-            ->where(['context_id' => $contextId, 'is_active' => 1])
+            ->groupBy(['model_id'])
+            ->where($condition)
             ->indexBy('id')
-            ->orderBy([/*'sort_order' => SORT_ASC, */'language_id' => SORT_ASC])
+            ->orderBy(['sort_order' => SORT_ASC, 'language_id' => SORT_ASC])
             ->column();
     }
 }
