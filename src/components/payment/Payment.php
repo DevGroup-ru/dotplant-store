@@ -5,6 +5,9 @@ namespace DotPlant\Store\components\payment;
 
 
 use DotPlant\Store\handlers\AbstractPaymentType;
+use DotPlant\Store\models\order\Order;
+use DotPlant\Store\models\order\OrderDeliveryInformation;
+use DotPlant\Store\models\price\DummyTax;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\helpers\ArrayHelper;
@@ -36,10 +39,17 @@ class Payment extends \yii\base\Component
 
     }
 
-    public static function pay($paymentId, $order, $currency, $shipping, $tax)
+    /**
+     * @param int $paymentId
+     * @param Order $order
+     * @param string $currencyIsoCode
+     * @param OrderDeliveryInformation $shipping
+     * @param DummyTax $tax
+     */
+    public static function pay($paymentId, $order, $currencyIsoCode, $shipping, $tax)
     {
         $handler = static::createPayment($paymentId);
-        $handler->pay($order, $currency, $shipping, $tax);
+        $handler->pay($order, $currencyIsoCode, $shipping, $tax);
     }
 
     public static function refund($paymentId, $order, $currency, $amount)

@@ -51,25 +51,21 @@ class PayPalHandler extends AbstractPaymentType
      * PayPal API integration; do not use
      *
      * @param \DotPlant\Store\models\order\Order $order
-     * @param Currency $currency
+     * @param string $currencyIsoCode
      * @param Delivery $shipping
      * @param $tax
      *
      * @return mixed
      *
      */
-    public function pay($order, $currency, $shipping, $tax)
+    public function pay($order, $currencyIsoCode, $shipping, $tax)
     {
-
-        //        public $end_time;
-        //        public $payment_result;
-
         $payer = (new Payer())->setPaymentMethod('paypal');
         $priceSubTotal = 0;
         /** @var ItemList $itemList */
         $itemList = array_reduce(
             $order->items,
-            function ($result, $item) use (&$priceSubTotal, $currency) {
+            function ($result, $item) use (&$priceSubTotal, $currencyIsoCode) {
                 /** @var OrderItem $item */
                 /** @var Goods $good */
                 $good = $item->good;
@@ -77,7 +73,7 @@ class PayPalHandler extends AbstractPaymentType
                 $priceSubTotal = $priceSubTotal + $item->total_price_with_discount;
                 /** @var ItemList $result */
                 return $result->addItem(
-                    (new Item())->setName($good->name)->setCurrency($currency->iso_code)->setPrice($price)->setQuantity(
+                    (new Item())->setName($good->name)->setCurrency($currencyIsoCode)->setPrice($price)->setQuantity(
                         $item->quantity
                     )->setUrl($goodUrl)
                 );
@@ -87,8 +83,8 @@ class PayPalHandler extends AbstractPaymentType
         $priceTotal = $order->total_price_with_discount;
 
 
-        $details = (new Details())->setShipping($shipping->price)->setSubtotal($priceSubTotal)->setTax(0);
-        $amount = (new Amount())->setCurrency($currency->iso_code)->setTotal($priceTotal)->setDetails($details);
+        $details = (new Details())->setShipping($shipping->price)->setSubtotal($priceSubTotal)->setTax($tax->getTax());
+        $amount = (new Amount())->setCurrency($currencyIsoCode)->setTotal($priceTotal)->setDetails($details);
         $transaction = (new Transaction())->setAmount($amount)->setItemList($itemList)->setDescription(
             $description
         )->setInvoiceNumber($invoiceId);
@@ -104,7 +100,7 @@ class PayPalHandler extends AbstractPaymentType
         $event->start_time = time();
         $event->end_time = time();
         $event->sum = $priceTotal;
-        $event->currency_iso_code = $currency->iso_code;
+        $event->currency_iso_code = $currencyIsoCode;
         $event->payment_data = ['paymentObject' => serialize($payment)];
         $event->payment_result = ['status' => 'formed'];
 
@@ -122,7 +118,7 @@ class PayPalHandler extends AbstractPaymentType
 
             $event->end_time = time();
             $event->payment_result = ['status' => 'failed', 'paymentObject' => serialize($payment)];
-            
+
             $this->trigger('fail', $event);
         }
         return $this->render(

@@ -6,8 +6,9 @@ namespace DotPlant\Store\handlers;
 
 use DotPlant\Store\events\PaymentEvent;
 use DotPlant\Store\models\order\Order;
+use DotPlant\Store\models\order\OrderDeliveryInformation;
 use DotPlant\Store\models\order\OrderTransaction;
-use DotPlant\Store\models\payment\PaymentTransaction;
+use DotPlant\Store\models\price\DummyTax;
 
 abstract class AbstractPaymentType extends \yii\base\Component
 {
@@ -15,13 +16,13 @@ abstract class AbstractPaymentType extends \yii\base\Component
 
     /**
      * @param Order $order
-     * @param $currency
-     * @param $shipping
-     * @param $tax
+     * @param string $currencyIsoCode
+     * @param OrderDeliveryInformation $shipping
+     * @param DummyTax $tax
      *
      * @return mixed
      */
-    abstract public function pay($order, $currency, $shipping, $tax);
+    abstract public function pay($order, $currencyIsoCode, $shipping, $tax);
 
     abstract public function refund($order, $currency, $amount);
 

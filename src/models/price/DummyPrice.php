@@ -27,7 +27,7 @@ class DummyPrice implements PriceInterface
         // TODO: Implement format() method.
     }
 
-    public function getPrice()
+    public function getPrice($warehouseId, $priceType, $withDiscount)
     {
         // TODO: Implement getPrice() method.
     }
@@ -38,4 +38,18 @@ class DummyPrice implements PriceInterface
     }
 
 
+    public function getWarehouseId()
+    {
+        // TODO: Implement getWarehouseId() method.
+    }
+
+    public function getPriceType()
+    {
+        // TODO: Implement getPriceType() method.
+    }
+
+    public function getGoodsId()
+    {
+        // TODO: Implement getGoodsId() method.
+    }
 }
