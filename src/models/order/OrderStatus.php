@@ -68,10 +68,7 @@ class OrderStatus extends \yii\db\ActiveRecord
      */
     public static function listData($contextId = null)
     {
-        $condition = ['is_active' => 1];
-        if ($contextId !== null) {
-            $condition['context_id'] = $contextId;
-        }
+        $condition = $contextId === null ? ['is_active' => 1] : ['context_id' => [0, $contextId], 'is_active' => 1];
         return (new Query())
             ->select(['label', 'id'])
             ->from(static::tableName())

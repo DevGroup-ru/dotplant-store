@@ -70,11 +70,12 @@ class Payment extends \yii\db\ActiveRecord
      * Get list data for dropdown
      * @return string[]
      */
-    public static function listData()
+    public static function listData($contextId = null)
     {
+        $condition = $contextId === null ? ['is_active' => 1] : ['context_id' => [0, $contextId], 'is_active' => 1];
         return static::find()
             ->select(['name', 'id'])
-            ->where(['is_active' => 1])
+            ->where($condition)
             ->indexBy('id')
             ->orderBy(['sort_order' => SORT_ASC])
             ->column();
