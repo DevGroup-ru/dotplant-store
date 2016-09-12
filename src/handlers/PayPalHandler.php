@@ -60,8 +60,9 @@ class PayPalHandler extends AbstractPaymentType
      */
     public function pay($order, $currency, $shipping, $tax)
     {
-        $event = new PaymentEvent();
-        $event->orderHash = $order->hash;
+
+        //        public $end_time;
+        //        public $payment_result;
 
         $payer = (new Payer())->setPaymentMethod('paypal');
         $priceSubTotal = 0;
@@ -84,6 +85,8 @@ class PayPalHandler extends AbstractPaymentType
             new ItemList()
         );
         $priceTotal = $order->total_price_with_discount;
+
+
         $details = (new Details())->setShipping($shipping->price)->setSubtotal($priceSubTotal)->setTax(0);
         $amount = (new Amount())->setCurrency($currency->iso_code)->setTotal($priceTotal)->setDetails($details);
         $transaction = (new Transaction())->setAmount($amount)->setItemList($itemList)->setDescription(
@@ -95,19 +98,31 @@ class PayPalHandler extends AbstractPaymentType
         )->setRedirectUrls($urls);
         $link = null;
 
-        $event->logData = 'Payment formed';
-        $event->status = 'formed';
+        $event = new PaymentEvent();
+        $event->order_id = $order->id;
+        $event->payment_id = $this->_paymentId;
+        $event->start_time = time();
+        $event->end_time = time();
+        $event->sum = $priceTotal;
+        $event->currency_iso_code = $currency->iso_code;
+        $event->payment_data = ['paymentObject' => serialize($payment)];
+        $event->payment_result = ['status' => 'formed'];
+
         $this->trigger('formed', $event);
+
         try {
             $formedPayment = $payment->create($this->_apiContext);
             $link = $formedPayment->getApprovalLink();
-            $event->status = 'processed';
-            $event->logData = serialize($formedPayment);
+            $event->end_time = time();
+            $event->payment_result = ['status' => 'processed', 'paymentObject' => serialize($formedPayment)];
+
             $this->trigger('processed', $event);
         } catch (\Exception $e) {
             $link = null;
-            $event->status = 'failed';
-            $event->logData = serialize($payment);
+
+            $event->end_time = time();
+            $event->payment_result = ['status' => 'failed', 'paymentObject' => serialize($payment)];
+            
             $this->trigger('fail', $event);
         }
         return $this->render(

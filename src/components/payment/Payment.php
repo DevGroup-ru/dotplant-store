@@ -24,7 +24,11 @@ class Payment extends \yii\base\Component
              * @var AbstractPaymentType $paymentObject
              */
             $paymentObject = Yii::createObject(
-                ArrayHelper::merge(['class' => $paymentModel->handler_class_name], $paymentModel->handler_params)
+                ArrayHelper::merge(
+                    ['class' => $paymentModel->handler_class_name],
+                    $paymentModel->handler_params,
+                    ['paymentId' => $paymentId]
+                )
             );
             return $paymentObject;
         }
