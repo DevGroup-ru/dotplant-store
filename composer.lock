@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "496c8d8de7befcceac16264f5266c8c8",
-    "content-hash": "1b7f91a940d22905b25cfac673ab148c",
+    "hash": "0d0cf9b4f77c8e1df5b6086aeaffe647",
+    "content-hash": "9e494da1c7e825a8c13352043dab8a92",
     "packages": [
         {
             "name": "2amigos/yii2-transliterator-helper",
@@ -897,6 +897,60 @@
                 "yii2"
             ],
             "time": "2016-09-09 08:26:55"
+        },
+        {
+            "name": "devgroup/yii2-events-system",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DevGroup-ru/yii2-events-system.git",
+                "reference": "a6bb460497deae46f0c6848d7f918b74867a3725"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DevGroup-ru/yii2-events-system/zipball/a6bb460497deae46f0c6848d7f918b74867a3725",
+                "reference": "a6bb460497deae46f0c6848d7f918b74867a3725",
+                "shasum": ""
+            },
+            "require": {
+                "devgroup/yii2-data-structure-tools": "*",
+                "devgroup/yii2-tag-dependency-helper": "~1.4",
+                "php": ">=5.4.0",
+                "yiisoft/yii2": "~2.0.0"
+            },
+            "require-dev": {
+                "codeception/codeception": "^2.2",
+                "yiisoft/yii2-codeception": "~2.0.0"
+            },
+            "type": "yii2-extension",
+            "extra": {
+                "bootstrap": "DevGroup\\EventsSystem\\Bootstrap",
+                "migrationPath": [
+                    "src/migrations"
+                ]
+            },
+            "autoload": {
+                "psr-4": {
+                    "DevGroup\\EventsSystem\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Pavel Fedotov",
+                    "email": "fps.06@mail.ru"
+                }
+            ],
+            "description": "The easy and flexible system of events attaching via admin panel",
+            "keywords": [
+                "event",
+                "extension",
+                "yii2"
+            ],
+            "time": "2016-09-09 11:19:11"
         },
         {
             "name": "devgroup/yii2-extensions-manager",
@@ -4228,7 +4282,8 @@
         "devgroup/yii2-multilingual": 20,
         "dotplant/entity-structure": 20,
         "dotplant/currencies": 20,
-        "devgroup/yii2-users-module": 20
+        "devgroup/yii2-users-module": 20,
+        "devgroup/yii2-events-system": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

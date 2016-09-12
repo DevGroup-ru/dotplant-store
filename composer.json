@@ -18,7 +18,8 @@
         "devgroup/yii2-multilingual": "dev-master",
         "dotplant/entity-structure": "dev-master",
         "dotplant/currencies": "dev-master",
-        "devgroup/yii2-users-module": "dev-master"
+        "devgroup/yii2-users-module": "dev-master",
+        "devgroup/yii2-events-system": "dev-master"
     },
     "autoload": {
         "psr-4": {

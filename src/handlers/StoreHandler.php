@@ -13,7 +13,7 @@ class StoreHandler
     /**
      * @param RetailCheckEvent $event
      */
-    public static function DummyRetailCheck(RetailCheckEvent $event)
+    public static function dummyRetailCheck(RetailCheckEvent $event)
     {
         if (isset($event->data['isRetail'])) {
             $event->isRetail = $event->data['isRetail'];
