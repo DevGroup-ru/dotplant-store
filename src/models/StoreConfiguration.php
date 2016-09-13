@@ -4,6 +4,7 @@ namespace DotPlant\Store\models;
 
 use DevGroup\ExtensionsManager\models\BaseConfigurationModel;
 use DotPlant\Store\models\order\OrderStatus;
+use DotPlant\Store\models\order\OrderStatusTranslation;
 use DotPlant\Store\Module;
 
 class StoreConfiguration extends BaseConfigurationModel
@@ -21,15 +22,14 @@ class StoreConfiguration extends BaseConfigurationModel
     public function rules()
     {
         return [
-//            [['newOrderStatusId', 'paidOrderStatusId', 'doneOrderStatusId', 'canceledOrderStatusId'], 'required'],
             [
                 ['newOrderStatusId'],
                 'each',
                 'rule' => [
                     'exist',
                     'skipOnError' => true,
-                    'targetClass' => OrderStatus::class,
-                    'targetAttribute' => ['newOrderStatusId' => 'id'],
+                    'targetClass' => OrderStatusTranslation::class,
+                    'targetAttribute' => ['newOrderStatusId' => 'model_id'],
                 ],
             ],
             [
@@ -38,8 +38,8 @@ class StoreConfiguration extends BaseConfigurationModel
                 'rule' => [
                     'exist',
                     'skipOnError' => true,
-                    'targetClass' => OrderStatus::class,
-                    'targetAttribute' => ['paidOrderStatusId' => 'id'],
+                    'targetClass' => OrderStatusTranslation::class,
+                    'targetAttribute' => ['paidOrderStatusId' => 'model_id'],
                 ],
             ],
             [
@@ -48,8 +48,8 @@ class StoreConfiguration extends BaseConfigurationModel
                 'rule' => [
                     'exist',
                     'skipOnError' => true,
-                    'targetClass' => OrderStatus::class,
-                    'targetAttribute' => ['doneOrderStatusId' => 'id'],
+                    'targetClass' => OrderStatusTranslation::class,
+                    'targetAttribute' => ['doneOrderStatusId' => 'model_id'],
                 ],
             ],
             [
@@ -58,8 +58,8 @@ class StoreConfiguration extends BaseConfigurationModel
                 'rule' => [
                     'exist',
                     'skipOnError' => true,
-                    'targetClass' => OrderStatus::class,
-                    'targetAttribute' => ['canceledOrderStatusId' => 'id'],
+                    'targetClass' => OrderStatusTranslation::class,
+                    'targetAttribute' => ['canceledOrderStatusId' => 'model_id'],
                 ],
             ],
             [

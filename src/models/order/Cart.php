@@ -165,7 +165,6 @@ class Cart extends ActiveRecord
             $this->items_count += Module::module()->countUniqueItemsOnly == 1 ? 1 : $item->quantity;
         }
         // @todo: Add another calculation (discounts, etc)
-        $this->save(true, ['items_count', 'total_price_with_discount', 'total_price_without_discount']);
     }
 
     /**

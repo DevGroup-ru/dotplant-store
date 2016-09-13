@@ -130,12 +130,12 @@ class OrderItem extends \yii\db\ActiveRecord
         $this->total_price_with_discount = CurrencyHelper::convertCurrencies(
             $price['value'],
             CurrencyHelper::findCurrencyByIso($price['iso_code']),
-            CurrencyHelper::getUserCurrency()
+            CurrencyHelper::findCurrencyByIso($this->cart->currency_iso_code)
         ) * $this->quantity;
         $this->total_price_without_discount = CurrencyHelper::convertCurrencies(
             isset($price['original_value']) ? $price['original_value'] : $price['value'],
             CurrencyHelper::findCurrencyByIso($price['iso_code']),
-            CurrencyHelper::getUserCurrency()
+            CurrencyHelper::findCurrencyByIso($this->cart->currency_iso_code)
         ) * $this->quantity;
     }
 

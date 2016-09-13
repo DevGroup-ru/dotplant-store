@@ -102,11 +102,13 @@ class Order extends \yii\db\ActiveRecord
                 'items_count',
                 'total_price_with_discount',
                 'total_price_without_discount',
+                'rate_to_main_currency',
             ] + $baseActionsInfoAttributes,
             'single-step-order' => [
                 'payment_id',
                 'delivery_id',
             ] + $baseActionsInfoAttributes,
+            'status-changing' => ['status_id'] + $baseActionsInfoAttributes,
         ];
     }
 
