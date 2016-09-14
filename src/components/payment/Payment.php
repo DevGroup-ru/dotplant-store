@@ -34,7 +34,7 @@ class Payment extends \yii\base\Component
             );
             return $paymentObject;
         }
-        throw new InvalidParamException('blah-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah');
+        throw new InvalidParamException(Yii::t('dotplant.store', 'Set correct payment ID'));
     }
 
     /**
