@@ -86,14 +86,16 @@ class Cart extends ActiveRecord
         if (empty($warehouseId)) {
             $warehouseId = Warehouse::getOptimalWarehouse($goodsId, $quantity)->warehouse_id;
         }
-        $item = $this->findItem(
-            [
-                'cart_id' => $this->id,
-                'goods_id' => $goodsId,
-                'warehouse_id' => $warehouseId,
-            ],
-            false
-        );
+        $item = Module::module()->allowToAddSameGoods == 0
+            ? $this->findItem(
+                [
+                    'cart_id' => $this->id,
+                    'goods_id' => $goodsId,
+                    'warehouse_id' => $warehouseId,
+                ],
+                false
+            )
+            : null;
         if ($item === null) {
             $item = new OrderItem;
             $item->loadDefaultValues();
@@ -163,7 +165,15 @@ class Cart extends ActiveRecord
             $this->items_count += Module::module()->countUniqueItemsOnly == 1 ? 1 : $item->quantity;
         }
         // @todo: Add another calculation (discounts, etc)
-        $this->save(true, ['items_count', 'total_price_with_discount', 'total_price_without_discount']);
+    }
+
+    /**
+     * Whether to allow to edit the cart
+     * @return bool
+     */
+    public function canEdit()
+    {
+        return $this->is_locked == 0;
     }
 
     /**
@@ -200,7 +210,7 @@ class Cart extends ActiveRecord
      */
     protected function checkLock()
     {
-        if ($this->is_locked == 1) {
+        if (!$this->canEdit()) {
             throw new OrderException(
                 Yii::t('dotplant.store', 'Cart is locked. Cancel the ordering process to unlock it')
             );

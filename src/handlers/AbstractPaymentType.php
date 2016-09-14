@@ -19,8 +19,6 @@ abstract class AbstractPaymentType extends \yii\base\Component
      * @param string $currencyIsoCode
      * @param OrderDeliveryInformation $shipping
      * @param DummyTax $tax
-     *
-     * @return mixed
      */
     abstract public function pay($order, $currencyIsoCode, $shipping, $tax);
 

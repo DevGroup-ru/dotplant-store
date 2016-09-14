@@ -42,6 +42,7 @@ $this->registerJs($js);
                     </form>
                 </td>
                 <td><?= $item->total_price_with_discount ?></td>
+                <td><?= $item->total_price_without_discount ?></td>
                 <td>
                     <form action="<?= \yii\helpers\Url::toRoute(['/store/cart/remove']) ?>" data-action="ajax-tester">
                         <input type="hidden" name="id" value="<?= $item->id ?>" />
@@ -54,13 +55,14 @@ $this->registerJs($js);
             <td><?= Yii::t('dotplant.store', 'Summary') ?></td>
             <td><?= $model->items_count ?></td>
             <td><?= $model->total_price_with_discount ?></td>
+            <td><?= $model->total_price_without_discount ?></td>
             <td></td>
         </tr>
     </table>
-    <?php if ($model->is_locked == 1): ?>
-        <a href="<?= \yii\helpers\Url::toRoute(['/store/order/create', 'hash' => $model->items[0]->order->hash]) ?>" class="btn btn-primary">Edit an order</a>
-    <?php else: ?>
+    <?php if ($model->canEdit()): ?>
         <a href="<?= \yii\helpers\Url::toRoute(['/store/order/create']) ?>" class="btn btn-primary">Create an order</a>
+    <?php else: ?>
+        <a href="<?= \yii\helpers\Url::toRoute(['/store/order/create', 'hash' => $model->items[0]->order->hash]) ?>" class="btn btn-primary">Edit an order</a>
     <?php endif; ?>
 <?php else: ?>
     <p><?= Yii::t('dotplant.store', 'Cart has no items') ?></p>

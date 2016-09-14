@@ -57,11 +57,11 @@ class SingleStepOrderAction extends Action
             $orderDeliveryInformation = new OrderDeliveryInformation;
             $orderDeliveryInformation->loadDefaultValues();
         } else {
-            $orderDeliveryInformation = $order->deliveryInformation;
+            $orderDeliveryInformation = $order->deliveryInformation; // @todo: add a check
         }
         $order->scenario = 'single-step-order';
         $orderDeliveryInformation->context_id = Yii::$app->multilingual->context_id;
-        if ($orderDeliveryInformation->load(Yii::$app->request->post())
+        if ($orderDeliveryInformation->load(Yii::$app->request->post()) // split it
             && $order->load(Yii::$app->request->post())
             && $orderDeliveryInformation->validate()
             && $order->validate()
@@ -73,7 +73,7 @@ class SingleStepOrderAction extends Action
                 }
                 $order->scenario = 'single-step-order';
             }
-            $order->load(Yii::$app->request->post());
+            $order->load(Yii::$app->request->post()); // @todo: refactor it
             $orderDeliveryInformation->order_id = $order->id;
             if ($order->save() && $orderDeliveryInformation->save()) {
                 return $this->controller->redirect(

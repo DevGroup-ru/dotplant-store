@@ -4,6 +4,7 @@ namespace DotPlant\Store\models;
 
 use DevGroup\ExtensionsManager\models\BaseConfigurationModel;
 use DotPlant\Store\models\order\OrderStatus;
+use DotPlant\Store\models\order\OrderStatusTranslation;
 use DotPlant\Store\Module;
 
 class StoreConfiguration extends BaseConfigurationModel
@@ -21,34 +22,45 @@ class StoreConfiguration extends BaseConfigurationModel
     public function rules()
     {
         return [
-            [['newOrderStatusId', 'paidOrderStatusId', 'doneOrderStatusId', 'canceledOrderStatusId'], 'required'],
             [
                 ['newOrderStatusId'],
-                'exist',
-                'skipOnError' => false,
-                'targetClass' => OrderStatus::class,
-                'targetAttribute' => ['newOrderStatusId' => 'id'],
+                'each',
+                'rule' => [
+                    'exist',
+                    'skipOnError' => true,
+                    'targetClass' => OrderStatusTranslation::class,
+                    'targetAttribute' => ['newOrderStatusId' => 'model_id'],
+                ],
             ],
             [
                 ['paidOrderStatusId'],
-                'exist',
-                'skipOnError' => false,
-                'targetClass' => OrderStatus::class,
-                'targetAttribute' => ['paidOrderStatusId' => 'id'],
+                'each',
+                'rule' => [
+                    'exist',
+                    'skipOnError' => true,
+                    'targetClass' => OrderStatusTranslation::class,
+                    'targetAttribute' => ['paidOrderStatusId' => 'model_id'],
+                ],
             ],
             [
                 ['doneOrderStatusId'],
-                'exist',
-                'skipOnError' => false,
-                'targetClass' => OrderStatus::class,
-                'targetAttribute' => ['doneOrderStatusId' => 'id'],
+                'each',
+                'rule' => [
+                    'exist',
+                    'skipOnError' => true,
+                    'targetClass' => OrderStatusTranslation::class,
+                    'targetAttribute' => ['doneOrderStatusId' => 'model_id'],
+                ],
             ],
             [
                 ['canceledOrderStatusId'],
-                'exist',
-                'skipOnError' => false,
-                'targetClass' => OrderStatus::class,
-                'targetAttribute' => ['canceledOrderStatusId' => 'id'],
+                'each',
+                'rule' => [
+                    'exist',
+                    'skipOnError' => true,
+                    'targetClass' => OrderStatusTranslation::class,
+                    'targetAttribute' => ['canceledOrderStatusId' => 'model_id'],
+                ],
             ],
             [
                 ['allowToAddSameGoods', 'countUniqueItemsOnly', 'singlePriceForWarehouses', 'registerGuestInCart'],

@@ -35,6 +35,7 @@ use Yii;
  * @property string $hash
  *
  * @property OrderDeliveryInformation $deliveryInformation
+ * @property OrderItem[] $items
  */
 class Order extends \yii\db\ActiveRecord
 {
@@ -101,11 +102,13 @@ class Order extends \yii\db\ActiveRecord
                 'items_count',
                 'total_price_with_discount',
                 'total_price_without_discount',
+                'rate_to_main_currency',
             ] + $baseActionsInfoAttributes,
             'single-step-order' => [
                 'payment_id',
                 'delivery_id',
             ] + $baseActionsInfoAttributes,
+            'status-changing' => ['status_id'] + $baseActionsInfoAttributes,
         ];
     }
 
@@ -139,9 +142,20 @@ class Order extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getDeliveryInformation()
     {
         return $this->hasOne(OrderDeliveryInformation::class, ['order_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getItems()
+    {
+        return $this->hasMany(OrderItem::class, ['order_id' => 'id']);
     }
 
     /**

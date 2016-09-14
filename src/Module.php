@@ -13,6 +13,11 @@ namespace DotPlant\Store;
 class Module extends \yii\base\Module
 {
     const EVENT_ORDER_AFTER_STATUS_CHANGE = 'dotplant.store.orderAfterStatusChange';
+    const EVENT_RETAIL_CHECK = 'dotplant.store.retailCheck';
+    const EVENT_PAYMENT_STATUS_SUCCESS = 'dotplant.store.paymentStatusSuccess';
+    const EVENT_PAYMENT_STATUS_ERROR = 'dotplant.store.paymentStatusError';
+    const EVENT_PAYMENT_STATUS_FORMED = 'dotplant.store.paymentStatusFormed';
+    const EVENT_PAYMENT_STATUS_PROCESSED = 'dotplant.store.paymentStatusProcessed';
 
     // cart
     public $allowToAddSameGoods = 0;
@@ -20,10 +25,10 @@ class Module extends \yii\base\Module
     public $singlePriceForWarehouses = 0;
     public $registerGuestInCart = 1;
     // order statuses
-    public $newOrderStatusId;
-    public $paidOrderStatusId;
-    public $doneOrderStatusId;
-    public $canceledOrderStatusId;
+    public $newOrderStatusId = [];
+    public $paidOrderStatusId = [];
+    public $doneOrderStatusId = [];
+    public $canceledOrderStatusId = [];
 
     /**
      * @return self Module instance in application

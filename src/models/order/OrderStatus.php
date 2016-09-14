@@ -5,6 +5,7 @@ namespace DotPlant\Store\models\order;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use Yii;
+use yii\db\Query;
 
 /**
  * This is the model class for table "{{%dotplant_store_order_status}}".
@@ -65,13 +66,17 @@ class OrderStatus extends \yii\db\ActiveRecord
      * Get list data for dropdown
      * @return string[]
      */
-    public static function listData()
+    public static function listData($contextId = null)
     {
-        return static::find()
+        $condition = $contextId === null ? ['is_active' => 1] : ['context_id' => [0, $contextId], 'is_active' => 1];
+        return (new Query())
             ->select(['label', 'id'])
-            ->where(['is_active' => 1])
+            ->from(static::tableName())
+            ->innerJoin(OrderStatusTranslation::tableName(), 'id = model_id')
+            ->groupBy(['model_id'])
+            ->where($condition)
             ->indexBy('id')
-//            ->orderBy(['sort_order' => SORT_ASC])
+            ->orderBy(['sort_order' => SORT_ASC, 'language_id' => SORT_ASC])
             ->column();
     }
 }

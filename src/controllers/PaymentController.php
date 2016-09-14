@@ -38,14 +38,15 @@ class PaymentController extends Controller
     }
 
     /**
-     * @param null $hash
-     * @param null $paymentId
+     * @param string $hash
+     * @param int $paymentId
      *
      * @return string
      */
     public function actionPay($hash = null, $paymentId = null)
     {
         $shippingObject = OrderDeliveryInformation::findOne(['order_id' => $this->_order->id]);
+        $this->_order->payment_id = $paymentId;
         $taxNullObject = new DummyTax;
         Payment::pay($paymentId, $this->_order, $this->_order->currency_iso_code, $shippingObject, $taxNullObject);
         return $this->render('pay');
@@ -56,9 +57,13 @@ class PaymentController extends Controller
      *
      * @return string
      */
-    public function actionCheck($hash = null)
+    public function actionCheck($hash = null, $paymentId = null)
     {
-        return $this->render('check');
+        $paymentResult = Payment::checkResult($paymentId, $this->_order);
+        if ($paymentResult) {
+            return $this->redirect(['success', 'hash' => $hash]);
+        }
+        return $this->redirect(['error', 'hash' => $hash]);
     }
 
     /**
@@ -68,6 +73,9 @@ class PaymentController extends Controller
      */
     public function actionSuccess($hash = null)
     {
+        if (Store::checkOrderIsPaid($this->_order) === false) {
+            return $this->redirect(['order/payment']);
+        }
         return $this->render('success');
     }
 

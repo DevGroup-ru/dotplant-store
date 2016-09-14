@@ -9,6 +9,7 @@ use DotPlant\Store\events\PaymentEvent;
 use DotPlant\Store\models\goods\Goods;
 use DotPlant\Store\models\order\Delivery;
 use DotPlant\Store\models\order\OrderItem;
+use DotPlant\Store\Module;
 use PayPal\Api\Amount;
 use PayPal\Api\Details;
 use PayPal\Api\Item;
@@ -54,9 +55,6 @@ class PayPalHandler extends AbstractPaymentType
      * @param string $currencyIsoCode
      * @param Delivery $shipping
      * @param $tax
-     *
-     * @return mixed
-     *
      */
     public function pay($order, $currencyIsoCode, $shipping, $tax)
     {
@@ -86,8 +84,8 @@ class PayPalHandler extends AbstractPaymentType
         $details = (new Details())->setShipping($shipping->price)->setSubtotal($priceSubTotal)->setTax($tax->getTax());
         $amount = (new Amount())->setCurrency($currencyIsoCode)->setTotal($priceTotal)->setDetails($details);
         $transaction = (new Transaction())->setAmount($amount)->setItemList($itemList)->setDescription(
-            $description
-        )->setInvoiceNumber($invoiceId);
+            "Order " . $order->hash
+        )->setInvoiceNumber($order->hash);
         $urls = (new RedirectUrls())->setReturnUrl($returnUrl)->setCancelUrl($canselUrl);
         $payment = (new Payment())->setIntent('sale')->setPayer($payer)->setTransactions(
             [$transaction]
@@ -102,24 +100,30 @@ class PayPalHandler extends AbstractPaymentType
         $event->sum = $priceTotal;
         $event->currency_iso_code = $currencyIsoCode;
         $event->payment_data = ['paymentObject' => serialize($payment)];
-        $event->payment_result = ['status' => 'formed'];
+        $event->payment_result = ['status' => Module::EVENT_PAYMENT_STATUS_FORMED];
 
-        $this->trigger('formed', $event);
+        $this->trigger(Module::EVENT_PAYMENT_STATUS_FORMED, $event);
 
         try {
             $formedPayment = $payment->create($this->_apiContext);
             $link = $formedPayment->getApprovalLink();
             $event->end_time = time();
-            $event->payment_result = ['status' => 'processed', 'paymentObject' => serialize($formedPayment)];
+            $event->payment_result = [
+                'status' => Module::EVENT_PAYMENT_STATUS_PROCESSED,
+                'paymentObject' => serialize($formedPayment),
+            ];
 
-            $this->trigger('processed', $event);
+            $this->trigger(Module::EVENT_PAYMENT_STATUS_PROCESSED, $event);
         } catch (\Exception $e) {
             $link = null;
 
             $event->end_time = time();
-            $event->payment_result = ['status' => 'failed', 'paymentObject' => serialize($payment)];
+            $event->payment_result = [
+                'status' => Module::EVENT_PAYMENT_STATUS_ERROR,
+                'paymentObject' => serialize($payment),
+            ];
 
-            $this->trigger('fail', $event);
+            $this->trigger(Module::EVENT_PAYMENT_STATUS_ERROR, $event);
         }
         return $this->render(
             'paypal',
