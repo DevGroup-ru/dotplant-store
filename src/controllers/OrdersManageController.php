@@ -13,7 +13,7 @@ use yii\web\NotFoundHttpException;
 /**
  * OrderManageController implements the CRUD actions for Order model.
  */
-class OrderManageController extends Controller
+class OrdersManageController extends Controller
 {
     /**
      * @inheritdoc
