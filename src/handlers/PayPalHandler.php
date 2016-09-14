@@ -19,6 +19,7 @@ use PayPal\Api\RedirectUrls;
 use PayPal\Api\Transaction;
 use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Rest\ApiContext;
+use yii\helpers\Url;
 
 class PayPalHandler extends AbstractPaymentType
 {
@@ -72,7 +73,7 @@ class PayPalHandler extends AbstractPaymentType
                 return $result->addItem(
                     (new Item())->setName($good->name)->setCurrency($currencyIsoCode)->setPrice($price)->setQuantity(
                         $item->quantity
-                    )->setUrl($goodUrl)
+                    )
                 );
             },
             new ItemList()
@@ -85,7 +86,7 @@ class PayPalHandler extends AbstractPaymentType
         $transaction = (new Transaction())->setAmount($amount)->setItemList($itemList)->setDescription(
             "Order " . $order->hash
         )->setInvoiceNumber($order->hash);
-        $urls = (new RedirectUrls())->setReturnUrl($returnUrl)->setCancelUrl($canselUrl);
+        $urls = (new RedirectUrls())->setReturnUrl(Url::to(['payment']))->setCancelUrl($canselUrl);
         $payment = (new Payment())->setIntent('sale')->setPayer($payer)->setTransactions(
             [$transaction]
         )->setRedirectUrls($urls);
