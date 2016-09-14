@@ -2,14 +2,12 @@
 
 namespace DotPlant\Store\models\order;
 
+use DevGroup\Entity\traits\EntityTrait;
+use DevGroup\Entity\traits\SoftDeleteTrait;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DotPlant\Store\components\MultilingualListDataQuery;
-use DotPlant\Store\components\SortByLanguageExpression;
 use Yii;
-use yii\db\Exception;
-use yii\db\Expression;
-use yii\db\Query;
 
 /**
  * This is the model class for table "{{%dotplant_store_order_status}}".
@@ -18,10 +16,13 @@ use yii\db\Query;
  * @property integer $context_id
  * @property string $label_class
  * @property integer $is_active
+ * @property integer $is_deleted
  */
 class OrderStatus extends \yii\db\ActiveRecord
 {
+    use EntityTrait;
     use MultilingualTrait;
+    use SoftDeleteTrait;
 
     public function behaviors()
     {
@@ -48,7 +49,7 @@ class OrderStatus extends \yii\db\ActiveRecord
     {
         return [
             [['context_id'], 'required'],
-            [['context_id', 'is_active'], 'integer'],
+            [['context_id', 'is_active', 'is_deleted'], 'integer'],
             [['label_class'], 'string', 'max' => 255],
         ];
     }
@@ -63,6 +64,7 @@ class OrderStatus extends \yii\db\ActiveRecord
             'context_id' => Yii::t('dotplant.store', 'Context'),
             'label_class' => Yii::t('dotplant.store', 'Label class'),
             'is_active' => Yii::t('dotplant.store', 'Is active'),
+            'is_deleted' => Yii::t('dotplant.store', 'Is deleted'),
         ];
     }
 

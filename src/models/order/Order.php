@@ -4,6 +4,7 @@ namespace DotPlant\Store\models\order;
 
 use DevGroup\Entity\traits\BaseActionsInfoTrait;
 use DevGroup\Entity\traits\EntityTrait;
+use DevGroup\Entity\traits\SoftDeleteTrait;
 use DotPlant\Store\events\OrderAfterStatusChangeEvent;
 use DotPlant\Store\events\OrderEvent;
 use DotPlant\Store\Module;
@@ -33,6 +34,7 @@ use Yii;
  * @property integer $updated_at
  * @property integer $forming_time
  * @property string $hash
+ * @property boolean $is_deleted
  *
  * @property OrderDeliveryInformation $deliveryInformation
  * @property OrderItem[] $items
@@ -41,6 +43,7 @@ class Order extends \yii\db\ActiveRecord
 {
     use EntityTrait;
     use BaseActionsInfoTrait;
+    use SoftDeleteTrait;
 
     /**
      * @inheritdoc
@@ -57,8 +60,33 @@ class Order extends \yii\db\ActiveRecord
     {
         return [
             [['context_id', 'status_id', 'currency_iso_code'], 'required'],
-            [['context_id', 'status_id', 'delivery_id', 'payment_id', 'is_retail', 'manager_id', 'promocode_id', 'created_by', 'created_at', 'updated_by', 'updated_at', 'forming_time'], 'integer'],
-            [['items_count', 'total_price_with_discount', 'total_price_without_discount', 'promocode_discount', 'rate_to_main_currency'], 'number'],
+            [
+                [
+                    'context_id',
+                    'status_id',
+                    'delivery_id',
+                    'payment_id',
+                    'is_retail',
+                    'manager_id',
+                    'promocode_id',
+                    'created_by',
+                    'created_at',
+                    'updated_by',
+                    'updated_at',
+                    'forming_time',
+                    'is_deleted'],
+                'integer'
+            ],
+            [
+                [
+                    'items_count',
+                    'total_price_with_discount',
+                    'total_price_without_discount',
+                    'promocode_discount',
+                    'rate_to_main_currency'
+                ],
+                'number'
+            ],
             [['currency_iso_code'], 'string', 'max' => 3],
             [['promocode_name'], 'string', 'max' => 255],
             [['hash'], 'string', 'max' => 32],
@@ -116,6 +144,9 @@ class Order extends \yii\db\ActiveRecord
                 'payment_id',
                 'manager_id',
             ] + $baseActionsInfoAttributes,
+            'backend-order-soft-deleting' => [
+                'is_deleted',
+            ] + $baseActionsInfoAttributes,
         ];
     }
 
@@ -146,6 +177,7 @@ class Order extends \yii\db\ActiveRecord
             'updated_at' => Yii::t('dotplant.store', 'Updated at'),
             'forming_time' => Yii::t('dotplant.store', 'Forming time'),
             'hash' => Yii::t('dotplant.store', 'Hash'),
+            'is_deleted' => Yii::t('dotplant.store', 'Is deleted'),
         ];
     }
 

@@ -2,6 +2,8 @@
 
 namespace DotPlant\Store\models\order;
 
+use DevGroup\Entity\traits\EntityTrait;
+use DevGroup\Entity\traits\SoftDeleteTrait;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DotPlant\Store\components\MultilingualListDataQuery;
@@ -16,10 +18,13 @@ use Yii;
  * @property string $packed_json_handler_params
  * @property integer $sort_order
  * @property integer $is_active
+ * @property integer $is_deleted
  */
 class Delivery extends \yii\db\ActiveRecord
 {
+    use EntityTrait;
     use MultilingualTrait;
+    use SoftDeleteTrait;
 
     public function behaviors()
     {
@@ -46,7 +51,7 @@ class Delivery extends \yii\db\ActiveRecord
     {
         return [
             [['context_id'], 'required'],
-            [['context_id', 'sort_order', 'is_active'], 'integer'],
+            [['context_id', 'sort_order', 'is_active', 'is_deleted'], 'integer'],
             [['packed_json_handler_params'], 'string'],
             [['handler_class_name'], 'string', 'max' => 255],
         ];
@@ -64,6 +69,7 @@ class Delivery extends \yii\db\ActiveRecord
             'packed_json_handler_params' => Yii::t('dotplant.store', 'Handler params'),
             'sort_order' => Yii::t('dotplant.store', 'Sort order'),
             'is_active' => Yii::t('dotplant.store', 'Is active'),
+            'is_deleted' => Yii::t('dotplant.store', 'Is deleted'),
         ];
     }
 

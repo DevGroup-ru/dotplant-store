@@ -3,12 +3,12 @@
 namespace DotPlant\Store\controllers;
 
 use DevGroup\Multilingual\models\Context;
-use Yii;
+use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\models\order\Order;
+use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * OrderManageController implements the CRUD actions for Order model.
@@ -20,14 +20,7 @@ class OrderManageController extends Controller
      */
     public function behaviors()
     { // @todo: add permissions
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
+        return [];
     }
 
     /**
@@ -50,7 +43,7 @@ class OrderManageController extends Controller
         }
         $dataProvider = new ActiveDataProvider(
             [
-                'query' => Order::find()->where(['context_id' => $contextId]),
+                'query' => Order::find()->where(['context_id' => $contextId, 'is_deleted' => 0]),
             ]
         );
         return $this->render(
@@ -74,6 +67,7 @@ class OrderManageController extends Controller
         if ($id === null) {
             $model = new Order;
             $model->loadDefaultValues();
+            throw new OrderException(Yii::t('dotplant.store', 'Order creation via admin panel is not implemented yet'));
         } else {
             $model = $this->findModel($id);
         }
@@ -98,7 +92,9 @@ class OrderManageController extends Controller
      */
     public function actionDelete($id)
     {
-//        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+        $model->scenario = 'backend-order-soft-deleting';
+        $model->delete();
         return $this->redirect(['index']);
     }
 

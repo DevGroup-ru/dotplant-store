@@ -70,7 +70,6 @@ class m160907_102728_dotplant_store_statuses extends Migration
 
     public function down()
     {
-        echo "m160907_102728_dotplant_store_statuses cannot be reverted.\n";
-        return false;
+        return true;
     }
 }
