@@ -38,6 +38,29 @@ abstract class AbstractPaymentType extends \yii\base\Component
         parent::trigger($name, $event);
     }
 
+    public function logData(
+        $orderId,
+        $paymentId,
+        $startTime,
+        $endTime,
+        $sum,
+        $currencyIsoCode,
+        $data = [],
+        $result = []
+    ) {
+        $transaction = new OrderTransaction;
+        $transaction->order_id = $orderId;
+        $transaction->payment_id = $paymentId;
+        $transaction->start_time = $startTime;
+        $transaction->end_time = $endTime;
+        $transaction->sum = $sum;
+        $transaction->currency_iso_code = $currencyIsoCode;
+        $transaction->data = $data;
+        $transaction->result = $result;
+        $transaction->save();
+    }
+
+
     // @todo implement
     // public static function getRules();
     // public static function getLabels();

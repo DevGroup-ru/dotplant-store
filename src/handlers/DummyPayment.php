@@ -13,12 +13,6 @@ use Yii;
 
 class DummyPayment extends AbstractPaymentType
 {
-    public function init()
-    {
-        $this->on(Module::EVENT_PAYMENT_STATUS_FORMED, [self::className(), 'onPaymentFormed']);
-        parent::init();
-    }
-
     /**
      * @param Order $order
      * @param string $currencyIsoCode
@@ -27,16 +21,19 @@ class DummyPayment extends AbstractPaymentType
      */
     public function pay($order, $currencyIsoCode, $shipping, $tax)
     {
-        $event = new PaymentEvent();
-        $event->order_id = $order->id;
-        $event->payment_id = $this->_paymentId;
-        $event->start_time = time();
-        $event->end_time = time();
-        $event->sum = $order->total_price_with_discount;
-        $event->currency_iso_code = $currencyIsoCode;
-        $event->payment_data = [];
-        $event->payment_result = ['status' => Module::EVENT_PAYMENT_STATUS_FORMED];
-        $this->trigger(Module::EVENT_PAYMENT_STATUS_FORMED, $event);
+
+        $this->logData(
+            $order->id,
+            $this->_paymentId,
+            time(),
+            time(),
+            $order->total_price_with_discount,
+            $currencyIsoCode,
+            [],
+            ['status' => Module::EVENT_PAYMENT_STATUS_FORMED]
+        );
+        Store::markOrderAsPaid($order);
+        Yii::$app->controller->redirect(['success', 'hash' => $order->hash]);
     }
 
     public function refund($order, $currency, $amount)
@@ -49,10 +46,4 @@ class DummyPayment extends AbstractPaymentType
         return true;
     }
 
-    public static function onPaymentFormed(PaymentEvent $event)
-    {
-        $order = Order::findOne($event->order_id);
-        Store::markOrderAsPaid($order);
-        return Yii::$app->controller->redirect(['payment/success', 'hash' => $order->hash]);
-    }
 }

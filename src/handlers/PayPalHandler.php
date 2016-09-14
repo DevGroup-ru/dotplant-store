@@ -91,38 +91,55 @@ class PayPalHandler extends AbstractPaymentType
         )->setRedirectUrls($urls);
         $link = null;
 
-        $event = new PaymentEvent();
-        $event->order_id = $order->id;
-        $event->payment_id = $this->_paymentId;
-        $event->start_time = time();
-        $event->end_time = time();
-        $event->sum = $priceTotal;
-        $event->currency_iso_code = $currencyIsoCode;
-        $event->payment_data = ['paymentObject' => serialize($payment)];
-        $event->payment_result = ['status' => Module::EVENT_PAYMENT_STATUS_FORMED];
+        $startTime = time();
+        $paymentSerialized = serialize($payment);
 
-        $this->trigger(Module::EVENT_PAYMENT_STATUS_FORMED, $event);
+        $this->logData(
+            $order->id,
+            $this->_paymentId,
+            $startTime,
+            time(),
+            $priceTotal,
+            $currencyIsoCode,
+            $paymentSerialized,
+            ['status' => Module::EVENT_PAYMENT_STATUS_FORMED]
+        );
 
         try {
             $formedPayment = $payment->create($this->_apiContext);
             $link = $formedPayment->getApprovalLink();
-            $event->end_time = time();
-            $event->payment_result = [
-                'status' => Module::EVENT_PAYMENT_STATUS_PROCESSED,
-                'paymentObject' => serialize($formedPayment),
-            ];
 
-            $this->trigger(Module::EVENT_PAYMENT_STATUS_PROCESSED, $event);
+            $this->logData(
+                $order->id,
+                $this->_paymentId,
+                $startTime,
+                time(),
+                $priceTotal,
+                $currencyIsoCode,
+                $paymentSerialized,
+                [
+                    'status' => Module::EVENT_PAYMENT_STATUS_PROCESSED,
+                    'paymentObject' => serialize($formedPayment),
+                ]
+            );
+
         } catch (\Exception $e) {
             $link = null;
 
-            $event->end_time = time();
-            $event->payment_result = [
-                'status' => Module::EVENT_PAYMENT_STATUS_ERROR,
-                'paymentObject' => serialize($payment),
-            ];
+            $this->logData(
+                $order->id,
+                $this->_paymentId,
+                $startTime,
+                time(),
+                $priceTotal,
+                $currencyIsoCode,
+                $paymentSerialized,
+                [
+                    'status' => Module::EVENT_PAYMENT_STATUS_ERROR,
+                    'paymentObject' => serialize($payment),
+                ]
+            );
 
-            $this->trigger(Module::EVENT_PAYMENT_STATUS_ERROR, $event);
         }
         return $this->render(
             'paypal',
