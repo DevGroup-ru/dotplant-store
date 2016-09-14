@@ -65,7 +65,6 @@ class m160901_083416_dotplant_goods_add_to_backend_menu extends Migration
             ]
         );
         TagDependency::invalidate(Yii::$app->cache, NamingHelper::getCommonTag(BackendMenu::class));
-
     }
 
     public function down()

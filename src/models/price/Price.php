@@ -190,6 +190,4 @@ class Price extends ActiveRecord implements PriceInterface
     {
         return $this->_goodsId;
     }
-
-
 }

@@ -3,7 +3,6 @@
 
 namespace DotPlant\Store\events;
 
-
 use yii\base\Event;
 
 class PaymentEvent extends Event

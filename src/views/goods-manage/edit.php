@@ -11,7 +11,6 @@ use DevGroup\DataStructure\widgets\PropertiesForm;
 use DevGroup\Multilingual\widgets\MultilingualFormTabs;
 use yii\helpers\Html;
 
-
 $goodsType = $goods->getTypes()[$goods->getType()];
 $goodsRole = isset($goods->getRoles()[$goods->getType()])
     ? $goods->getRoles()[$goods->getType()]

@@ -2,7 +2,6 @@
 
 namespace DotPlant\Store\controllers;
 
-
 use DevGroup\AdminUtils\controllers\BaseController;
 use devgroup\JsTreeWidget\actions\AdjacencyList\TreeNodesReorderAction;
 use DotPlant\EntityStructure\actions\BaseEntityAutocompleteAction;
@@ -71,6 +70,5 @@ class GoodsCategoryManageController extends BaseController
     
     public function actionIndex()
     {
-
     }
 }

@@ -3,7 +3,6 @@
 
 namespace DotPlant\Store\handlers;
 
-
 use DotPlant\Store\events\PaymentEvent;
 use DotPlant\Store\models\order\Order;
 use DotPlant\Store\models\order\OrderDeliveryInformation;

@@ -3,7 +3,6 @@
 
 namespace DotPlant\Store\components\payment;
 
-
 use DotPlant\Store\handlers\AbstractPaymentType;
 use DotPlant\Store\models\order\Order;
 use DotPlant\Store\models\order\OrderDeliveryInformation;
@@ -36,7 +35,6 @@ class Payment extends \yii\base\Component
             return $paymentObject;
         }
         throw new InvalidParamException('blah-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah');
-
     }
 
     /**

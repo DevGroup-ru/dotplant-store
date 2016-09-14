@@ -3,7 +3,6 @@
 
 namespace DotPlant\Store\handlers;
 
-
 use DotPlant\Currencies\models\Currency;
 use DotPlant\Store\events\PaymentEvent;
 use DotPlant\Store\models\goods\Goods;

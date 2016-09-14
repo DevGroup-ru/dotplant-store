@@ -1,6 +1,7 @@
 <?php
 
 namespace DotPlant\Store\exceptions;
+
 use yii\base\Exception;
 
 /**

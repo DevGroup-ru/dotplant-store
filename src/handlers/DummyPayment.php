@@ -3,7 +3,6 @@
 
 namespace DotPlant\Store\handlers;
 
-
 use DotPlant\Store\components\Store;
 use DotPlant\Store\events\PaymentEvent;
 use DotPlant\Store\models\order\Order;
@@ -56,5 +55,4 @@ class DummyPayment extends AbstractPaymentType
         Store::markOrderAsPaid($order);
         return Yii::$app->controller->redirect(['payment/success', 'hash' => $order->hash]);
     }
-
 }

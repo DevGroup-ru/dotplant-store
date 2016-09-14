@@ -73,7 +73,8 @@ class GoodsManageController extends BaseController
                 }
                 if (true === $goods->validate()) {
                     if (true === $goods->save(false)) {
-                        Yii::$app->session->setFlash('success',
+                        Yii::$app->session->setFlash(
+                            'success',
                             Yii::t('dotplant.store', '{model} successfully saved!')
                         );
                         if (true === $refresh) {
@@ -82,7 +83,8 @@ class GoodsManageController extends BaseController
                             return $this->redirect(['/store/goods-manage/edit', 'id' => $goods->id]);
                         }
                     } else {
-                        Yii::$app->session->setFlash('error',
+                        Yii::$app->session->setFlash(
+                            'error',
                             Yii::t('dotplant.store', 'An error occurred while saving {model}!')
                         );
                     }

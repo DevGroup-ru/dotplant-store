@@ -19,5 +19,4 @@ use kartik\switchinput\SwitchInput;
 <?= $form->field($model, $attributePrefix . 'slug') ?>
 <?= $form->field($model, $attributePrefix . 'announce') ?>
 <?= $form->field($model, $attributePrefix . 'content') ?>
-<?= $form->field($model, $attributePrefix . 'meta_description') ?>
-
+<?= $form->field($model, $attributePrefix . 'meta_description');

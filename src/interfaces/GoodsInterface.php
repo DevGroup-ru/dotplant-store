@@ -1,6 +1,7 @@
 <?php
 
 namespace DotPlant\Store\interfaces;
+
 use DotPlant\Store\models\goods\Goods;
 use DotPlant\Store\exceptions\GoodsException;
 use yii\web\NotFoundHttpException;

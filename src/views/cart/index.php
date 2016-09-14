@@ -29,9 +29,9 @@ $this->registerJs($js);
     <input type="text" name="goodsId" />
     <input type="submit" value="Add" />
 </form>
-<?php if ($model !== null && $model->items_count > 0): ?>
+<?php if ($model !== null && $model->items_count > 0) : ?>
     <table class="table table-striped table-condensed table-bordered">
-        <?php foreach ($model->items as $item): ?>
+        <?php foreach ($model->items as $item) : ?>
             <tr>
                 <td><?= $item->goods_id ?></td>
                 <td>
@@ -59,12 +59,12 @@ $this->registerJs($js);
             <td></td>
         </tr>
     </table>
-    <?php if ($model->canEdit()): ?>
+    <?php if ($model->canEdit()) : ?>
         <a href="<?= \yii\helpers\Url::toRoute(['/store/order/create']) ?>" class="btn btn-primary">Create an order</a>
-    <?php else: ?>
+    <?php else : ?>
         <a href="<?= \yii\helpers\Url::toRoute(['/store/order/create', 'hash' => $model->items[0]->order->hash]) ?>" class="btn btn-primary">Edit an order</a>
     <?php endif; ?>
-<?php else: ?>
+<?php else : ?>
     <p><?= Yii::t('dotplant.store', 'Cart has no items') ?></p>
 <?php endif; ?>
 

@@ -3,7 +3,6 @@
 
 namespace DotPlant\Store\controllers;
 
-
 use DotPlant\Store\components\payment\Payment;
 use DotPlant\Store\components\Store;
 use DotPlant\Store\models\order\Order;
