@@ -1,52 +1,38 @@
 <?php
 
-namespace DotPlant\Store\controllers;
+namespace DotPlant\Store\actions\goods;
 
-use DevGroup\AdminUtils\controllers\BaseController;
+
+use DevGroup\AdminUtils\actions\BaseAdminAction;
+use DevGroup\DataStructure\behaviors\HasProperties;
+use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
+use DevGroup\Multilingual\traits\MultilingualTrait;
 use DotPlant\Store\models\goods\Goods;
-use Yii;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
+use Yii;
 
 /**
- * Class GoodsManageController
+ * Class GoodsManageAction
  *
- * @package app\vendor\dotplant\store\src\controllers
+ * @package DotPlant\Store\actions
  */
-class GoodsManageController extends BaseController
+class GoodsManageAction extends BaseAdminAction
 {
-    public function actionIndex()
+    public function run($product_id = null, $id = null, $type = null)
     {
-        $searchModel = new Goods(['is_active' => '']);
-//        if (null !== $id) {
-//            $searchModel->parent_id = (int)$id;
-//        }
-//        if (null !== $context_id) {
-//            $searchModel->context_id = (int)$context_id;
-//        }
-        $params = Yii::$app->request->get();
-        $dataProvider = $searchModel->search($params);
-        return $this->render(
-            'index',
-            [
-                'dataProvider' => $dataProvider,
-                'searchModel' => $searchModel,
-            ]
-        );
-    }
-
-    public function actionEdit($id = null, $type = null, $parent_id = null)
-    {
-        if (null !== $id) {
-            if (null === $goods = Goods::get($id)) {
+        /** @var Goods | MultilingualActiveRecord | MultilingualTrait | HasProperties $goods */
+        if (null !== $product_id) {
+            if (null === $goods = Goods::get($product_id)) {
                 throw new NotFoundHttpException(
                     Yii::t('dotplant.store', '{model} with #{id} not found!', [
                         'model' => Yii::t('dotplant.store', 'Goods'),
-                        'id' => $id
+                        'id' => $product_id
                     ])
                 );
             }
         } else {
+            $type = (null === $type) ? Goods::TYPE_PRODUCT : $type;
             $goods = Goods::create($type);
         }
         $canSave = true; //Yii::$app->user->can('');
@@ -55,9 +41,9 @@ class GoodsManageController extends BaseController
             $goods->translations;
         } else {
             $goods->loadDefaultValues();
-            if (null !== $parent_id) {
-                $goods->parent_id = $parent_id;
-            }
+//            if (null !== $parent_id) {
+//                $goods->parent_id = $parent_id;
+//            }
         }
         $post = Yii::$app->request->post();
         //\yii\helpers\VarDumper::dump($post,10,1); die();
@@ -77,9 +63,9 @@ class GoodsManageController extends BaseController
                             Yii::t('dotplant.store', '{model} successfully saved!')
                         );
                         if (true === $refresh) {
-                            return $this->refresh();
+                            return $this->controller->refresh();
                         } else {
-                            return $this->redirect(['/store/goods-manage/edit', 'id' => $goods->id]);
+                            return $this->controller->redirect(['/structure/entity-manage/goods-manage', 'product_id' => $goods->id]);
                         }
                     } else {
                         Yii::$app->session->setFlash('error',
@@ -94,11 +80,12 @@ class GoodsManageController extends BaseController
                 }
             }
         }
-        return $this->render(
-            'edit',
+        return $this->controller->render(
+            '@DotPlant/Store/views/goods-manage/edit',
             [
                 'goods' => $goods,
                 'canSave' => true,
+                'undefinedType' => $goods->isNewRecord
             ]
         );
     }

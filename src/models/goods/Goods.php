@@ -342,7 +342,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         /** @var Goods $goods */
         $goods = new $goodsClass;
         $goods->type = $type;
-        self::injectPriceObject($goods);
+        //self::injectPriceObject($goods);
         return $goods;
     }
 
@@ -364,7 +364,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
             /** @var self $model */
             $goods = new $productClass;
             self::populateRecord($goods, $record);
-            self::injectPriceObject($goods);
+            //self::injectPriceObject($goods);
         }
         return $goods;
     }

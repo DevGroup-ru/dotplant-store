@@ -55,7 +55,7 @@ class m160901_080611_dotplant_goods_add_goods_category extends Migration
         $this->insert(
             Entity::tableName(),
             [
-                'name' => 'Ticket',
+                'name' => 'GoodsCategory',
                 'class_name' => GoodsCategory::class
             ]
         );
@@ -68,7 +68,14 @@ class m160901_080611_dotplant_goods_add_goods_category extends Migration
         $this->delete(
             Entity::tableName(),
             [
-                'name' => 'Ticket',
+                'name' => 'Tickets',
+                'class_name' => GoodsCategory::class
+            ]
+        );
+        $this->delete(
+            Entity::tableName(),
+            [
+                'name' => 'GoodsCategory',
                 'class_name' => GoodsCategory::class
             ]
         );
