@@ -4,6 +4,7 @@ namespace DotPlant\Store\models\order;
 
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
+use DotPlant\Store\components\MultilingualListDataQuery;
 use Yii;
 
 /**
@@ -68,16 +69,14 @@ class Payment extends \yii\db\ActiveRecord
 
     /**
      * Get list data for dropdown
+     * @param $contextId int|null
      * @return string[]
      */
     public static function listData($contextId = null)
     {
         $condition = $contextId === null ? ['is_active' => 1] : ['context_id' => [0, $contextId], 'is_active' => 1];
-        return static::find()
-            ->select(['name', 'id'])
+        return (new MultilingualListDataQuery(static::class))
             ->where($condition)
-            ->indexBy('id')
-            ->orderBy(['sort_order' => SORT_ASC])
             ->column();
     }
 }

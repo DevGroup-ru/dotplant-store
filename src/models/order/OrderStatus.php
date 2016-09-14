@@ -4,7 +4,11 @@ namespace DotPlant\Store\models\order;
 
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
+use DotPlant\Store\components\MultilingualListDataQuery;
+use DotPlant\Store\components\SortByLanguageExpression;
 use Yii;
+use yii\db\Exception;
+use yii\db\Expression;
 use yii\db\Query;
 
 /**
@@ -64,19 +68,27 @@ class OrderStatus extends \yii\db\ActiveRecord
 
     /**
      * Get list data for dropdown
+     * @param $contextId int|null
      * @return string[]
      */
     public static function listData($contextId = null)
     {
         $condition = $contextId === null ? ['is_active' => 1] : ['context_id' => [0, $contextId], 'is_active' => 1];
-        return (new Query())
-            ->select(['label', 'id'])
-            ->from(static::tableName())
-            ->innerJoin(OrderStatusTranslation::tableName(), 'id = model_id')
-            ->groupBy(['model_id'])
+        return (new MultilingualListDataQuery(static::class, 'label'))
             ->where($condition)
-            ->indexBy('id')
-            ->orderBy(['sort_order' => SORT_ASC, 'language_id' => SORT_ASC])
             ->column();
+    }
+
+    /**
+     * Get order status by id with language priority
+     * @param $id int
+     * @return array|bool
+     */
+    public static function multilingualFindById($id)
+    {
+        $status = (new MultilingualListDataQuery(static::class))->select('*')
+            ->where(['id' => $id])
+            ->one();
+        return $status;
     }
 }

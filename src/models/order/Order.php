@@ -109,6 +109,13 @@ class Order extends \yii\db\ActiveRecord
                 'delivery_id',
             ] + $baseActionsInfoAttributes,
             'status-changing' => ['status_id'] + $baseActionsInfoAttributes,
+            // backend
+            'backend-order-updating' => [
+                'status_id',
+                'delivery_id',
+                'payment_id',
+                'manager_id',
+            ] + $baseActionsInfoAttributes,
         ];
     }
 
@@ -175,7 +182,7 @@ class Order extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        if (isset($changedAttributes['status_id'])) {
+        if (isset($changedAttributes['status_id']) && $changedAttributes['status_id'] != $this->status_id) {
             Module::module()->trigger(
                 Module::EVENT_ORDER_AFTER_STATUS_CHANGE,
                 new OrderAfterStatusChangeEvent(
