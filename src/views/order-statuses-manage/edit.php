@@ -20,6 +20,7 @@ $this->params['breadcrumbs'] = [
     <div class="box-body">
         <?= $form->field($model, 'context_id')->textInput(['readonly' => 'readonly']) ?>
         <?= $form->field($model, 'label_class')->textInput(['maxlength' => true]) ?>
+        <?= $form->field($model, 'sort_order')->textInput(['type' => 'number']) ?>
         <?= $form->field($model, 'is_active')->widget(\kartik\switchinput\SwitchInput::class) ?>
         <?=
         DevGroup\Multilingual\widgets\MultilingualFormTabs::widget(

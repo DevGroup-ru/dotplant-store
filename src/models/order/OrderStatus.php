@@ -18,6 +18,7 @@ use yii\db\ActiveQuery;
  * @property integer $context_id
  * @property string $label_class
  * @property integer $is_active
+ * @property integer $sort_order
  * @property integer $is_deleted
  */
 class OrderStatus extends \yii\db\ActiveRecord
@@ -51,7 +52,7 @@ class OrderStatus extends \yii\db\ActiveRecord
     {
         return [
             [['context_id'], 'required'],
-            [['context_id', 'is_active', 'is_deleted'], 'integer'],
+            [['context_id', 'is_active', 'sort_order', 'is_deleted'], 'integer'],
             [['label_class'], 'string', 'max' => 255],
         ];
     }
@@ -66,6 +67,7 @@ class OrderStatus extends \yii\db\ActiveRecord
             'context_id' => Yii::t('dotplant.store', 'Context'),
             'label_class' => Yii::t('dotplant.store', 'Label class'),
             'is_active' => Yii::t('dotplant.store', 'Is active'),
+            'sort_order' => Yii::t('dotplant.store', 'Sort order'),
             'is_deleted' => Yii::t('dotplant.store', 'Is deleted'),
         ];
     }
