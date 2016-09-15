@@ -3,12 +3,10 @@
 /**
  * @var int $contextId
  * @var yii\data\ActiveDataProvider $dataProvider
- * @var array $tabs
  * @var yii\web\View $this
  */
 
 use DevGroup\AdminUtils\columns\ActionColumn;
-use yii\bootstrap\Tabs;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
@@ -20,9 +18,9 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="box">
     <div class="box-body">
         <?=
-        Tabs::widget(
+        \DotPlant\Store\widgets\backend\ContextTabs::widget(
             [
-                'items' => $tabs,
+                'contextId' => $contextId,
             ]
         )
         ?>

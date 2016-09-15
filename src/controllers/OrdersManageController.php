@@ -2,8 +2,8 @@
 
 namespace DotPlant\Store\controllers;
 
-use DevGroup\Multilingual\models\Context;
 use DotPlant\Store\exceptions\OrderException;
+use DotPlant\Store\helpers\BackendHelper;
 use DotPlant\Store\models\order\Order;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -19,8 +19,8 @@ class OrdersManageController extends Controller
      * @inheritdoc
      */
     public function behaviors()
-    { // @todo: add permissions
-        return [];
+    {
+        return []; // @todo: add permissions
     }
 
     /**
@@ -29,18 +29,7 @@ class OrdersManageController extends Controller
      */
     public function actionIndex($contextId = null)
     {
-        $contexts = Context::find()->all();
-        if ($contextId === null && count($contexts) > 0) {
-            $contextId = reset($contexts)->id;
-        }
-        $tabs = [];
-        foreach ($contexts as $context) {
-            $tabs[] = [
-                'active' => $context->id == $contextId,
-                'label' => $context->name,
-                'url' => ['index', 'contextId' => $context->id],
-            ];
-        }
+        $contextId = BackendHelper::getContext($contextId);
         $dataProvider = new ActiveDataProvider(
             [
                 'query' => Order::find()->where(['context_id' => $contextId, 'is_deleted' => 0]),
@@ -51,7 +40,6 @@ class OrdersManageController extends Controller
             [
                 'contextId' => $contextId,
                 'dataProvider' => $dataProvider,
-                'tabs' => $tabs,
             ]
         );
     }

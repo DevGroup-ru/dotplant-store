@@ -3,21 +3,17 @@
 namespace DotPlant\Store\controllers;
 
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
-use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\traits\MultilingualTrait;
-use DotPlant\Store\helpers\BackendHelper;
-use DotPlant\Store\models\order\OrderStatus;
 use Yii;
+use DotPlant\Store\models\order\Delivery;
 use yii\data\ActiveDataProvider;
-use yii\db\ActiveQuery;
-use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
 /**
- * OrderStatusesManageController implements the CRUD actions for OrderStatus model.
+ * DeliveriesManageController implements the CRUD actions for Delivery model.
  */
-class OrderStatusesManageController extends Controller
+class DeliveriesManageController extends Controller
 {
     /**
      * @inheritdoc
@@ -28,47 +24,41 @@ class OrderStatusesManageController extends Controller
     }
 
     /**
-     * Lists all OrderStatus models.
+     * Lists all Delivery models.
      * @return mixed
      */
-    public function actionIndex($contextId = null)
+    public function actionIndex()
     {
-        $contextId = BackendHelper::getContext($contextId);
-        $query = (new ActiveQuery(OrderStatus::class))
-            ->innerJoinWith('smartTranslation')
-            ->where(['context_id' => $contextId, 'is_deleted' => 0]);
         $dataProvider = new ActiveDataProvider(
             [
-                'query' => $query,
+                'query' => Delivery::find(),
             ]
         );
         return $this->render(
             'index',
             [
-                'contextId' => $contextId,
                 'dataProvider' => $dataProvider,
             ]
         );
     }
 
     /**
-     * Updates an existing OrderStatus model.
+     * Updates an existing Delivery model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
      */
-    public function actionEdit($id = null, $contextId = null)
+    public function actionEdit($id = null)
     {
         if ($id === null) {
-            $model = new OrderStatus;
+            $model = new Delivery;
             $model->loadDefaultValues();
-            $model->context_id = BackendHelper::getContext($contextId);
         } else {
             $model = $this->findModel($id);
         }
         if ($model->load(Yii::$app->request->post())) {
             $error = false;
-            foreach (Yii::$app->request->post('OrderStatusTranslation') as $languageId => $attributes) {
+            foreach (Yii::$app->request->post('DeliveryTranslation') as $languageId => $attributes) {
                 $model->translate($languageId)->setAttributes($attributes);
                 if (!$model->translate($languageId)->validate()) {
                     $error = true;
@@ -90,29 +80,27 @@ class OrderStatusesManageController extends Controller
     }
 
     /**
-     * Deletes an existing OrderStatus model.
+     * Deletes an existing Delivery model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
-        $model->delete();
-        return $this->redirect(['index', 'contextId' => $model->context_id]);
+        $this->findModel($id)->delete();
+        return $this->redirect(['index']);
     }
 
     /**
-     * Finds the OrderStatus model based on its primary key value.
+     * Finds the Delivery model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return OrderStatus|MultilingualActiveRecord|MultilingualTrait the loaded model
+     * @return Delivery|MultilingualActiveRecord|MultilingualTrait the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        $query = (new ActiveQuery(OrderStatus::class))->where(['id' => $id]);
-        if (($model = $query->one()) !== null) {
+        if (($model = Delivery::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

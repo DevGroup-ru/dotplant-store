@@ -9,7 +9,7 @@
 
 use DevGroup\AdminUtils\columns\ActionColumn;
 use DotPlant\Currencies\helpers\CurrencyHelper;
-use yii\bootstrap\Tabs;
+use DotPlant\Store\widgets\backend\ContextTabs;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
@@ -24,9 +24,9 @@ $paymentListData = \DotPlant\Store\models\order\Payment::listData($contextId);
 <div class="box">
     <div class="box-body">
         <?=
-        Tabs::widget(
+        ContextTabs::widget(
             [
-                'items' => $tabs,
+                'contextId' => $contextId,
             ]
         )
         ?>

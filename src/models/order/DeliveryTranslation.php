@@ -28,7 +28,7 @@ class DeliveryTranslation extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['model_id', 'language_id', 'name'], 'required'],
+            [['name'], 'required'],
             [['model_id', 'language_id'], 'integer'],
             [['description'], 'string'],
             [['name'], 'string', 'max' => 255],
