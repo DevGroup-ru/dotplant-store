@@ -37,6 +37,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
                 'packed_json_handler_params' => $this->text(),
                 'sort_order' => $this->integer()->defaultValue(1),
                 'is_active' => $this->boolean()->notNull()->defaultValue(true),
+                'is_deleted' => $this->boolean()->defaultValue(false),
             ],
             $tableOptions
         );
@@ -76,6 +77,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
                 'packed_json_handler_params' => $this->text(),
                 'sort_order' => $this->integer()->defaultValue(1),
                 'is_active' => $this->boolean()->notNull()->defaultValue(true),
+                'is_deleted' => $this->boolean()->defaultValue(false),
             ],
             $tableOptions
         );
@@ -114,6 +116,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
                 'label_class' => $this->string(255),
                 'sort_order' => $this->integer()->defaultValue(1),
                 'is_active' => $this->boolean()->notNull()->defaultValue(true),
+                'is_deleted' => $this->boolean()->defaultValue(false),
             ],
             $tableOptions
         );
@@ -189,6 +192,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
                 'updated_at' => $this->integer(),
                 'forming_time' => $this->integer(),
                 'hash' => $this->char(32)->notNull(),
+                'is_deleted' => $this->boolean()->defaultValue(false),
             ],
             $tableOptions
         );
