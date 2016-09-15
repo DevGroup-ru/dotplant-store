@@ -10,12 +10,11 @@ use yii\db\Query;
 class MultilingualListDataQuery extends Query
 {
     /**
-     * MultilingualListDataQuery constructor.
+     * MultilingualListDataQuery constructor
      * @param ActiveRecord|MultilingualActiveRecord|MultilingualTrait|string $modelClassName
      * @param string $valueAttribute
      * @param string $idAttribute
      * @param string $languageAttribute
-     * @return Query
      */
     public function __construct(
         $modelClassName,
