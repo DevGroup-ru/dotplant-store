@@ -112,6 +112,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
                 'id' => $this->unsignedPrimaryKey(),
                 'context_id' => $this->integer()->unsigned()->notNull(),
                 'label_class' => $this->string(255),
+                'sort_order' => $this->integer()->defaultValue(1),
                 'is_active' => $this->boolean()->notNull()->defaultValue(true),
             ],
             $tableOptions
