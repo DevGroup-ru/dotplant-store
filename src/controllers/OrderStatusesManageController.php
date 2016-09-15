@@ -5,12 +5,10 @@ namespace DotPlant\Store\controllers;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\traits\MultilingualTrait;
-use DotPlant\Store\components\MultilingualDataProviderQuery;
 use DotPlant\Store\models\order\OrderStatus;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
-use yii\helpers\VarDumper;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -48,7 +46,7 @@ class OrderStatusesManageController extends Controller
         }
         $query = (new ActiveQuery(OrderStatus::class))
             ->innerJoinWith('smartTranslation')
-            ->where(['context_id' => $contextId]);
+            ->where(['context_id' => $contextId, 'is_deleted' => 0]);
         $dataProvider = new ActiveDataProvider(
             [
                 'query' => $query,
@@ -117,8 +115,9 @@ class OrderStatusesManageController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
-        return $this->redirect(['index']);
+        $model = $this->findModel($id);
+        $model->delete();
+        return $this->redirect(['index', 'contextId' => $model->context_id]);
     }
 
     /**

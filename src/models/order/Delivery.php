@@ -47,11 +47,11 @@ class Delivery extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function getRules()
     {
         return [
             [['context_id'], 'required'],
-            [['context_id', 'sort_order', 'is_active', 'is_deleted'], 'integer'],
+            [['context_id', 'sort_order', 'is_active'], 'integer'],
             [['packed_json_handler_params'], 'string'],
             [['handler_class_name'], 'string', 'max' => 255],
         ];
@@ -60,7 +60,7 @@ class Delivery extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
+    public function getAttributeLabels()
     {
         return [
             'id' => Yii::t('dotplant.store', 'ID'),
@@ -69,7 +69,6 @@ class Delivery extends \yii\db\ActiveRecord
             'packed_json_handler_params' => Yii::t('dotplant.store', 'Handler params'),
             'sort_order' => Yii::t('dotplant.store', 'Sort order'),
             'is_active' => Yii::t('dotplant.store', 'Is active'),
-            'is_deleted' => Yii::t('dotplant.store', 'Is deleted'),
         ];
     }
 

@@ -56,7 +56,7 @@ class Order extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function getRules()
     {
         return [
             [['context_id', 'status_id', 'currency_iso_code'], 'required'],
@@ -153,7 +153,7 @@ class Order extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
+    public function getAttributeLabels()
     {
         return [
             'id' => Yii::t('dotplant.store', 'ID'),
@@ -177,7 +177,6 @@ class Order extends \yii\db\ActiveRecord
             'updated_at' => Yii::t('dotplant.store', 'Updated at'),
             'forming_time' => Yii::t('dotplant.store', 'Forming time'),
             'hash' => Yii::t('dotplant.store', 'Hash'),
-            'is_deleted' => Yii::t('dotplant.store', 'Is deleted'),
         ];
     }
 

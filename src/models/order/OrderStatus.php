@@ -48,11 +48,11 @@ class OrderStatus extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function getRules()
     {
         return [
             [['context_id'], 'required'],
-            [['context_id', 'is_active', 'sort_order', 'is_deleted'], 'integer'],
+            [['context_id', 'is_active', 'sort_order'], 'integer'],
             [['label_class'], 'string', 'max' => 255],
         ];
     }
@@ -60,7 +60,7 @@ class OrderStatus extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
+    public function getAttributeLabels()
     {
         return [
             'id' => Yii::t('dotplant.store', 'ID'),
@@ -68,7 +68,6 @@ class OrderStatus extends \yii\db\ActiveRecord
             'label_class' => Yii::t('dotplant.store', 'Label class'),
             'is_active' => Yii::t('dotplant.store', 'Is active'),
             'sort_order' => Yii::t('dotplant.store', 'Sort order'),
-            'is_deleted' => Yii::t('dotplant.store', 'Is deleted'),
         ];
     }
 
