@@ -35,4 +35,9 @@ class OrderController extends \yii\web\Controller
     {
         return $this->render('show');
     }
+
+    public function actionRefund($hash)
+    {
+        return $this->render('refund');
+    }
 }

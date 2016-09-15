@@ -15,11 +15,15 @@ use PayPal\Api\Item;
 use PayPal\Api\ItemList;
 use PayPal\Api\Payer;
 use PayPal\Api\Payment;
+use PayPal\Api\PaymentExecution;
 use PayPal\Api\RedirectUrls;
 use PayPal\Api\Transaction;
 use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Rest\ApiContext;
+use Yii;
+use yii\base\ErrorException;
 use yii\helpers\Url;
+use yii\web\BadRequestHttpException;
 
 class PayPalHandler extends AbstractPaymentType
 {
@@ -49,12 +53,7 @@ class PayPalHandler extends AbstractPaymentType
     }
 
     /**
-     * PayPal API integration; do not use
-     *
-     * @param \DotPlant\Store\models\order\Order $order
-     * @param string $currencyIsoCode
-     * @param Delivery $shipping
-     * @param $tax
+     * @inheritdoc
      */
     public function pay($order, $currencyIsoCode, $shipping, $tax)
     {
@@ -65,13 +64,13 @@ class PayPalHandler extends AbstractPaymentType
             $order->items,
             function ($result, $item) use (&$priceSubTotal, $currencyIsoCode) {
                 /** @var OrderItem $item */
-                /** @var Goods $good */
-                $good = $item->good;
-                $price = $good->getPrice();
+                /** @var Goods $goods */
+                $goods = Goods::get($item->goods_id);
+                $price = $goods->getPrice();
                 $priceSubTotal = $priceSubTotal + $item->total_price_with_discount;
                 /** @var ItemList $result */
                 return $result->addItem(
-                    (new Item())->setName($good->name)->setCurrency($currencyIsoCode)->setPrice($price)->setQuantity(
+                    (new Item())->setName($goods->sku)->setCurrency($currencyIsoCode)->setPrice($price)->setQuantity(
                         $item->quantity
                     )
                 );
@@ -86,7 +85,7 @@ class PayPalHandler extends AbstractPaymentType
         $transaction = (new Transaction())->setAmount($amount)->setItemList($itemList)->setDescription(
             "Order " . $order->hash
         )->setInvoiceNumber($order->hash);
-        $urls = (new RedirectUrls())->setReturnUrl(Url::to(['payment']))->setCancelUrl($canselUrl);
+        $urls = (new RedirectUrls())->setReturnUrl(Url::to(['payment']))->setCancelUrl(Url::to(['error']));
         $payment = (new Payment())->setIntent('sale')->setPayer($payer)->setTransactions(
             [$transaction]
         )->setRedirectUrls($urls);
@@ -124,9 +123,9 @@ class PayPalHandler extends AbstractPaymentType
                 ]
             );
 
-        } catch (\Exception $e) {
-            $link = null;
+            Yii::$app->controller->redirect($link);
 
+        } catch (\Exception $e) {
             $this->logData(
                 $order->id,
                 $this->_paymentId,
@@ -140,25 +139,29 @@ class PayPalHandler extends AbstractPaymentType
                     'paymentObject' => serialize($payment),
                 ]
             );
-
+            throw new ErrorException();
         }
-        return $this->render(
-            'paypal',
-            [
-                'order' => $order,
-                'transaction' => $this->transaction,
-                'approvalLink' => $link,
-            ]
-        );
     }
 
+    /**
+     * @inheritdoc
+     */
     public function refund($order, $currency, $amount)
     {
         // TODO: Implement refund() method.
     }
 
+    /**
+     * @inheritdoc
+     */
     public function checkResult($order)
     {
-        // TODO: Implement checkResult() method.
+        $paymentId = Yii::$app->request->get('paymentId');
+        $result = Payment::get($paymentId, $this->_apiContext)->execute(
+            (new PaymentExecution())->setPayerId(Yii::$app->request->get('PayerID')),
+            $this->_apiContext
+        );
+
+        return $result;
     }
 }

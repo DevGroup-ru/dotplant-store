@@ -23,19 +23,18 @@ abstract class AbstractPaymentType extends \yii\base\Component
 
     abstract public function refund($order, $currency, $amount);
 
+    /**
+     * Check if order payment is success
+     *
+     * @param $order
+     *
+     * @return bool
+     */
     abstract public function checkResult($order);
 
     public function setPaymentId($id)
     {
         $this->_paymentId = $id;
-    }
-
-    public function trigger($name, PaymentEvent $event)
-    {
-        $transaction = new OrderTransaction;
-        $transaction->logDataFromEvent($event);
-        $transaction->save();
-        parent::trigger($name, $event);
     }
 
     public function logData(
@@ -59,7 +58,6 @@ abstract class AbstractPaymentType extends \yii\base\Component
         $transaction->result = $result;
         $transaction->save();
     }
-
 
     // @todo implement
     // public static function getRules();
