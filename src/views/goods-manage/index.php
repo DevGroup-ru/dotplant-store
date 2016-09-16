@@ -14,6 +14,10 @@ use devgroup\JsTreeWidget\helpers\ContextMenuHelper;
 use yii\helpers\Url;
 
 $this->title = Yii::t('dotplant.store', 'Goods');
+$this->params['breadcrumbs'][] = [
+    'url' => ['/structure/entity-manage/index'],
+    'label' => Yii::t('dotplant.store', 'Goods category management')
+];
 $this->params['breadcrumbs'][] = $this->title;
 $types = Goods::getTypes();
 $returnUrl = Helper::returnUrl();
@@ -21,7 +25,7 @@ $links = [];
 foreach ($types as $type => $name) {
     $links[] = Html::a(
         $name,
-        ['/store/goods-manage/edit', 'type' => $type, 'returnUrl' => $returnUrl]
+        ['/structure/entity-manage/goods-manage', 'type' => $type, 'returnUrl' => $returnUrl]
     );
 }
 $ul = Html::ul($links, ['encode' => false, 'class' => 'dropdown-menu', 'role' => 'menu']);
@@ -34,11 +38,8 @@ $gridTpl = <<<HTML
 </div>
 <div class="box-footer">
     <div class="row list-bottom">
-        <div class="col-sm-5">
-            {pager}
-        </div>
-        <div class="col-sm-7">
-            <div class="btn-group pull-right" style="margin: 20px 0;">
+        <div class="col-sm-4">
+            <div class="btn-group pull-left" style="margin: 20px 0;">
                 <div class="btn-group">
                     <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                         $newText
@@ -49,37 +50,22 @@ $gridTpl = <<<HTML
                 $buttons
             </div>
         </div>
+        <div class="col-sm-8">
+            {pager}
+        </div>
     </div>
 </div>
 HTML;
 ?>
 
 <div class="row">
-    <div class="col-sm-12 col-md-6">
-        <?= TreeWidget::widget([
-            'treeDataRoute' => ['/content/pages-manage/get-tree', 'selected_id' => 0],
-            'reorderAction' => ['/content/pages-manage/tree-reorder'],
-            'changeParentAction' => ['/content/pages-manage/tree-parent'],
-            'treeType' => TreeWidget::TREE_TYPE_ADJACENCY,
-            'contextMenuItems' => [
-                'open' => [
-                    'label' => 'Open',
-                    'action' => ContextMenuHelper::actionUrl(
-                        ['/content/pages-manage/index'],
-                        ['parent_id', 'context_id', 'id']
-                    ),
-                ],
-                'edit' => [
-                    'label' => 'Edit',
-                    'action' => ContextMenuHelper::actionUrl(
-                        ['/content/pages-manage/edit']
-                    ),
-                ]
-            ],
-        ]) ?>
-    </div>
-    <div class="col-sm-12 col-md-6">
-        <div class="indreams-pages__list-pages box box-solid">
+    <div class="col-sm-12 col-md-12">
+        <div class="box">
+            <div class="box-body">
+                //Categories path
+            </div>
+        </div>
+        <div class="goods__list box box-solid">
             <div class="box-header with-border clearfix">
                 <h3 class="box-title pull-left">
                     <?= Yii::t('dotplant.store', 'Goods list') ?>
@@ -101,11 +87,13 @@ HTML;
                         ],
                     ],
                     [
-                        'attribute' => 'title',
-                        'options' => [
-                            'width' => '20%',
-                        ],
+                        'attribute' => 'type',
+                        'content' => function ($data) use ($types) {
+                            return Yii::t('dotplant.store', $types[$data->type]);
+                        },
+                        'filter' => $types,
                     ],
+                    'role',
                     [
                         'attribute' => 'slug',
                         'options' => [
@@ -125,9 +113,6 @@ HTML;
                     ],
                     [
                         'class' => 'DevGroup\AdminUtils\columns\ActionColumn',
-                        'options' => [
-                            'width' => '95px',
-                        ],
                         'buttons' => [
                             [
                                 'url' => 'edit',

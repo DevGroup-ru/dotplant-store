@@ -4,6 +4,7 @@
  * @var $this \yii\web\View
  * @var bool $canSave
  * @var bool $undefinedType
+ * @var [] $startCategory
  */
 
 use dmstr\widgets\Alert;
@@ -48,7 +49,8 @@ $js = <<<JS
     };
 JS;
 $this->registerJs($js, View::POS_HEAD);
-
+$checked = empty($startCategory) ? [] : is_array($startCategory) ? $startCategory : [$startCategory];
+$checked = array_merge($checked, CategoryGoods::getBindings($goods->id));
 StoreAsset::register($this);
 $form = ActiveForm::begin([
     'id' => 'page-form',
@@ -75,51 +77,47 @@ $form = ActiveForm::begin([
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="goods-data">
-                <div class="col-sm-12 col-md-6">
-                    <?= $form->field($goods, 'parent_id')->widget(Select2::class, [
-                        'initValueText' => (null === $goods->parent)
-                            ? Yii::t('dotplant.store', 'Search for a parent ...')
-                            : $goods->parent->name,
-                        'options' => [
-                            'placeholder' => Yii::t('dotplant.store', 'Search for a parent ...')
-                        ],
-                        'pluginOptions' => [
-                            'allowClear' => true,
-                            'minimumInputLength' => 3,
-                            'ajax' => [
-                                'url' => $url,
-                                'dataType' => 'json',
-                                'data' => new JsExpression('function(params) { return {q:params.term}; }'),
-                                'delay' => '400',
-                                'error' => new JsExpression('function(error) {alert(error.responseText);}'),
+                <div class="row">
+                    <div class="col-sm-12 col-md-6">
+                        <?= $form->field($goods, 'parent_id')->widget(Select2::class, [
+                            'initValueText' => (null === $goods->parent)
+                                ? Yii::t('dotplant.store', 'Search for a parent ...')
+                                : $goods->parent->name,
+                            'options' => [
+                                'placeholder' => Yii::t('dotplant.store', 'Search for a parent ...')
                             ],
-                            'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
-                            'templateResult' => new JsExpression('function(parent) { return parent.text; }'),
-                            'templateSelection' => new JsExpression('function (parent) { return parent.text; }'),
-                        ]
-                    ]) ?>
-                    <?= $form->field($goods, 'vendor_id')->dropDownList(
-                        Vendor::getArrayList(), ['prompt' => Yii::t('dotplant.store', 'Choose vendor')]
-                    ) ?>
-                    <?= $form->field($goods, 'sku') ?>
-                    <?php if (true === $undefinedType) : ?>
-                        <?= $form->field($goods, 'type')->dropDownList($goodsTypes) ?>
-                    <?php else : ?>
-                        <?= $form->field($goods, 'type')
-                            ->textInput(['value' => $goodsType, 'disabled' => 'disabled']) ?>
-                    <?php endif; ?>
-                    <?= $form->field($goods, 'role')
-                        ->textInput([
-                            'value' => $goodsRole,
-                            'disabled' => 'disabled'
+                            'pluginOptions' => [
+                                'allowClear' => true,
+                                'minimumInputLength' => 3,
+                                'ajax' => [
+                                    'url' => $url,
+                                    'dataType' => 'json',
+                                    'data' => new JsExpression('function(params) { return {q:params.term}; }'),
+                                    'delay' => '400',
+                                    'error' => new JsExpression('function(error) {alert(error.responseText);}'),
+                                ],
+                                'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
+                                'templateResult' => new JsExpression('function(parent) { return parent.text; }'),
+                                'templateSelection' => new JsExpression('function (parent) { return parent.text; }'),
+                            ]
                         ]) ?>
-                </div>
-                <div class="col-sm-12 col-md-6">
-                    <div class="box">
+                        <?= $form->field($goods, 'vendor_id')->dropDownList(
+                            Vendor::getArrayList(), ['prompt' => Yii::t('dotplant.store', 'Choose vendor')]
+                        ) ?>
+                        <?= $form->field($goods, 'sku') ?>
+                        <?php if (true === $undefinedType) : ?>
+                            <?= $form->field($goods, 'type')->dropDownList($goodsTypes) ?>
+                        <?php else : ?>
+                            <?= $form->field($goods, 'type')
+                                ->textInput(['value' => $goodsType, 'disabled' => 'disabled']) ?>
+                        <?php endif; ?>
+                        <?= $form->field($goods, 'role')->textInput(['value' => $goodsRole, 'disabled' => 'disabled']) ?>
+                    </div>
+                    <div class="col-sm-12 col-md-6">
                         <?= TreeWidget::widget([
                             'treeDataRoute' => [
                                 '/structure/entity-manage/category-tree',
-                                'checked' => implode(',', CategoryGoods::getBindings($goods->id))
+                                'checked' => implode(',', $checked)
                             ],
                             'treeType' => TreeWidget::TREE_TYPE_ADJACENCY,
                             'plugins' => ['checkbox', 'types'],
@@ -131,11 +129,11 @@ $form = ActiveForm::begin([
                                 ]
                             ]
                         ]) ?>
+                        <?= $form->field($goods, 'main_structure_id')->dropDownList([]) ?>
                     </div>
-                    <?= $form->field($goods, 'main_structure_id')->dropDownList([]) ?>
                 </div>
                 <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-sm-6">
                         <?= MultilingualFormTabs::widget([
                             'model' => $goods,
                             'childView' => '@DotPlant/Store/views/goods-manage/multilingual-part.php',

@@ -2,7 +2,6 @@
 
 namespace DotPlant\Store\actions\goods;
 
-
 use DevGroup\AdminUtils\actions\BaseAdminAction;
 use DevGroup\DataStructure\behaviors\HasProperties;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
@@ -20,6 +19,15 @@ use Yii;
  */
 class GoodsManageAction extends BaseAdminAction
 {
+    /**
+     * @param null $product_id
+     * @param null $id
+     * @param null $type
+     * @return string
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws \DotPlant\Store\exceptions\GoodsException
+     */
     public function run($product_id = null, $id = null, $type = null)
     {
         /** @var Goods | MultilingualActiveRecord | MultilingualTrait | HasProperties $goods */
@@ -42,9 +50,6 @@ class GoodsManageAction extends BaseAdminAction
             $goods->translations;
         } else {
             $goods->loadDefaultValues();
-//            if (null !== $parent_id) {
-//                $goods->parent_id = $parent_id;
-//            }
         }
         $post = Yii::$app->request->post();
         if (false === empty($post)) {
@@ -73,7 +78,9 @@ class GoodsManageAction extends BaseAdminAction
                         if (true === $refresh) {
                             return $this->controller->refresh();
                         } else {
-                            return $this->controller->redirect(['/structure/entity-manage/goods-manage', 'product_id' => $goods->id]);
+                            return $this->controller->redirect(
+                                ['/structure/entity-manage/goods-manage', 'product_id' => $goods->id]
+                            );
                         }
                     } else {
                         Yii::$app->session->setFlash('error',
@@ -93,7 +100,8 @@ class GoodsManageAction extends BaseAdminAction
             [
                 'goods' => $goods,
                 'canSave' => true,
-                'undefinedType' => $goods->isNewRecord
+                'undefinedType' => $goods->isNewRecord,
+                'startCategory' => $id,
             ]
         );
     }

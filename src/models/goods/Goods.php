@@ -403,7 +403,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
      * @param $params
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params, $categoryId = null)
     {
         /* @var $query ActiveQuery */
 
@@ -414,6 +414,12 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
                 'pageSize' => 15
             ],
         ]);
+        if (null !== $categoryId) {
+            $query->innerJoin(
+                CategoryGoods::tableName(),
+                'id = ' . CategoryGoods::tableName() . '.goods_id'
+            )->andWhere(['structure_id' => $categoryId]);
+        }
         if (null != $this->parent_id) {
             $query->andWhere(['parent_id' => $this->parent_id]);
         }
@@ -438,6 +444,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         }
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['is_deleted' => $this->is_deleted]);
+        $query->andFilterWhere(['type' => $this->type]);
         $translation = new GoodsTranslation();
         if (false === $translation->load(static::fetchParams($params, static::class, $translation))) {
             return $dataProvider;
