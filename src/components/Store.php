@@ -110,17 +110,21 @@ class Store
             $mainCurrency = CurrencyHelper::getMainCurrency();
             $order = new Order;
             $order->scenario = 'order-creation';
-            $order->attributes = [
-                'context_id' => $cart->context_id,
-                'currency_iso_code' => $cart->currency_iso_code,
-                'status_id' => static::getNewOrderStatusId($cart->context_id),
-                'is_retail' => $cart->is_retail,
-                'items_count' => $cart->items_count,
-                'total_price_with_discount' => $cart->total_price_with_discount,
-                'total_price_without_discount' => $cart->total_price_without_discount,
-                'rate_to_main_currency' => ($orderCurrency->convert_rate * $orderCurrency->convert_nominal)
-                    / ($mainCurrency->convert_rate * $mainCurrency->convert_nominal),
-            ];
+            $order->setAttributes(
+                $cart->getAttributes(
+                    [
+                        'context_id',
+                        'currency_iso_code',
+                        'is_retail',
+                        'items_count',
+                        'total_price_with_discount',
+                        'total_price_without_discount',
+                    ]
+                )
+            );
+            $order->status_id = static::getNewOrderStatusId($cart->context_id);
+            $order->rate_to_main_currency = ($orderCurrency->convert_rate * $orderCurrency->convert_nominal)
+                / ($mainCurrency->convert_rate * $mainCurrency->convert_nominal);
             if (!$order->save()) {
                 throw new OrderException(Yii::t('dotplant.store', 'Can not save a new order'));
             }
