@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\assets;
 
+use devgroup\JsTreeWidget\widgets\JsTreeAssetBundle;
 use yii\web\AssetBundle;
 use yii\web\JqueryAsset;
 
@@ -28,5 +29,6 @@ class StoreAsset extends AssetBundle
      */
     public $depends = [
         JqueryAsset::class,
+        JsTreeAssetBundle::class,
     ];
 }

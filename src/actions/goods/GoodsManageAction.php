@@ -7,6 +7,7 @@ use DevGroup\AdminUtils\actions\BaseAdminAction;
 use DevGroup\DataStructure\behaviors\HasProperties;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
+use DotPlant\Store\models\goods\CategoryGoods;
 use DotPlant\Store\models\goods\Goods;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -46,7 +47,6 @@ class GoodsManageAction extends BaseAdminAction
 //            }
         }
         $post = Yii::$app->request->post();
-        //\yii\helpers\VarDumper::dump($post,10,1); die();
         if (false === empty($post)) {
             if (false === $canSave) {
                 throw new ForbiddenHttpException(Yii::t('yii', 'You are not allowed to perform this action.'));
@@ -59,8 +59,16 @@ class GoodsManageAction extends BaseAdminAction
                 }
                 if (true === $goods->validate()) {
                     if (true === $goods->save(false)) {
+                        $goodsFormName = $goods->formName();
+                        $categories = isset($post[$goodsFormName]['categories']) ? $post[$goodsFormName]['categories'] : [];
+                        $categories = array_unique($categories);
+                        CategoryGoods::saveBindings($goods->id, $categories);
                         Yii::$app->session->setFlash('success',
-                            Yii::t('dotplant.store', '{model} successfully saved!')
+                            Yii::t(
+                                'dotplant.store',
+                                '{model} successfully saved!',
+                                ['model' => Yii::t('dotplant.store', $goodsFormName)]
+                            )
                         );
                         if (true === $refresh) {
                             return $this->controller->refresh();

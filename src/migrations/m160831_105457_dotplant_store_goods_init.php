@@ -17,7 +17,7 @@ class m160831_105457_dotplant_store_goods_init extends Migration
             '{{%dotplant_store_goods}}',
             [
                 'id' => $this->primaryKey(),
-                'vendor_id' => $this->integer()->notNull()->defaultValue(0),
+                'vendor_id' => $this->integer(),
                 'parent_id' => $this->integer(),
                 'main_structure_id' => $this->integer(),
                 'type' => $this->integer()->notNull()->defaultValue(1),
@@ -54,21 +54,6 @@ class m160831_105457_dotplant_store_goods_init extends Migration
         $this->addForeignKey('fk-g-a-goods-analog', '{{%dotplant_store_goods_analog}}', 'goods_analog_id', '{{%dotplant_store_goods}}', 'id', 'CASCADE');
 
         $this->createTable(
-            '{{%dotplant_store_goods_category}}',
-            [
-                'structure_id' => $this->integer()->notNull(),
-                'goods_id' => $this->integer()->notNull(),
-                'sort_order' => $this->integer()->notNull()->defaultValue(0),
-            ],
-            $tableOptions
-        );
-
-        $this->createIndex('idx-g-c-struct_id-goods_id', '{{%dotplant_store_goods_category}}', ['structure_id', 'goods_id'], true);
-
-        $this->addForeignKey('fk-g-c-goods', '{{%dotplant_store_goods_category}}', 'goods_id', '{{%dotplant_store_goods}}', 'id', 'CASCADE');
-        $this->addForeignKey('fk-g-c-structure', '{{%dotplant_store_goods_category}}', 'goods_id', BaseStructure::tableName(), 'id', 'CASCADE');
-
-        $this->createTable(
             '{{%dotplant_store_goods_translation}}',
             [
                 'model_id' => $this->integer()->notNull(),
@@ -96,8 +81,6 @@ class m160831_105457_dotplant_store_goods_init extends Migration
     {
         $this->dropForeignKey('fk-g-a-goods-goods', '{{%dotplant_store_goods_analog}}');
         $this->dropForeignKey('fk-g-a-goods-analog', '{{%dotplant_store_goods_analog}}');
-        $this->dropForeignKey('fk-g-c-goods', '{{%dotplant_store_goods_category}}');
-        $this->dropForeignKey('fk-g-c-structure', '{{%dotplant_store_goods_category}}');
         $this->dropForeignKey('fk-g-t-goods', '{{%dotplant_store_goods_translation}}');
 
         $this->dropIndex('idx-goods-vendor_id', '{{%dotplant_store_goods}}');
@@ -107,14 +90,12 @@ class m160831_105457_dotplant_store_goods_init extends Migration
         $this->dropIndex('idx-goods-sku', '{{%dotplant_store_goods}}');
         $this->dropIndex('idx-goods-inner_sku', '{{%dotplant_store_goods}}');
         $this->dropIndex('idx-goods_analog-id_analog_id', '{{%dotplant_store_goods_analog}}');
-        $this->dropIndex('idx-g-c-struct_id-goods_id', '{{%dotplant_store_goods_category}}');
         $this->dropIndex('idx-g-t-model_id-lang_id', '{{%dotplant_store_goods_translation}}');
 
         PropertiesTableGenerator::getInstance()->drop(Goods::class);
 
         $this->dropTable('{{%dotplant_store_goods}}');
         $this->dropTable('{{%dotplant_store_goods_analog}}');
-        $this->dropTable('{{%dotplant_store_goods_category}}');
         $this->dropTable('{{%dotplant_store_goods_translation}}');
     }
 }

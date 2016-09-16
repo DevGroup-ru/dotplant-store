@@ -6,16 +6,20 @@
  * @var bool $undefinedType
  */
 
-use kartik\switchinput\SwitchInput;
 use dmstr\widgets\Alert;
 use DevGroup\DataStructure\widgets\PropertiesForm;
 use DevGroup\Multilingual\widgets\MultilingualFormTabs;
-use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\JsExpression;
 use kartik\select2\Select2;
 use devgroup\JsTreeWidget\widgets\TreeWidget;
 use DotPlant\Store\assets\StoreAsset;
+use DotPlant\Store\models\goods\GoodsCategory;
+use DotPlant\EntityStructure\models\Entity;
+use yii\web\View;
+use DotPlant\Store\models\vendor\Vendor;
+use yii\bootstrap\ActiveForm;
+use DotPlant\Store\models\goods\CategoryGoods;
 
 $goodsTypes = $goods->getTypes();
 $goodsType = $goodsTypes[$goods->getType()];
@@ -32,8 +36,21 @@ $this->params['breadcrumbs'][] = [
 ];
 $this->params['breadcrumbs'][] = $this->title;
 $url = Url::to(['/structure/entity-manage/goods-autocomplete']);
+$categoryEntityId = Entity::getEntityIdForClass(GoodsCategory::class);
+$missingParamText = Yii::t('dotplant.store', 'Missing param');
+$formName = $goods->formName();
+$js = <<<JS
+    window.DotPlantStore = {
+        categoryEntityId : $categoryEntityId,
+        missingParamText : '$missingParamText',
+        mainCategorySelector : '#product-main_structure_id',
+        goodsFormName : '$formName'
+    };
+JS;
+$this->registerJs($js, View::POS_HEAD);
+
 StoreAsset::register($this);
-$form = \yii\bootstrap\ActiveForm::begin([
+$form = ActiveForm::begin([
     'id' => 'page-form',
 //    'options' => [
 //        'enctype' => 'multipart/form-data'
@@ -81,8 +98,9 @@ $form = \yii\bootstrap\ActiveForm::begin([
                             'templateSelection' => new JsExpression('function (parent) { return parent.text; }'),
                         ]
                     ]) ?>
-                    <?= $form->field($goods, 'vendor_id') ?>
-                    <?= $form->field($goods, 'main_structure_id') ?>
+                    <?= $form->field($goods, 'vendor_id')->dropDownList(
+                        Vendor::getArrayList(), ['prompt' => Yii::t('dotplant.store', 'Choose vendor')]
+                    ) ?>
                     <?= $form->field($goods, 'sku') ?>
                     <?php if (true === $undefinedType) : ?>
                         <?= $form->field($goods, 'type')->dropDownList($goodsTypes) ?>
@@ -97,12 +115,24 @@ $form = \yii\bootstrap\ActiveForm::begin([
                         ]) ?>
                 </div>
                 <div class="col-sm-12 col-md-6">
-                    <?= TreeWidget::widget([
-                        'treeDataRoute' => ['/structure/entity-manage/category-tree'],
-                        'treeType' => TreeWidget::TREE_TYPE_ADJACENCY,
-                        'plugins' => ['checkbox', 'wholerow'],
-                        'contextMenuItems' => [],
-                    ]) ?>
+                    <div class="box">
+                        <?= TreeWidget::widget([
+                            'treeDataRoute' => [
+                                '/structure/entity-manage/category-tree',
+                                'checked' => implode(',', CategoryGoods::getBindings($goods->id))
+                            ],
+                            'treeType' => TreeWidget::TREE_TYPE_ADJACENCY,
+                            'plugins' => ['checkbox', 'types'],
+                            'multiSelect' => true,
+                            'contextMenuItems' => [],
+                            'options' => [
+                                'checkbox' => [
+                                    'three_state' => false,
+                                ]
+                            ]
+                        ]) ?>
+                    </div>
+                    <?= $form->field($goods, 'main_structure_id')->dropDownList([]) ?>
                 </div>
                 <div class="row">
                     <div class="col-sm-12">

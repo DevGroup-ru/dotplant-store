@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\models\goods;
 
+use DevGroup\AdminUtils\traits\FetchModels;
 use DevGroup\DataStructure\behaviors\HasProperties;
 use DevGroup\DataStructure\traits\PropertiesTrait;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
@@ -13,13 +14,12 @@ use DotPlant\Store\interfaces\GoodsInterface;
 use DotPlant\Store\interfaces\GoodsTypesInterface;
 use DotPlant\Store\interfaces\PriceInterface;
 use DotPlant\Store\models\price\Price;
+use DotPlant\Store\models\vendor\Vendor;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
-use yii\helpers\StringHelper;
-use yii\web\NotFoundHttpException;
 
 /**
  * This is the model class for table "{{%dotplant_goods}}".
@@ -47,6 +47,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
     use MultilingualTrait;
     use TagDependencyTrait;
     use PropertiesTrait;
+    use FetchModels;
 
     /**
      *
@@ -249,6 +250,13 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
                 ],
                 [['sku'], 'required'],
                 [['sku', 'inner_sku'], 'string', 'max' => 255],
+                [
+                    ['vendor_id'],
+                    'exist',
+                    'skipOnError' => true,
+                    'targetClass' => Vendor::class,
+                    'targetAttribute' => ['vendor_id' => 'id']
+                ],
             ],
             $this->propertiesRules()
         );
@@ -440,35 +448,5 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         $query->andFilterWhere(['like', GoodsTranslation::tableName() . '.slug', $this->slug]);
         $query->andFilterWhere([GoodsTranslation::tableName() . '.is_active' => $this->is_active]);
         return $dataProvider;
-    }
-
-    /**
-     * Workaround to have ability use Model::load() method instead assigning values from request by hand
-     *
-     * @param array $params
-     * @param string $fromClass class name
-     * @param ActiveRecord $toModel
-     * @return array
-     */
-    public static function fetchParams($params, $fromClass, $toModel)
-    {
-        if (true === empty($params)
-            || false === class_exists($fromClass)
-            || false === $toModel instanceof ActiveRecord
-        ) {
-            return [];
-        }
-        $outParams = [];
-        $toClass = get_class($toModel);
-        $fromName = array_pop(explode('\\', $fromClass));
-        $toName = array_pop(explode('\\', $toClass));
-        if (true === isset($params[$fromName])) {
-            foreach ($params[$fromName] as $key => $value) {
-                if (true === in_array($key, $toModel->attributes())) {
-                    $outParams[$toName][$key] = $value;
-                }
-            }
-        }
-        return $outParams;
     }
 }
