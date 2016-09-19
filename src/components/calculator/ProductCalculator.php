@@ -11,14 +11,24 @@ use DotPlant\Store\models\warehouse\Warehouse;
  *
  * @package DotPlant\Store\components\calculator
  */
-class ProductCalculator implements CalculatorInterface
+class ProductCalculator extends Calculator
 {
     public static function calculate(PriceInterface $price)
     {
-        return Warehouse::getWarehouse(
-            $price->getGoodsId(),
+        $result = [];
+
+        $warehouse = Warehouse::getWarehouse(
+            $price->getGoods()->id,
             $price->getWarehouseId(),
             false
-        )->getPrice($price->getPriceType());
+        );
+
+        if ($warehouse) {
+            $result = self::applyExtendedPrice(
+                $price->getGoods(),
+                $warehouse->getPrice($price->getPriceType())
+            );
+        }
+        return $result;
     }
 }

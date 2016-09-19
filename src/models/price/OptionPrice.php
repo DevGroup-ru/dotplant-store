@@ -1,8 +1,8 @@
 <?php
 
 namespace DotPlant\Store\models\price;
-use DotPlant\Store\components\calculator\OptionCalculator;
 
+use DotPlant\Store\components\calculator\OptionCalculator;
 
 /**
  * Class OptionPrice

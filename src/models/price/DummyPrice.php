@@ -36,6 +36,4 @@ class DummyPrice implements PriceInterface
     {
         // TODO: Implement setPrice() method.
     }
-
-
 }

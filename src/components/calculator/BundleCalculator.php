@@ -9,7 +9,7 @@ use DotPlant\Store\interfaces\CalculatorInterface;
  *
  * @package DotPlant\Store\components\calculator
  */
-class BundleCalculator implements  CalculatorInterface
+class BundleCalculator implements CalculatorInterface
 {
 
 }

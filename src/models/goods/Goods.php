@@ -9,6 +9,7 @@ use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DevGroup\TagDependencyHelper\CacheableActiveRecord;
 use DevGroup\TagDependencyHelper\TagDependencyTrait;
+use DotPlant\EntityStructure\models\BaseStructure;
 use DotPlant\Store\exceptions\GoodsException;
 use DotPlant\Store\interfaces\GoodsInterface;
 use DotPlant\Store\interfaces\GoodsTypesInterface;
@@ -197,9 +198,9 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         return false;
     }
 
-    public function getPrice($warehouseId = null, $priceType = PriceInterface::TYPE_RETAIL, $withDiscount = true)
+    public function getPrice($warehouseId, $priceType = PriceInterface::TYPE_RETAIL, $withDiscount = true, $convertIsoCode = false)
     {
-        return $this->price->getPrice($warehouseId, $priceType, $withDiscount);
+        return $this->price->getPrice($warehouseId, $priceType, $withDiscount, $convertIsoCode);
     }
 
     /**
@@ -334,6 +335,14 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
     public function getChildren()
     {
         return $this->hasMany(static::class, ['parent_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getCategories() {
+        return $this->hasMany(BaseStructure::class, ['id' => 'structure_id'])
+            ->viaTable('{{%dotplant_store_goods_category%}}', ['goods_id' => 'id']);
     }
 
     /**

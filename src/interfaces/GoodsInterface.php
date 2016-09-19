@@ -1,6 +1,7 @@
 <?php
 
 namespace DotPlant\Store\interfaces;
+
 use DotPlant\Store\models\goods\Goods;
 use DotPlant\Store\exceptions\GoodsException;
 use yii\web\NotFoundHttpException;
@@ -30,5 +31,5 @@ interface GoodsInterface
      */
     public static function get($id);
 
-    public function getPrice();
+    public function getPrice($warehouseId, $priceType, $withDiscount, $convertIsoCode) ;
 }

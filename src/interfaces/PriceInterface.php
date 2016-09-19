@@ -23,17 +23,19 @@ interface PriceInterface
      */
     public static function create(Goods $goods);
 
-    public function getPrice($warehouseId, $priceType, $withDiscount);
+    public function getPrice($warehouseId, $priceType, $withDiscount, $convertIsoCode);
 
     public function setPrice($price);
 
-    public static function convert($from, $to);
+    public static function convert($price, $to);
 
-    public static function format($price, $format);
+    public function format($price, $format);
 
     public function getWarehouseId();
 
     public function getPriceType();
 
-    public function getGoodsId();
+    public function getGoods();
+
+    public function isWithDiscount();
 }

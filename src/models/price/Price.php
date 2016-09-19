@@ -2,85 +2,35 @@
 
 namespace DotPlant\Store\models\price;
 
-use DotPlant\EntityStructure\models\BaseStructure;
-use DotPlant\EntityStructure\models\Entity;
+use DotPlant\Currencies\helpers\CurrencyHelper;
 use DotPlant\Store\exceptions\PriceException;
-use DotPlant\Store\interfaces\GoodsInterface;
 use DotPlant\Store\interfaces\PriceInterface;
 use DotPlant\Store\models\goods\Goods;
 use Yii;
-use yii\db\ActiveRecord;
 
-/**
- * This is the model class for table "{{%dotplant_store_extended_price}}".
- *
- * @property integer $id
- * @property integer $entity_id
- * @property integer $entity_model_id
- * @property integer $start_time
- * @property integer $end_time
- * @property integer $is_percent
- * @property string $value
- * @property integer $mode
- */
-class Price extends ActiveRecord implements PriceInterface
+abstract class Price implements PriceInterface
 {
-
     protected $_calculatorClass = null;
 
-    protected $_goodsId = null;
+    protected $_goods = null;
 
     protected $_warehouseId = null;
 
     protected $_priceType = null;
 
+    protected $_extendedPrice = null;
+
+    protected $_convert_iso_code = false;
+
     /**
-     * @var null
+     * @var bool
      */
-    protected $_withDiscount = null;
+    protected $_withDiscount = true;
 
     private static $_priceMap = [];
 
 
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return '{{%dotplant_store_extended_price}}';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['entity_id', 'entity_model_id', 'start_time', 'end_time', 'is_percent', 'mode'], 'integer'],
-            [['entity_model_id'], 'required'],
-            [['value'], 'number'],
-            [
-                ['entity_id', 'entity_model_id'],
-                'unique',
-                'targetAttribute' => ['entity_id', 'entity_model_id'],
-                'message' => 'The combination of Entity ID and Entity Model ID has already been taken.'
-            ],
-            [
-                ['entity_id'],
-                'exist',
-                'skipOnError' => true,
-                'targetClass' => Entity::class,
-                'targetAttribute' => ['entity_id' => 'id']
-            ],
-            [
-                ['entity_model_id'],
-                'exist',
-                'skipOnError' => true,
-                'targetClass' => BaseStructure::class,
-                'targetAttribute' => ['entity_model_id' => 'id']
-            ],
-        ];
-    }
+    private $_price = [];
 
     /**
      * @inheritdoc
@@ -96,13 +46,7 @@ class Price extends ActiveRecord implements PriceInterface
         }
         if (false === isset(self::$_priceMap[$priceClass])) {
             if (false === $goods->getIsNewRecord()) {
-                $price = $priceClass::find()->where([
-                    'entity_id' => 0,
-                    'entity_model_id' => $goods->id
-                ])->one();
-                if (null === $price) {
-                    $price = new $priceClass;
-                }
+                $price = new $priceClass;
             } else {
                 $price = new DummyPrice();
             }
@@ -110,54 +54,90 @@ class Price extends ActiveRecord implements PriceInterface
         } else {
             $price = self::$_priceMap[$priceClass];
         }
+
         /* @var $price Price */
-        $price->_goodsId = $goods->id;
+        $price->_goods = $goods;
         return $price;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
+
+
+    public static function convert($price, $to)
     {
-        return [
-            'id' => Yii::t('dotplant.store', 'ID'),
-            'entity_id' => Yii::t('dotplant.store', 'Entity'),
-            'entity_model_id' => Yii::t('dotplant.store', 'Entity model'),
-            'start_time' => Yii::t('dotplant.store', 'Start time'),
-            'end_time' => Yii::t('dotplant.store', 'End time'),
-            'is_percent' => Yii::t('dotplant.store', 'Is percent'),
-            'value' => Yii::t('dotplant.store', 'Value'),
-            'mode' => Yii::t('dotplant.store', 'Mode'),
-        ];
+
+        $price['original_iso_code'] = $price['iso_code'];
+        $price['original_value'] = $price['value'];
+        $price['iso_code'] = $to;
+        $price['value'] = CurrencyHelper::convertCurrencies(
+            $price['value'],
+            CurrencyHelper::findCurrencyByIso($price['original_iso_code']),
+            CurrencyHelper::findCurrencyByIso($to)
+        );
+        return $price;
     }
 
-
-    public static function convert($from, $to)
-    {
-        // TODO: Implement convert() method.
-    }
-
-    public static function format($price, $format)
+    public function format($price, $format)
     {
         // TODO: Implement format() method.
     }
 
 
     /**
-     * @param null $warehouseId
+     * @param $warehouseId
      * @param string $priceType
      * @param bool|true $withDiscount
+     * @param bool|false $convertIsoCode
      * @return mixed
      */
-    public function getPrice($warehouseId = null, $priceType = PriceInterface::TYPE_RETAIL, $withDiscount = true)
+    public function getPrice($warehouseId, $priceType = PriceInterface::TYPE_RETAIL, $withDiscount = true, $convertIsoCode = false)
     {
-        $this->_warehouseId = $warehouseId;
-        $this->_priceType = $priceType;
-        $this->_withDiscount = $withDiscount;
-        $calculatorClass = $this->_calculatorClass;
-        return $calculatorClass::calculate($this);
+
+        $priceKey = implode(':', [
+            $warehouseId,
+            $priceType,
+            $this->getGoods()->id,
+            $convertIsoCode,
+            $warehouseId,
+            $withDiscount
+        ]);
+
+        if (empty($this->_price[$priceKey]) === true) {
+            $price = [];
+            $this->_warehouseId = $warehouseId;
+            $this->_priceType = $priceType;
+            $this->_withDiscount = $withDiscount;
+            $this->_convert_iso_code = $convertIsoCode;
+
+            $calculatorClass = $this->_calculatorClass;
+            $price = $calculatorClass::calculate($this);
+
+            if (empty($price) === false && $this->getConvertIsoCode()) {
+                if ($this->getConvertIsoCode() !== $price['iso_code']) {
+                    $price = $this->convert($price, $this->getConvertIsoCode());
+                }
+            }
+            $this->_price[$priceKey] = $price;
+        }
+
+        return $this->_price[$priceKey];
     }
+
+    /**
+     * @return bool
+     */
+    public function isWithDiscount()
+    {
+        return $this->_withDiscount;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getConvertIsoCode()
+    {
+        return $this->_convert_iso_code;
+    }
+
 
     /**
      * @return int
@@ -186,10 +166,8 @@ class Price extends ActiveRecord implements PriceInterface
     /**
      * @return Goods
      */
-    public function getGoodsId()
+    public function getGoods()
     {
-        return $this->_goodsId;
+        return $this->_goods;
     }
-
-
 }
