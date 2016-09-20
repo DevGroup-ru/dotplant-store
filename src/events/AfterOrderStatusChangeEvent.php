@@ -6,7 +6,7 @@ namespace DotPlant\Store\events;
  * Class OrderAfterStatusChangeEvent
  * @package DotPlant\Store\events
  */
-class OrderAfterStatusChangeEvent extends OrderEvent
+class AfterOrderStatusChangeEvent extends OrderEvent
 {
     /**
      * @var integer the actual order status id

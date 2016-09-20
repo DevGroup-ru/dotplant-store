@@ -28,7 +28,7 @@ class m160901_072910_dotplant_store_warehouse_init extends Migration
                 'model_id' => $this->integer()->notNull(),
                 'language_id' => $this->integer()->notNull(),
                 'name' => $this->string(255)->notNull(),
-                'address' => $this->text(), // @todo long text
+                'address' => $this->text(),
             ],
             $tableOptions
         );

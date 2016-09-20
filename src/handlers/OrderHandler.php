@@ -3,7 +3,9 @@
 namespace DotPlant\Store\handlers;
 
 use DotPlant\Currencies\events\AfterUserCurrencyChangeEvent;
-use DotPlant\Store\events\OrderAfterStatusChangeEvent;
+use DotPlant\Emails\helpers\EmailHelper;
+use DotPlant\Store\events\AfterOrderStatusChangeEvent;
+use DotPlant\Store\models\order\Order;
 use DotPlant\Store\models\order\OrderStatus;
 
 class OrderHandler
@@ -23,13 +25,33 @@ class OrderHandler
          */
     }
 
-    public static function sendEmailToCustomerAboutStatusChanging(OrderAfterStatusChangeEvent $event)
+    /**
+     * You should set `emailTemplateId` via params. It is a template id from Template model of `dotplant/email` extension
+     * @param AfterOrderStatusChangeEvent $event
+     */
+    public static function sendEmailToCustomerAboutStatusChanging(AfterOrderStatusChangeEvent $event)
     {
         $statuses = OrderStatus::listData();
-        if (isset($statuses[$event->oldStatusId], $statuses[$event->statusId])) {
-            // add task to send message
-            echo "Order status has been changed from {$statuses[$event->oldStatusId]} to {$statuses[$event->statusId]}";
-            die;
+        $order = Order::findOne($event->orderId);
+        if (
+            isset(
+                $statuses[$event->oldStatusId],
+                $statuses[$event->statusId],
+                $event->data['emailTemplateId'],
+                $order->deliveryInformation
+            )
+        ) {
+            EmailHelper::sendNewMessage(
+                $order->deliveryInformation->email,
+                $event->data['emailTemplateId'],
+                [
+                    'orderId' => $event->orderId,
+                    'oldStatusId' => $event->oldStatusId,
+                    'statusId' => $event->statusId,
+                    'statuses' => $statuses,
+                    'userId' => \Yii::$app->user->id,
+                ]
+            );
         }
     }
 }

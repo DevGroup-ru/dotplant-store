@@ -157,7 +157,7 @@ class Store
                 throw new OrderException(Yii::t('dotplant.store', 'Cart not found'));
             }
             $cart = $order->items[0]->cart;
-            // check status
+            // check status @todo: think about it
             // remove cart_id from items
             if (OrderItem::updateAll(['cart_id' => null], ['order_id' => $order->id]) != count($order->items)) {
                 throw new OrderException(Yii::t('dotplant.store', 'Can not update one or more order items'));

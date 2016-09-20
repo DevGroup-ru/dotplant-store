@@ -10,8 +10,6 @@ use yii\web\Response;
 /**
  * Class CartController
  *
- * @todo: Add a parameters check for all actions
- *
  * @package DotPlant\Store\controllers
  */
 class CartController extends \yii\web\Controller
