@@ -42,6 +42,7 @@ use yii\helpers\ArrayHelper;
  *
  * @property Goods[] $children
  * @property Goods $parent
+ * @property BaseStructure[] $categories
  */
 class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
 {

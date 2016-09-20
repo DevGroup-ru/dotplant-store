@@ -14,7 +14,12 @@ class ProductRule extends AbstractRule
     public function rules()
     {
         return [
-            ['products', 'each', 'rule' => ['integer']]
+            ['products', 'each', 'rule' => ['integer']],
+            [
+                'products',
+                'each',
+                'rule' => ['exist', 'targetClass' => Goods::class, 'targetAttribute' => 'id']
+            ],
         ];
     }
 

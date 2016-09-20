@@ -17,7 +17,12 @@ class StructureRule extends AbstractRule
     public function rules()
     {
         return [
-            ['structure', 'each', 'rule' => ['integer']]
+            ['structures', 'each', 'rule' => ['integer']],
+            [
+                'structures',
+                'each',
+                'rule' => ['exist', 'targetClass' => BaseStructure::class, 'targetAttribute' => 'id']
+            ],
         ];
     }
 
