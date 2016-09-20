@@ -34,10 +34,14 @@ class GoodsManageAction extends BaseAdminAction
         if (null !== $product_id) {
             if (null === $goods = Goods::get($product_id)) {
                 throw new NotFoundHttpException(
-                    Yii::t('dotplant.store', '{model} with #{id} not found!', [
-                        'model' => Yii::t('dotplant.store', 'Goods'),
-                        'id' => $product_id
-                    ])
+                    Yii::t(
+                        'dotplant.store',
+                        '{model} with #{id} not found!',
+                        [
+                            'model' => Yii::t('dotplant.store', 'Goods'),
+                            'id' => $product_id,
+                        ]
+                    )
                 );
             }
         } else {
@@ -83,15 +87,19 @@ class GoodsManageAction extends BaseAdminAction
                             );
                         }
                     } else {
-                        Yii::$app->session->setFlash('error',
+                        Yii::$app->session->setFlash(
+                            'error',
                             Yii::t('dotplant.store', 'An error occurred while saving {model}!')
                         );
                     }
                 } else {
-                    Yii::$app->session->setFlash('warning', Yii::t(
-                        'dotplant.store',
-                        'Please verify that all fields are filled correctly!'
-                    ));
+                    Yii::$app->session->setFlash(
+                        'warning',
+                        Yii::t(
+                            'dotplant.store',
+                            'Please verify that all fields are filled correctly!'
+                        )
+                    );
                 }
             }
         }

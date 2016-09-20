@@ -2,8 +2,10 @@
 
 namespace DotPlant\Store\controllers;
 
+
 use DevGroup\AdminUtils\controllers\BaseController;
 use DevGroup\AdminUtils\traits\BackendRedirect;
+use DotPlant\Store\actions\extendedPrice\ExtendedPriceAjaxFormAction;
 use DotPlant\Store\models\extendedPrice\ExtendedPrice;
 use DotPlant\Store\models\extendedPrice\ExtendedPriceHandler;
 use DotPlant\Store\models\extendedPrice\ExtendedPriceRule;
@@ -19,6 +21,10 @@ class ExtendedPriceManageController extends BaseController
 
     use BackendRedirect;
 
+    public function actions()
+    {
+        return ['extended-price-entity' => ExtendedPriceAjaxFormAction::class];
+    }
 
     /** @inheritdoc */
     public function behaviors()
@@ -33,7 +39,7 @@ class ExtendedPriceManageController extends BaseController
                         'roles' => ['store-extended-price-view'],
                     ],
                     [
-                        'actions' => ['edit'],
+                        'actions' => ['edit', 'extended-price-entity'],
                         'allow' => true,
                         'roles' => ['store-extended-price-edit'],
                     ],
@@ -71,6 +77,7 @@ class ExtendedPriceManageController extends BaseController
         );
     }
 
+
     public function actionEdit($id = false)
     {
         /** @var ExtendedPrice $model */
@@ -86,6 +93,7 @@ class ExtendedPriceManageController extends BaseController
                 ])
             )
         );
+
 
         $model->loadDefaultValues();
 
@@ -133,9 +141,9 @@ class ExtendedPriceManageController extends BaseController
                 }
 
                 if (Model::loadMultiple(
-                    $params['extendedPriceRules'],
-                    Yii::$app->request->post()
-                ) && Model::validateMultiple($params['extendedPriceRules'])
+                        $params['extendedPriceRules'],
+                        Yii::$app->request->post()
+                    ) && Model::validateMultiple($params['extendedPriceRules'])
                 ) {
                     foreach ($params['extendedPriceRules'] as $rule) {
                         $handlerClass = $rule->extendedPriceHandler->handler_class;
@@ -153,6 +161,7 @@ class ExtendedPriceManageController extends BaseController
         $params['model'] = $model;
         return $this->render('edit', $params);
     }
+
 
     public function actionDelete($id, $returnUrl)
     {
@@ -201,5 +210,6 @@ class ExtendedPriceManageController extends BaseController
             Yii::$app->session->setFlash('error', Yii::t('app', 'Object has not been removed'));
 
         return $this->redirect($returnUrl);
+
     }
 }

@@ -1,16 +1,13 @@
 <?php
 
+
 namespace DotPlant\Store\assets;
 
-use devgroup\JsTreeWidget\widgets\JsTreeAssetBundle;
+
 use yii\web\AssetBundle;
 use yii\web\JqueryAsset;
 
-/**
- * Class StoreAsset
- * @package DotPlant\Store\assets
- */
-class StoreAsset extends AssetBundle
+class ExtendedPriceAssets extends AssetBundle
 {
     /**
      * @inheritdoc
@@ -21,7 +18,7 @@ class StoreAsset extends AssetBundle
      * @inheritdoc
      */
     public $js = [
-        'js/backend-goods.js'
+        'js/backend-extended-price.js',
     ];
 
     /**
@@ -29,6 +26,5 @@ class StoreAsset extends AssetBundle
      */
     public $depends = [
         JqueryAsset::class,
-        JsTreeAssetBundle::class,
     ];
 }

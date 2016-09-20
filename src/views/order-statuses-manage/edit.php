@@ -38,7 +38,8 @@ $this->params['breadcrumbs'] = [
             <?=
             Html::submitButton(
                 Yii::t('dotplant.store', $model->isNewRecord ? 'Create' : 'Update'),
-                ['class' => 'btn btn-primary'])
+                ['class' => 'btn btn-primary']
+            )
             ?>
         </div>
     </div>

@@ -38,9 +38,7 @@ class GoodsAutocompleteAction extends BaseAdminAction
             throw new NotFoundHttpException(Yii::t('dotplant.store', 'Page not found'));
         }
         if (false === Yii::$app->user->can('backend-view')) {
-            throw new ForbiddenHttpException(Yii::t(
-                'yii', 'You are not allowed to perform this action.'
-            ));
+            throw new ForbiddenHttpException(Yii::t('dotplant.store', 'You are not allowed to perform this action.'));
         }
         if (false === empty($this->searchFields)) {
             $translationsColumns = GoodsTranslation::getTableSchema()->columnNames;
@@ -71,14 +69,14 @@ class GoodsAutocompleteAction extends BaseAdminAction
         $out = ['results' => ['id' => '', 'text' => '']];
         if (null !== $q) {
             $query = new Query;
-            $query->select('id, name AS text')
-                ->from(Goods::tableName())
-                ->innerJoin(GoodsTranslation::tableName(), 'id = model_id')
-                ->where($this->prepareCondition($q))
-                ->andWhere([
-                    'language_id' => Yii::$app->multilingual->language_id,
-                ])
-                ->limit(20);
+            $query->select('id, name AS text')->from(Goods::tableName())->innerJoin(
+                    GoodsTranslation::tableName(),
+                    'id = model_id'
+                )->where($this->prepareCondition($q))->andWhere(
+                    [
+                        'language_id' => Yii::$app->multilingual->language_id,
+                    ]
+                )->limit(20);
             $command = $query->createCommand();
             $data = $command->queryAll();
             $out['results'] = array_values($data);
@@ -92,6 +90,7 @@ class GoodsAutocompleteAction extends BaseAdminAction
      * Prepares query condition
      *
      * @param $q
+     *
      * @return array|int
      */
     private function prepareCondition($q)

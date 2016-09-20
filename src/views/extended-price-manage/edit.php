@@ -4,7 +4,6 @@ use DevGroup\AdminUtils\FrontendHelper;
 use DevGroup\AdminUtils\Helper;
 use DevGroup\Multilingual\models\Context;
 use DotPlant\Currencies\models\Currency;
-;
 use DotPlant\Store\models\extendedPrice\ExtendedPrice;
 use DotPlant\Store\models\extendedPrice\ExtendedPriceRule;
 use kartik\switchinput\SwitchInput;
