@@ -25,9 +25,6 @@ use Yii;
  */
 class GoodsTranslation extends ActiveRecord
 {
-    use EntityTrait;
-    use SeoTrait;
-
     /**
      * @inheritdoc
      */

@@ -10,6 +10,7 @@
 use dmstr\widgets\Alert;
 use DevGroup\DataStructure\widgets\PropertiesForm;
 use DevGroup\Multilingual\widgets\MultilingualFormTabs;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\web\JsExpression;
 use kartik\select2\Select2;
@@ -32,7 +33,7 @@ $this->title = empty($goods->id)
     : Yii::t('dotplant.store', 'Edit {goods} #{id}', ['goods' => $goodsType, 'id' => $goods->id]);
 
 $this->params['breadcrumbs'][] = [
-    'url' => ['/structure/entity-manage'],
+    'url' => ['/structure/entity-manage/products'],
     'label' => Yii::t('dotplant.store', 'Goods management')
 ];
 $this->params['breadcrumbs'][] = $this->title;
@@ -102,7 +103,8 @@ $form = ActiveForm::begin([
                             ]
                         ]) ?>
                         <?= $form->field($goods, 'vendor_id')->dropDownList(
-                            Vendor::getArrayList(), ['prompt' => Yii::t('dotplant.store', 'Choose vendor')]
+                            Vendor::getArrayList(),
+                            ['prompt' => Yii::t('dotplant.store', 'Choose vendor')]
                         ) ?>
                         <?= $form->field($goods, 'sku') ?>
                         <?php if (true === $undefinedType) : ?>
@@ -129,7 +131,8 @@ $form = ActiveForm::begin([
                                 ]
                             ]
                         ]) ?>
-                        <?= $form->field($goods, 'main_structure_id')->dropDownList([]) ?>
+                        <?= $form->field($goods, 'main_structure_id')
+                            ->dropDownList(ArrayHelper::map($goods->categories, 'id', 'name')) ?>
                     </div>
                 </div>
                 <div class="row">

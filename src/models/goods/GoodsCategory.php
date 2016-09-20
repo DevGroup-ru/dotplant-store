@@ -10,8 +10,10 @@ use DotPlant\EntityStructure\actions\BaseEntityTreeAction;
 use DotPlant\EntityStructure\models\BaseStructure;
 use DotPlant\EntityStructure\models\Entity;
 use DotPlant\Store\actions\goods\GoodsAutocompleteAction;
+use DotPlant\Store\actions\goods\GoodsDeleteAction;
 use DotPlant\Store\actions\goods\GoodsListAction;
 use DotPlant\Store\actions\goods\GoodsManageAction;
+use DotPlant\Store\actions\goods\GoodsRestoreAction;
 use Yii;
 
 /**
@@ -74,6 +76,12 @@ class GoodsCategory extends BaseStructure
         ],
         'goods-manage' => [
             'class' => GoodsManageAction::class,
+        ],
+        'goods-delete' => [
+            'class' => GoodsDeleteAction::class
+        ],
+        'goods-restore' => [
+            'class' => GoodsRestoreAction::class
         ],
         'goods-autocomplete' => [
             'class' => GoodsAutocompleteAction::class,

@@ -13,9 +13,6 @@ use DotPlant\Store\models\price\ServicePrice;
  */
 class Service extends Goods
 {
-    use EntityTrait;
-    use SeoTrait;
-
     protected $priceClass = ServicePrice::class;
 
     protected $visibilityType = null;

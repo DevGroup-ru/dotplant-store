@@ -5,6 +5,9 @@ namespace DotPlant\Store\models\goods;
 use DevGroup\AdminUtils\traits\FetchModels;
 use DevGroup\DataStructure\behaviors\HasProperties;
 use DevGroup\DataStructure\traits\PropertiesTrait;
+use DevGroup\Entity\traits\EntityTrait;
+use DevGroup\Entity\traits\SeoTrait;
+use DevGroup\Entity\traits\SoftDeleteTrait;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DevGroup\TagDependencyHelper\CacheableActiveRecord;
@@ -50,6 +53,9 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
     use TagDependencyTrait;
     use PropertiesTrait;
     use FetchModels;
+    use EntityTrait;
+    use SoftDeleteTrait;
+    use SeoTrait;
 
     /**
      *
@@ -341,9 +347,10 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
     /**
      * @return ActiveQuery
      */
-    public function getCategories() {
+    public function getCategories()
+    {
         return $this->hasMany(BaseStructure::class, ['id' => 'structure_id'])
-            ->viaTable('{{%dotplant_store_goods_category%}}', ['goods_id' => 'id']);
+            ->viaTable(CategoryGoods::tableName(), ['goods_id' => 'id']);
     }
 
     /**
@@ -360,7 +367,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         /** @var Goods $goods */
         $goods = new $goodsClass;
         $goods->type = $type;
-        //self::injectPriceObject($goods);
+        self::injectPriceObject($goods);
         return $goods;
     }
 
@@ -382,7 +389,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
             /** @var self $model */
             $goods = new $productClass;
             self::populateRecord($goods, $record);
-            //self::injectPriceObject($goods);
+            self::injectPriceObject($goods);
         }
         return $goods;
     }

@@ -13,8 +13,6 @@ use DotPlant\Store\models\price\OptionPrice;
  */
 class Option extends Goods
 {
-    use EntityTrait;
-    use SeoTrait;
 
     protected $priceClass = OptionPrice::class;
 

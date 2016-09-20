@@ -13,8 +13,6 @@ use DotPlant\Store\models\price\FilePrice;
  */
 class File extends Goods
 {
-    use EntityTrait;
-    use SeoTrait;
 
     protected $priceClass = FilePrice::class;
 

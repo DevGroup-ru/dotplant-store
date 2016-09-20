@@ -13,8 +13,6 @@ use DotPlant\Store\models\price\BundlePrice;
  */
 class Bundle extends Goods
 {
-    use EntityTrait;
-    use SeoTrait;
 
     protected $priceClass = BundlePrice::class;
 

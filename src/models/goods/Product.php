@@ -13,9 +13,6 @@ use DotPlant\Store\models\price\ProductPrice;
  */
 class Product extends Goods
 {
-    use EntityTrait;
-    use SeoTrait;
-
     protected $priceClass = ProductPrice::class;
 
     protected $visibilityType = null;

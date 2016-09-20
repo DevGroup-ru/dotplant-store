@@ -4,6 +4,7 @@
  * @var  \DotPlant\EntityStructure\models\BaseStructure $searchModel
  * @var int $parentId
  */
+use DevGroup\AdminUtils\columns\ActionColumn;
 use yii\grid\GridView;
 use kartik\icons\Icon;
 use yii\helpers\Html;
@@ -100,33 +101,58 @@ HTML;
                             'width' => '15%',
                         ],
                     ],
+                    'is_active:boolean',
                     [
-                        'attribute' => 'is_active',
-                        'label' => Yii::t('dotplant.store', 'Active'),
-                        'content' => function ($data) {
-                            return Yii::$app->formatter->asBoolean($data->is_active);
+                        'attribute' => 'is_deleted',
+                        'label' => Yii::t('dotplant.store', 'Show deleted?'),
+                        'value' => function ($model) {
+                            return $model->isDeleted() === true ? Yii::t('dotplant.store', 'Deleted') : Yii::t('dotplant.store', 'Active');
                         },
                         'filter' => [
-                            0 => Yii::$app->formatter->asBoolean(0),
-                            1 => Yii::$app->formatter->asBoolean(1),
+                            Yii::t('dotplant.store', 'Show only active'),
+                            Yii::t('dotplant.store', 'Show only deleted')
                         ],
+                        'filterInputOptions' => [
+                            'class' => 'form-control',
+                            'id' => null,
+                            'prompt' => Yii::t('dotplant.store', 'Show all')
+                        ]
                     ],
                     [
-                        'class' => 'DevGroup\AdminUtils\columns\ActionColumn',
-                        'buttons' => [
-                            [
-                                'url' => 'edit',
-                                'icon' => 'pencil',
-                                'class' => 'btn-info',
-                                'label' => Yii::t('dotplant.store', 'Edit'),
-                            ],
-                            [
-                                'url' => 'delete',
-                                'icon' => 'trash-o',
-                                'class' => 'btn-danger',
-                                'label' => Yii::t('dotplant.store', 'Delete'),
-                            ],
-                        ],
+                        'class' => ActionColumn::class,
+                        'buttons' => function ($model, $key, $index, $column) {
+
+                            $result = [
+                                'edit' => [
+                                    'url' => '/structure/entity-manage/goods-manage',
+                                    'icon' => 'pencil',
+                                    'class' => 'btn-info',
+                                    'label' => Yii::t('dotplant.store', 'Edit'),
+                                    'keyParam' => 'product_id',
+                                ]
+                            ];
+
+                            if ($model->isDeleted() === false) {
+                                $result['soft-delete'] = [
+                                    'url' => '/structure/entity-manage/goods-delete',
+                                    'icon' => 'trash-o',
+                                    'class' => 'btn-danger',
+                                    'label' => Yii::t('dotplant.store', 'Delete'),
+                                    'keyParam' => 'product_id',
+                                ];
+                            } else {
+                                $result['restore'] = [
+                                    'url' => '/structure/entity-manage/goods-restore',
+                                    'icon' => 'undo',
+                                    'class' => 'btn-info',
+                                    'label' => Yii::t('dotplant.store', 'Restore'),
+                                    'keyParam' => 'product_id',
+                                ];
+                            }
+
+
+                            return $result;
+                        }
                     ]
                 ],
             ]);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var yii\web\View $this
  * @var \DotPlant\Store\models\goods\Goods $model
@@ -7,7 +8,9 @@
  * @var \DevGroup\Multilingual\models\Language $language
  * @var string $attributePrefix
  */
+
 use kartik\switchinput\SwitchInput;
+
 ?>
 <?= $form->field($model, $attributePrefix . 'is_active')->widget(SwitchInput::class) ?>
 <?= $form->field($model, $attributePrefix . 'name') ?>
@@ -16,4 +19,4 @@ use kartik\switchinput\SwitchInput;
 <?= $form->field($model, $attributePrefix . 'slug') ?>
 <?= $form->field($model, $attributePrefix . 'meta_description') ?>
 <?= $form->field($model, $attributePrefix . 'announce')->textarea(['rows' => 5]) ?>
-<?= $form->field($model, $attributePrefix . 'content')->textarea(['rows' => 5]) ?>
+<?= $form->field($model, $attributePrefix . 'content')->textarea(['rows' => 5]);
