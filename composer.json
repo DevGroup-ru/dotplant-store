@@ -19,7 +19,8 @@
         "dotplant/entity-structure": "dev-master",
         "dotplant/currencies": "dev-master",
         "devgroup/yii2-users-module": "dev-master",
-        "devgroup/yii2-events-system": "dev-master"
+        "devgroup/yii2-events-system": "dev-master",
+        "dotplant/emails": "dev-master"
     },
     "autoload": {
         "psr-4": {

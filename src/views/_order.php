@@ -27,9 +27,9 @@ foreach ($contexts as $context) {
 ?>
 <div class="row">
     <div class="col-xs-12 col-md-6">
-        <div class="box">
-            <div class="box-header with-border"><h3 class="box-title"><?= Yii::t('dotplant.store', 'Cart') ?></h3></div>
-            <div class="box-body">
+        <div class="panel panel-default">
+            <div class="panel-heading"><?= Yii::t('dotplant.store', 'Cart') ?></div>
+            <div class="panel-body">
                 <?= $form->field($model, 'allowToAddSameGoods')->widget(SwitchInput::class) ?>
                 <?= $form->field($model, 'countUniqueItemsOnly')->widget(SwitchInput::class) ?>
                 <?= $form->field($model, 'singlePriceForWarehouses')->widget(SwitchInput::class) ?>
@@ -38,9 +38,9 @@ foreach ($contexts as $context) {
         </div>
     </div>
     <div class="col-xs-12 col-md-6">
-        <div class="box">
-            <div class="box-header with-border"><h3 class="box-title"><?= Yii::t('dotplant.store', 'Order statuses') ?></h3></div>
-            <div class="box-body">
+        <div class="panel panel-default">
+            <div class="panel-heading"><?= Yii::t('dotplant.store', 'Order statuses') ?></div>
+            <div class="panel-body">
                 <?=
                 \yii\bootstrap\Tabs::widget(
                     [

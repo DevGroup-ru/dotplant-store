@@ -14,6 +14,7 @@ use DotPlant\Store\events\RetailCheckEvent;
 class StoreHandler
 {
     /**
+     * You should add `isRetail` to event params via json editor. It is a boolean value
      * @param RetailCheckEvent $event
      */
     public static function dummyRetailCheck(RetailCheckEvent $event)

@@ -104,7 +104,7 @@ class Store
             $cart->calculate();
             // lock cart
             $cart->is_locked = 1;
-            $cart->save(true, ['is_locked', 'items_count', 'total_price_with_discount', 'total_price_without_discount']); // @todo:
+            $cart->save(true);
             // save order
             $orderCurrency = CurrencyHelper::findCurrencyByIso($cart->currency_iso_code);
             $mainCurrency = CurrencyHelper::getMainCurrency();
