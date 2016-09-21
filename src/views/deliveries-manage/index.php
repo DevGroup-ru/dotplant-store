@@ -34,9 +34,11 @@ $this->params['breadcrumbs'][] = $this->title;
         ]); ?>
         <?php Pjax::end(); ?>
     </div>
+    <?php if (Yii::$app->user->can('dotplant-store-delivery-create')) : ?>
     <div class="box-footer">
         <div class="pull-right">
             <?= Html::a(Yii::t('dotplant.store', 'Create'), ['edit'], ['class' => 'btn btn-success']) ?>
         </div>
     </div>
+    <?php endif; ?>
 </div>

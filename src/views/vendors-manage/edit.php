@@ -5,6 +5,7 @@ use yii\widgets\ActiveForm;
 use DevGroup\Multilingual\widgets\MultilingualFormTabs;
 
 /**
+ * @var bool $hasAccess
  * @var DotPlant\Store\models\order\Payment $model
  * @var yii\web\View $this
  */
@@ -35,6 +36,7 @@ $this->params['breadcrumbs'] = [
             </div>
         </div>
     </div>
+    <?php if ($hasAccess): ?>
     <div class="box-footer">
         <div class="pull-right">
             <?= Html::submitButton(
@@ -43,5 +45,6 @@ $this->params['breadcrumbs'] = [
             ) ?>
         </div>
     </div>
+    <?php endif; ?>
 </div>
 <?php ActiveForm::end(); ?>

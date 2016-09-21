@@ -18,7 +18,7 @@ class m160901_114152_dotplant_store_add_warehouse_to_menu extends Migration
                     'name' => 'Warehouses',
                     'icon' => 'fa fa-cubes',
                     'sort_order' => 0,
-                    'rbac_check' => 'backend-view',
+                    'rbac_check' => 'dotplant-store-warehouse-view',
                     'css_class' => '',
                     'route' => '/store/warehouses-manage',
                     'translation_category' => 'dotplant.store',

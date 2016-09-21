@@ -34,24 +34,19 @@ class ExtendedPriceManageController extends BaseController
                 'class' => AccessControl::class,
                 'rules' => [
                     [
-                        'actions' => ['index'],
+                        'actions' => ['index', 'edit'],
                         'allow' => true,
-                        'roles' => ['store-extended-price-view'],
+                        'roles' => ['dotplant-store-extended-price-view'],
                     ],
                     [
-                        'actions' => ['edit', 'extended-price-entity'],
+                        'actions' => ['delete'],
                         'allow' => true,
-                        'roles' => ['store-extended-price-edit'],
-                    ],
-                    [
-                        'actions' => ['delete', 'delete-rule'],
-                        'allow' => true,
-                        'roles' => ['store-extended-price-delete'],
+                        'roles' => ['dotplant-store-extended-price-delete'],
                     ],
                     [
                         'allow' => false,
                         'roles' => ['*'],
-                    ]
+                    ],
                 ],
             ],
             'verbs' => [
@@ -100,8 +95,8 @@ class ExtendedPriceManageController extends BaseController
         $params = [];
 
         $isLoaded = $model->load(\Yii::$app->request->post());
-        $hasAccess = ($model->isNewRecord && Yii::$app->user->can('store-extended-price-create'))
-            || (!$model->isNewRecord && Yii::$app->user->can('store-extended-price-edit'));
+        $hasAccess = ($model->isNewRecord && Yii::$app->user->can('dotplant-store-extended-price-create'))
+            || (!$model->isNewRecord && Yii::$app->user->can('dotplant-store-extended-price-edit'));
         if ($isLoaded && $hasAccess === false) {
             throw new ForbiddenHttpException;
         }

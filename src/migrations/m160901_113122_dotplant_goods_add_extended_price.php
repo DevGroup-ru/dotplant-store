@@ -1,7 +1,5 @@
 <?php
 
-
-use app\helpers\PermissionsHelper;
 use app\models\BackendMenu;
 use DotPlant\Store\handlers\extendedPrice\ProductRule;
 use DotPlant\Store\handlers\extendedPrice\StructureRule;
@@ -14,23 +12,8 @@ use yii\db\Migration;
 
 class m160901_113122_dotplant_goods_add_extended_price extends Migration
 {
-
-    public static $permissionsConfig = [
-        'ExtendedPriceAdministrator' => [
-            'descr' => 'Extended Price Administrator Role',
-            'permits' => [
-                'store-extended-price-view' => 'View extended price grid',
-                'store-extended-price-edit' => 'Edit extended price',
-                'store-extended-price-create' => 'Create extended price',
-                'store-extended-price-delete' => 'Delete extended price',
-            ],
-        ],
-    ];
-
     public function up()
     {
-        PermissionsHelper::createPermissions(self::$permissionsConfig);
-
         $this->insert(
             BackendMenu::tableName(),
             [
@@ -38,7 +21,7 @@ class m160901_113122_dotplant_goods_add_extended_price extends Migration
                 'name' => 'Extended prices',
                 'icon' => 'fa fa-ils',
                 'sort_order' => 70,
-                'rbac_check' => 'store-extended-price-view',
+                'rbac_check' => 'dotplant-store-extended-price-view',
                 'css_class' => '',
                 'route' => '/store/extended-price-manage/index',
                 'translation_category' => 'dotplant.store',
@@ -141,8 +124,7 @@ class m160901_113122_dotplant_goods_add_extended_price extends Migration
 
     public function down()
     {
-        PermissionsHelper::removePermissions(self::$permissionsConfig);
-
+        $this->delete(
         $this->delete(
             BackendMenu::tableName(),
             ['name' => ['Extended prices']]

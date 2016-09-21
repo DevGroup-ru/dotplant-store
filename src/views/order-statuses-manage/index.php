@@ -51,6 +51,7 @@ $this->params['breadcrumbs'][] = $this->title;
         ]); ?>
         <?php Pjax::end(); ?>
     </div>
+    <?php if (Yii::$app->user->can('dotplant-store-order-status-create')) : ?>
     <div class="box-footer">
         <div class="pull-right">
             <?=
@@ -62,4 +63,5 @@ $this->params['breadcrumbs'][] = $this->title;
             ?>
         </div>
     </div>
+    <?php endif; ?>
 </div>

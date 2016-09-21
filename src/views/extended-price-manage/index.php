@@ -8,7 +8,7 @@ use yii\helpers\Html;
 $this->title = Yii::t('app', 'Extended price');
 
 $this->params['breadcrumbs'][] = $this->title;
-$buttons = Yii::$app->user->can('store-extended-price-create') ?
+$buttons = Yii::$app->user->can('dotplant-store-extended-price-create') ?
     Html::a(
         Icon::show('plus') . '&nbsp'
         . Yii::t('app', 'New item'),

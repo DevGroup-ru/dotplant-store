@@ -7,18 +7,47 @@ use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DotPlant\Store\models\vendor\Vendor;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use Yii;
 
-class VendorManageController extends Controller
+class VendorsManageController extends Controller
 {
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
-        return []; // @todo: add permissions
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'actions' => ['index', 'edit'],
+                        'allow' => true,
+                        'roles' => ['dotplant-store-vendor-view'],
+                    ],
+                    [
+                        'actions' => ['delete'],
+                        'allow' => true,
+                        'roles' => ['dotplant-store-vendor-delete'],
+                    ],
+                    [
+                        'allow' => false,
+                        'roles' => ['*'],
+                    ],
+                ],
+            ],
+            'verbs' => [
+                'class' => VerbFilter::class,
+                'actions' => [
+                    'delete' => ['POST'],
+                ],
+            ]
+        ];
     }
 
     /**
@@ -63,8 +92,13 @@ class VendorManageController extends Controller
                 );
             }
         }
+        $hasAccess = ($model->isNewRecord && Yii::$app->user->can('dotplant-store-vendor-create'))
+            || (!$model->isNewRecord && Yii::$app->user->can('dotplant-store-vendor-edit'));
         /** @var Vendor | MultilingualTrait | MultilingualActiveRecord $model */
         if ($model->load(Yii::$app->request->post())) {
+            if (!$hasAccess) {
+                throw new ForbiddenHttpException;
+            }
             $success = true;
             foreach (Yii::$app->request->post('VendorTranslation') as $languageId => $attributes) {
                 $model->translate($languageId)->setAttributes($attributes);
@@ -86,6 +120,7 @@ class VendorManageController extends Controller
         return $this->render(
             'edit',
             [
+                'hasAccess' => $hasAccess,
                 'model' => $model,
             ]
         );

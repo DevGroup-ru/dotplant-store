@@ -10,8 +10,11 @@ use DotPlant\Store\models\order\OrderStatus;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -24,7 +27,33 @@ class OrderStatusesManageController extends Controller
      */
     public function behaviors()
     {
-        return []; // @todo: add permissions
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'actions' => ['index', 'edit'],
+                        'allow' => true,
+                        'roles' => ['dotplant-store-order-status-view'],
+                    ],
+                    [
+                        'actions' => ['delete'],
+                        'allow' => true,
+                        'roles' => ['dotplant-store-order-status-delete'],
+                    ],
+                    [
+                        'allow' => false,
+                        'roles' => ['*'],
+                    ],
+                ],
+            ],
+            'verbs' => [
+                'class' => VerbFilter::class,
+                'actions' => [
+                    'delete' => ['POST'],
+                ],
+            ]
+        ];
     }
 
     /**
@@ -71,7 +100,12 @@ class OrderStatusesManageController extends Controller
         } else {
             $model = $this->findModel($id);
         }
+        $hasAccess = ($model->isNewRecord && Yii::$app->user->can('dotplant-store-order-status-create'))
+            || (!$model->isNewRecord && Yii::$app->user->can('dotplant-store-order-status-edit'));
         if ($model->load(Yii::$app->request->post())) {
+            if (!$hasAccess) {
+                throw new ForbiddenHttpException;
+            }
             $error = false;
             foreach (Yii::$app->request->post('OrderStatusTranslation') as $languageId => $attributes) {
                 $model->translate($languageId)->setAttributes($attributes);
@@ -89,6 +123,7 @@ class OrderStatusesManageController extends Controller
         return $this->render(
             'edit',
             [
+                'hasAccess' => $hasAccess,
                 'model' => $model,
             ]
         );

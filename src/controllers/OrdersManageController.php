@@ -7,7 +7,10 @@ use DotPlant\Store\helpers\BackendHelper;
 use DotPlant\Store\models\order\Order;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -20,7 +23,33 @@ class OrdersManageController extends Controller
      */
     public function behaviors()
     {
-        return []; // @todo: add permissions
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'actions' => ['index', 'edit'],
+                        'allow' => true,
+                        'roles' => ['dotplant-store-order-view'],
+                    ],
+                    [
+                        'actions' => ['delete'],
+                        'allow' => true,
+                        'roles' => ['dotplant-store-order-delete'],
+                    ],
+                    [
+                        'allow' => false,
+                        'roles' => ['*'],
+                    ],
+                ],
+            ],
+            'verbs' => [
+                'class' => VerbFilter::class,
+                'actions' => [
+                    'delete' => ['POST'],
+                ],
+            ]
+        ];
     }
 
     /**
@@ -59,17 +88,24 @@ class OrdersManageController extends Controller
         } else {
             $model = $this->findModel($id);
         }
+        $hasAccess = ($model->isNewRecord && Yii::$app->user->can('dotplant-store-order-create'))
+            || (!$model->isNewRecord && Yii::$app->user->can('dotplant-store-order-edit'));
         $model->scenario = 'backend-order-updating';
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['edit', 'id' => $model->id]);
-        } else {
-            return $this->render(
-                'edit',
-                [
-                    'model' => $model,
-                ]
-            );
+        if ($model->load(Yii::$app->request->post())) {
+            if (!$hasAccess) {
+                throw new ForbiddenHttpException;
+            }
+            if ($model->save()) {
+                return $this->redirect(['edit', 'id' => $model->id]);
+            }
         }
+        return $this->render(
+            'edit',
+            [
+                'hasAccess' => $hasAccess,
+                'model' => $model,
+            ]
+        );
     }
 
     /**
