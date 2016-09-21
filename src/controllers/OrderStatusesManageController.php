@@ -40,6 +40,11 @@ class OrderStatusesManageController extends Controller
         $dataProvider = new ActiveDataProvider(
             [
                 'query' => $query,
+                'sort' => [
+                    'defaultOrder' => [
+                        'sort_order' => SORT_ASC,
+                    ],
+                ],
             ]
         );
         return $this->render(

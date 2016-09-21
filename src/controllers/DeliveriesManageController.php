@@ -32,6 +32,11 @@ class DeliveriesManageController extends Controller
         $dataProvider = new ActiveDataProvider(
             [
                 'query' => Delivery::find(),
+                'sort' => [
+                    'defaultOrder' => [
+                        'sort_order' => SORT_ASC,
+                    ],
+                ],
             ]
         );
         return $this->render(

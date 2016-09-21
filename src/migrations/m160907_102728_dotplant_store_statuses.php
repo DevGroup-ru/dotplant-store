@@ -52,13 +52,14 @@ class m160907_102728_dotplant_store_statuses extends Migration
             ],
         ];
         $contexts = Context::find()->all();
-        foreach ($statuses as $status) {
+        foreach ($statuses as $index => $status) {
             foreach ($contexts as $context) {
                 /** @var OrderStatus|\DevGroup\Multilingual\behaviors\MultilingualActiveRecord $model */
                 $model = new OrderStatus;
                 $model->loadDefaultValues();
                 $model->label_class = $status['label_class'];
                 $model->context_id = $context->id;
+                $model->sort_order = $index + 1;
                 foreach ($context->languages as $language) {
                     $model->translate($language->id)->name = $status['name'];
                     $model->translate($language->id)->label = $status['label'];

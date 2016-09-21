@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\models\order;
 
+use arogachev\sortable\behaviors\numerical\ContinuousNumericalSortableBehavior;
 use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SoftDeleteTrait;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
@@ -32,6 +33,10 @@ class Delivery extends \yii\db\ActiveRecord
             'multilingual' => [
                 'class' => MultilingualActiveRecord::class,
                 'translationPublishedAttribute' => false,
+            ],
+            'sortable' => [
+                'class' => ContinuousNumericalSortableBehavior::class,
+                'sortAttribute' => 'sort_order',
             ],
         ];
     }

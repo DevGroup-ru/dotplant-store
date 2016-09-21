@@ -27,7 +27,12 @@ $this->params['breadcrumbs'][] = $this->title;
         <?php Pjax::begin(); ?>
         <?= GridView::widget([
             'dataProvider' => $dataProvider,
+            'id' => 'statuses-grid',
             'columns' => [
+                [
+                    'class' => \app\modules\admin\widgets\SortColumn::class,
+                    'gridContainerId' => 'statuses-grid',
+                ],
                 'id',
                 [
                     'attribute' => 'smartTranslation.label',
@@ -40,7 +45,6 @@ $this->params['breadcrumbs'][] = $this->title;
                     },
                 ],
                 'smartTranslation.name',
-                'sort_order',
                 'is_active',
                 ['class' => ActionColumn::class],
             ],

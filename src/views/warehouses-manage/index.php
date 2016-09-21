@@ -20,10 +20,14 @@ $this->params['breadcrumbs'][] = $this->title;
         GridView::widget(
             [
                 'dataProvider' => $dataProvider,
+                'id' => 'warehouses-grid',
                 'columns' => [
+                    [
+                        'class' => \app\modules\admin\widgets\SortColumn::class,
+                        'gridContainerId' => 'warehouses-grid',
+                    ],
                     'id',
                     'name',
-                    'priority',
                     [
                         'class' => \DevGroup\AdminUtils\columns\ActionColumn::class,
                     ],

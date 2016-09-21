@@ -32,6 +32,11 @@ class PaymentsManageController extends Controller
         $dataProvider = new ActiveDataProvider(
             [
                 'query' => Payment::find(),
+                'sort' => [
+                    'defaultOrder' => [
+                        'sort_order' => SORT_ASC,
+                    ],
+                ],
             ]
         );
         return $this->render(

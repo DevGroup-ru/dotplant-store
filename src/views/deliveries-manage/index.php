@@ -20,11 +20,14 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= GridView::widget([
             'dataProvider' => $dataProvider,
             'columns' => [
+                [
+                    'class' => \app\modules\admin\widgets\SortColumn::class,
+                    'gridContainerId' => 'statuses-grid',
+                ],
                 'id',
                 'context_id',
                 'handler_class_name',
                 'packed_json_handler_params:ntext',
-                'sort_order',
                 'is_active',
                 ['class' => ActionColumn::class],
             ],

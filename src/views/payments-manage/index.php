@@ -19,11 +19,15 @@ $this->params['breadcrumbs'][] = $this->title;
         <?php Pjax::begin(); ?>
         <?= GridView::widget([
             'dataProvider' => $dataProvider,
+            'id' => 'payments-grid',
             'columns' => [
+                [
+                    'class' => \app\modules\admin\widgets\SortColumn::class,
+                    'gridContainerId' => 'payments-grid',
+                ],
                 'id',
                 'context_id',
                 'handler_class_name',
-                'sort_order',
                  'is_active',
                 ['class' => ActionColumn::class],
             ],

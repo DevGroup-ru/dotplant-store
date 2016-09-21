@@ -39,6 +39,11 @@ class WarehousesManageController extends Controller
         $dataProvider = new ActiveDataProvider(
             [
                 'query' => Warehouse::find(),
+                'sort' => [
+                    'defaultOrder' => [
+                        'priority' => SORT_ASC,
+                    ],
+                ],
             ]
         );
         return $this->render(

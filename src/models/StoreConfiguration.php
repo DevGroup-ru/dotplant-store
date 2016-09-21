@@ -117,7 +117,7 @@ class StoreConfiguration extends BaseConfigurationModel
             'modules' => [
                 'store' => [
                     'class' => Module::class,
-                    'layout' => '@app/views/layouts/admin',
+                    'layout' => \Yii::$app->params['admin.layout'],
                     'allowToAddSameGoods' => $this->allowToAddSameGoods,
                     'countUniqueItemsOnly' => $this->countUniqueItemsOnly,
                     'singlePriceForWarehouses' => $this->singlePriceForWarehouses,
@@ -135,7 +135,14 @@ class StoreConfiguration extends BaseConfigurationModel
      */
     public function appParams()
     {
-        return [];
+        return [
+            'modelSortPermission' => [
+                \DotPlant\Store\models\order\OrderStatus::class => 'backend-view',
+                \DotPlant\Store\models\order\Payment::class => 'backend-view',
+                \DotPlant\Store\models\order\Delivery::class => 'backend-view',
+                \DotPlant\Store\models\warehouse\Warehouse::class => 'backend-view',
+            ],
+        ];
     }
     /**
      * @inheritdoc

@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\models\warehouse;
 
+use arogachev\sortable\behaviors\numerical\ContinuousNumericalSortableBehavior;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DevGroup\TagDependencyHelper\CacheableActiveRecord;
@@ -206,6 +207,10 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
             ],
             'cacheable' => [
                 'class' => CacheableActiveRecord::class,
+            ],
+            'sortable' => [
+                'class' => ContinuousNumericalSortableBehavior::class,
+                'sortAttribute' => 'priority',
             ],
         ];
     }
