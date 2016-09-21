@@ -16,12 +16,13 @@ class Bundle extends Goods
 
     protected $priceClass = BundlePrice::class;
 
-    protected $visibilityType = null;
-    protected $isMeasurable = null;
-    protected $isDownloadable = null;
-    protected $isFilterable = null;
-    protected $isService = null;
-    protected $isOption = null;
-    protected $isPart = null;
-    protected $hasOptions = null;
+    protected $visibilityType = true;
+    protected $hasChild = true;
+    protected $isMeasurable = false;
+    protected $isFilterable = true;
+    protected $isDownloadable = true;
+    protected $isService = true;
+    protected $isOption = true;
+    protected $isPart = true;
+    protected $hasOptions = true;
 }

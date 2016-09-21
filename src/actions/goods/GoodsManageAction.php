@@ -3,6 +3,7 @@
 namespace DotPlant\Store\actions\goods;
 
 use DevGroup\AdminUtils\actions\BaseAdminAction;
+use DevGroup\AdminUtils\traits\BackendRedirect;
 use DevGroup\DataStructure\behaviors\HasProperties;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
@@ -19,6 +20,9 @@ use Yii;
  */
 class GoodsManageAction extends BaseAdminAction
 {
+
+    use BackendRedirect;
+
     /**
      * @param null $product_id
      * @param null $id
@@ -72,20 +76,12 @@ class GoodsManageAction extends BaseAdminAction
                         $categories = isset($post[$goodsFormName]['categories']) ? $post[$goodsFormName]['categories'] : [];
                         $categories = array_unique($categories);
                         CategoryGoods::saveBindings($goods->id, $categories);
-                        Yii::$app->session->setFlash('success',
-                            Yii::t(
-                                'dotplant.store',
-                                '{model} successfully saved!',
-                                ['model' => Yii::t('dotplant.store', $goodsFormName)]
-                            )
+                        $this->redirectUser(
+                            $id,
+                            true,
+                            ['/structure/entity-manage/products'],
+                            ['/structure/entity-manage/goods-manage', 'product_id' => $goods->id]
                         );
-                        if (true === $refresh) {
-                            return $this->controller->refresh();
-                        } else {
-                            return $this->controller->redirect(
-                                ['/structure/entity-manage/goods-manage', 'product_id' => $goods->id]
-                            );
-                        }
                     } else {
                         Yii::$app->session->setFlash(
                             'error',
@@ -112,5 +108,11 @@ class GoodsManageAction extends BaseAdminAction
                 'startCategory' => $id,
             ]
         );
+    }
+
+
+    public function redirect($url)
+    {
+        return $this->controller->redirect($url);
     }
 }

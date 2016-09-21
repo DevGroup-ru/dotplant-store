@@ -105,6 +105,11 @@ class CategoryGoods extends ActiveRecord
                 ['goods_id', 'structure_id'],
                 $batch
             )->execute();
+
+            TagDependency::invalidate(
+                Yii::$app->cache,
+                [NamingHelper::getCommonTag(self::class)]
+            );
         }
     }
 
@@ -127,9 +132,11 @@ class CategoryGoods extends ActiveRecord
                     $cacheKey,
                     $list,
                     86400,
-                    new TagDependency(['tags' => [
-                        NamingHelper::getCommonTag(self::class),
-                    ]])
+                    new TagDependency([
+                        'tags' => [
+                            NamingHelper::getCommonTag(self::class),
+                        ]
+                    ])
                 );
             }
         }

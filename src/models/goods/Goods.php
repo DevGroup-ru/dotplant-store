@@ -62,7 +62,17 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
      * @var null
      */
     protected $priceClass = null;
+
+    /**
+     * @var null
+     */
+    protected $hasChild = null;
+
+    /**
+     * @var null
+     */
     protected $visibilityType = null;
+
 
     /**
      * Whether can we apply measures for product
@@ -122,16 +132,6 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
     protected static $tablePrefix = 'dotplant_store_goods';
 
     /**
-     * Workaround for DataStructureTools to store all goods properties it the one table set
-     *
-     * @return mixed
-     */
-    public static function getApplicableClass()
-    {
-        return self::class;
-    }
-
-    /**
      * Type to class associations
      *
      * @var array
@@ -145,6 +145,106 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         self::TYPE_SERVICE => Service::class,
         self::TYPE_FILE => File::class,
     ];
+
+    /**
+     * Workaround for DataStructureTools to store all goods properties it the one table set
+     *
+     * @return mixed
+     */
+    public static function getApplicableClass()
+    {
+        return self::class;
+    }
+
+    /**
+     * @return null
+     */
+    public function getHasChild()
+    {
+        return $this->hasChild;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getIsMeasurable()
+    {
+        return $this->isMeasurable;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getIsDownloadable()
+    {
+        return $this->isDownloadable;
+    }
+
+    /**
+     * @return null
+     */
+    public function getVisibilityType()
+    {
+        return $this->visibilityType;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getIsFilterable()
+    {
+        return $this->isFilterable;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getIsService()
+    {
+        return $this->isService;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getIsOption()
+    {
+        return $this->isOption;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getIsPart()
+    {
+        return $this->isPart;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getHasOptions()
+    {
+        return $this->hasOptions;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getTypesPart()
+    {
+        $result = [];
+        foreach (self::$_goodsMap as $key => $className) {
+            /* @var Goods $class **/
+            $class = new $className;
+            if($class->getIsPart() === true) {
+                $result[$key] = $className;
+            }
+        }
+        return $result;
+    }
+
+
 
     /**
      * @inheritdoc
@@ -205,8 +305,19 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         return false;
     }
 
-    public function getPrice($warehouseId, $priceType = PriceInterface::TYPE_RETAIL, $withDiscount = true, $convertIsoCode = false)
-    {
+    /**
+     * @param $warehouseId
+     * @param string $priceType
+     * @param bool|true $withDiscount
+     * @param bool|false $convertIsoCode
+     * @return mixed
+     */
+    public function getPrice(
+        $warehouseId,
+        $priceType = PriceInterface::TYPE_RETAIL,
+        $withDiscount = true,
+        $convertIsoCode = false
+    ) {
         return $this->price->getPrice($warehouseId, $priceType, $withDiscount, $convertIsoCode);
     }
 

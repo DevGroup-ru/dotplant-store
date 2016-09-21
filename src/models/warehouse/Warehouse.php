@@ -98,23 +98,28 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
      */
     public static function getWarehouse($goodsId, $warehouseId, $asArray = true)
     {
-        $warehouse = static::getFromMap($warehouseId);
-        $goodsWarehouse = GoodsWarehouse::find()
-            ->where(
-                [
-                    'goods_id' => $goodsId,
-                    'warehouse_id' => $warehouseId,
-                ]
-            )
-            ->asArray(true)
-            ->limit(1)
-            ->one();
-        if ($asArray) {
-            return $goodsWarehouse;
+        $result = false;
+        if($warehouse = static::getFromMap($warehouseId))
+        {
+            $goodsWarehouse = GoodsWarehouse::find()
+                ->where(
+                    [
+                        'goods_id' => $goodsId,
+                        'warehouse_id' => $warehouseId,
+                    ]
+                )
+                ->asArray(true)
+                ->limit(1)
+                ->one();
+            if ($asArray) {
+                return $goodsWarehouse;
+            } elseif($goodsWarehouse !== null) {
+                $model = new static::$_typesMap[$warehouse['type']];
+                static::populateRecord($model, $goodsWarehouse);
+                $result = $model;
+            }
         }
-        $model = new static::$_typesMap[$warehouse['type']];
-        static::populateRecord($model, $goodsWarehouse);
-        return $model;
+        return $result;
     }
 
     /**

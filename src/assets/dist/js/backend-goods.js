@@ -18,53 +18,37 @@ var DotPlantStore = window.DotPlantStore || {
     var optionData = {};
 
     //jstree categories select behavior
-    $('#w1')
-        .on('select_node.jstree', function (e, data) {
-            var $node = data.node;
-            var $instance = data.instance;
-            if ($node.a_attr['data-entity_id'] != DotPlantStore.categoryEntityId) {
-                $instance.deselect_node($node);
-            } else {
-                optionData.value = $node.id;
-                optionData.text = $node.text;
-                changeOptions(optionData);
-                $.each($node.parents, function (i, e) {
-                    var $parentNode = $instance.get_node(e);
-                    if (true === $parentNode.hasOwnProperty('a_attr')) {
-                        if ($parentNode.a_attr['data-entity_id'] == DotPlantStore.categoryEntityId) {
-                            $instance.select_node($parentNode);
-                            optionData.value = $parentNode.id;
-                            optionData.text = $parentNode.text;
-                            changeOptions(optionData);
-                        }
-                    }
-                });
+    $('#goodsTreeWidget')
+        .on('changed.jstree', function (e, data) {
+            $('input[data-type="goods_categories"]').remove();
+            var i, j, r = [];
+            for (i = 0, j = data.selected.length; i < j; i++) {
+                var $node = data.instance.get_node(data.selected[i]);
+                if ($node.a_attr['data-entity_id'] != DotPlantStore.categoryEntityId) {
+                    $instance.deselect_node($node);
+                } else {
+                    optionData.value = $node.id;
+                    optionData.text = $node.text;
+                    changeOptions(optionData);
+                }
             }
-        }).on('deselect_node.jstree', function (e, data) {
-            var $node = data.node;
-            optionData.value = $node.id;
-            optionData.text = $node.text;
-            changeOptions(optionData, true);
         });
 
     //manipulating options set in the main goods category select
-    function changeOptions(optionData, remove) {
+    function changeOptions(optionData) {
         var $select = $(DotPlantStore.mainCategorySelector);
-        if (true === remove) {
-            $('option[value=' + optionData.value + ']', $select).remove();
-            $('.fdbx3894[value=' + optionData.value + ']').remove();
-        } else {
-            var $option = $('<option></option>');
-            if (0 === $('option[value=' + optionData.value + ']', $select).length) {
-                var $appendOption = $option.clone().val(optionData.value).text(optionData.text);
-                $select.append($appendOption);
-            }
-            var $input = $('<input type="hidden" class="fdbx3894">');
-            var $appendInput = $input
-                .clone()
-                .attr('name', DotPlantStore.goodsFormName + '[categories][]')
-                .val(optionData.value);
-            $select.after($appendInput);
+
+        var $option = $('<option></option>');
+        if (0 === $('option[value=' + optionData.value + ']', $select).length) {
+            var $appendOption = $option.clone().val(optionData.value).text(optionData.text);
+            $select.append($appendOption);
         }
+        var $input = $('<input type="hidden" data-type="goods_categories">');
+        var $appendInput = $input
+            .clone()
+            .attr('name', DotPlantStore.goodsFormName + '[categories][]')
+            .val(optionData.value);
+        $select.after($appendInput);
+
     }
 })(jQuery);

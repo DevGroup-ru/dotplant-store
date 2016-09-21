@@ -15,12 +15,15 @@ class Product extends Goods
 {
     protected $priceClass = ProductPrice::class;
 
-    protected $visibilityType = null;
-    protected $isMeasurable = null;
-    protected $isDownloadable = null;
-    protected $isFilterable = null;
-    protected $isService = null;
-    protected $isOption = null;
-    protected $isPart = null;
-    protected $hasOptions = null;
+    protected $visibilityType = true;
+    protected $hasChild = false;
+    protected $isMeasurable = true;
+    protected $isFilterable = true;
+    protected $isDownloadable = false;
+    protected $isService = false;
+    protected $isOption = false;
+    protected $isPart = true;
+    protected $hasOptions = true;
+
+
 }

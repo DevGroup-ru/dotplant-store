@@ -7,10 +7,12 @@
  * @var [] $startCategory
  */
 
+use DevGroup\AdminUtils\FrontendHelper;
 use dmstr\widgets\Alert;
 use DevGroup\DataStructure\widgets\PropertiesForm;
 use DevGroup\Multilingual\widgets\MultilingualFormTabs;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\JsExpression;
 use kartik\select2\Select2;
@@ -40,12 +42,13 @@ $this->params['breadcrumbs'][] = $this->title;
 $url = Url::to(['/structure/entity-manage/goods-autocomplete']);
 $categoryEntityId = Entity::getEntityIdForClass(GoodsCategory::class);
 $missingParamText = Yii::t('dotplant.store', 'Missing param');
+$mainStructureId = Html::getInputId($goods, 'main_structure_id');
 $formName = $goods->formName();
 $js = <<<JS
     window.DotPlantStore = {
         categoryEntityId : $categoryEntityId,
         missingParamText : '$missingParamText',
-        mainCategorySelector : '#product-main_structure_id',
+        mainCategorySelector : '#$mainStructureId',
         goodsFormName : '$formName'
     };
 JS;
@@ -113,10 +116,14 @@ $form = ActiveForm::begin([
                             <?= $form->field($goods, 'type')
                                 ->textInput(['value' => $goodsType, 'disabled' => 'disabled']) ?>
                         <?php endif; ?>
-                        <?= $form->field($goods, 'role')->textInput(['value' => $goodsRole, 'disabled' => 'disabled']) ?>
+                        <?= $form->field($goods, 'role')->textInput([
+                            'value' => $goodsRole,
+                            'disabled' => 'disabled'
+                        ]) ?>
                     </div>
                     <div class="col-sm-12 col-md-6">
                         <?= TreeWidget::widget([
+                            'id' => 'goodsTreeWidget',
                             'treeDataRoute' => [
                                 '/structure/entity-manage/category-tree',
                                 'checked' => implode(',', $checked)
@@ -133,6 +140,13 @@ $form = ActiveForm::begin([
                         ]) ?>
                         <?= $form->field($goods, 'main_structure_id')
                             ->dropDownList(ArrayHelper::map($goods->categories, 'id', 'name')) ?>
+
+
+                        <div class="clearfix"></div>
+                        <?php if ($goods->getHasChild() === true) : ?>
+                        <?php endif; ?>
+
+
                     </div>
                 </div>
                 <div class="row">
@@ -152,15 +166,10 @@ $form = ActiveForm::begin([
                 ]) ?>
             </div>
             <?php if (true === $canSave) : ?>
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="btn-group pull-right" role="group" aria-label="Edit buttons">
-                            <button type="submit" class="btn btn-success pull-right">
-                                <?= Yii::t('dotplant.store', 'Save') ?>
-                            </button>
-                        </div>
-                    </div>
+                <div class="btn-group pull-right" role="group" aria-label="Edit buttons">
+                    <?= FrontendHelper::formSaveButtons($goods); ?>
                 </div>
+                <div class="clearfix"></div>
             <?php endif; ?>
         </div>
     </div>
