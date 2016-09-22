@@ -4,9 +4,11 @@ namespace DotPlant\Store\controllers;
 
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
+use DotPlant\Store\helpers\BackendHelper;
 use Yii;
 use DotPlant\Store\models\order\Delivery;
 use yii\data\ActiveDataProvider;
+use yii\db\ActiveQuery;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
@@ -56,11 +58,15 @@ class DeliveriesManageController extends Controller
      * Lists all Delivery models.
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex($contextId = null)
     {
+        $contextId = BackendHelper::getContext($contextId);
+        $query = (new ActiveQuery(Delivery::class))
+            ->innerJoinWith('smartTranslation')
+            ->where(['context_id' => $contextId, 'is_deleted' => 0]);
         $dataProvider = new ActiveDataProvider(
             [
-                'query' => Delivery::find(),
+                'query' => $query,
                 'sort' => [
                     'defaultOrder' => [
                         'sort_order' => SORT_ASC,
@@ -71,6 +77,7 @@ class DeliveriesManageController extends Controller
         return $this->render(
             'index',
             [
+                'contextId' => $contextId,
                 'dataProvider' => $dataProvider,
             ]
         );
@@ -82,11 +89,12 @@ class DeliveriesManageController extends Controller
      * @param integer $id
      * @return mixed
      */
-    public function actionEdit($id = null)
+    public function actionEdit($id = null, $contextId = null)
     {
         if ($id === null) {
             $model = new Delivery;
             $model->loadDefaultValues();
+            $model->context_id = BackendHelper::getContext($contextId);
         } else {
             $model = $this->findModel($id);
         }

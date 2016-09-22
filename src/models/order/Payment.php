@@ -8,7 +8,9 @@ use DevGroup\Entity\traits\SoftDeleteTrait;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DotPlant\Store\components\MultilingualListDataQuery;
+use DotPlant\Store\components\SortByLanguageExpression;
 use Yii;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "{{%dotplant_store_payment}}".
@@ -88,5 +90,17 @@ class Payment extends \yii\db\ActiveRecord
         return (new MultilingualListDataQuery(static::class))
             ->where($condition)
             ->column();
+    }
+
+    /**
+     * Get a translation relation with language priority
+     * @return ActiveQuery $this
+     */
+    public function getSmartTranslation()
+    {
+        /** @var \yii\db\ActiveRecord|\DevGroup\Multilingual\behaviors\MultilingualActiveRecord $this */
+        return $this->hasOne($this->getTranslationModelClassName(), ['model_id' => 'id'])
+            ->groupBy('model_id')
+            ->orderBy(new SortByLanguageExpression());
     }
 }

@@ -20,7 +20,7 @@ $this->params['breadcrumbs'] = [
     <div class="box-body">
         <div class="row">
             <div class="col-xs-12 col-md-6">
-                <?= $form->field($model, 'context_id')->textInput() ?>
+                <?= $form->field($model, 'context_id')->textInput(['readonly' => 'readonly']) ?>
                 <?= $form->field($model, 'handler_class_name')->textInput(['maxlength' => true]) ?>
                 <?=
                 $form->field($model, 'packed_json_handler_params')

@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @var int $contextId
  * @var yii\data\ActiveDataProvider $dataProvider
  * @var yii\web\View $this
  */
@@ -16,6 +17,13 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="box">
     <div class="box-body">
+        <?=
+        \DotPlant\Store\widgets\backend\ContextTabs::widget(
+            [
+                'contextId' => $contextId,
+            ]
+        )
+        ?>
         <?php Pjax::begin(); ?>
         <?= GridView::widget([
             'dataProvider' => $dataProvider,
@@ -37,7 +45,12 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php if (Yii::$app->user->can('dotplant-store-payment-create')) : ?>
     <div class="box-footer">
         <div class="pull-right">
-            <?= Html::a(Yii::t('dotplant.store', 'Create'), ['edit'], ['class' => 'btn btn-success']) ?>
+            <?=
+            Html::a(Yii::t('dotplant.store', 'Create'),
+                ['edit', 'contextId' => $contextId],
+                ['class' => 'btn btn-success']
+            )
+            ?>
         </div>
     </div>
     <?php endif; ?>
