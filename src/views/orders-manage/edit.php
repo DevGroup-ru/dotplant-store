@@ -28,7 +28,7 @@ $this->params['breadcrumbs'] = [
                 <?= $form->field($model, 'delivery_id')->dropDownList(Delivery::listData($model->context_id)) ?>
                 <?= $form->field($model, 'payment_id')->dropDownList(Payment::listData($model->context_id)) ?>
                 <?= $form->field($model, 'is_retail')->textInput(['readonly' => 'readonly']) ?>
-                <?= $form->field($model, 'manager_id')->textInput() ?>
+                <?= $form->field($model, 'manager_id')->dropDownList(\DotPlant\Store\helpers\BackendHelper::managersDropDownList()) ?>
             </div>
             <div class="col-xs-12 col-md-4">
                 <?= $form->field($model, 'currency_iso_code')->textInput(['readonly' => 'readonly']) ?>
