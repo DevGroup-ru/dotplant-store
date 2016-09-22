@@ -27,16 +27,19 @@ use DotPlant\Store\models\goods\CategoryGoods;
 
 $goodsTypes = $goods->getTypes();
 $goodsType = $goodsTypes[$goods->getType()];
-$goodsRole = isset($goods->getRoles()[$goods->getType()])
-    ? $goods->getRoles()[$goods->getType()]
-    : Yii::t('dotplant.store', 'Not set');
-$this->title = empty($goods->id)
-    ? Yii::t('dotplant.store', 'New {goods}', ['goods' => $goodsType])
-    : Yii::t('dotplant.store', 'Edit {goods} #{id}', ['goods' => $goodsType, 'id' => $goods->id]);
+$goodsRole = isset($goods->getRoles()[$goods->getType()]) ? $goods->getRoles()[$goods->getType()] : Yii::t(
+    'dotplant.store',
+    'Not set'
+);
+$this->title = empty($goods->id) ? Yii::t('dotplant.store', 'New {goods}', ['goods' => $goodsType]) : Yii::t(
+    'dotplant.store',
+    'Edit {goods} #{id}',
+    ['goods' => $goodsType, 'id' => $goods->id]
+);
 
 $this->params['breadcrumbs'][] = [
     'url' => ['/structure/entity-manage/products'],
-    'label' => Yii::t('dotplant.store', 'Goods management')
+    'label' => Yii::t('dotplant.store', 'Goods management'),
 ];
 $this->params['breadcrumbs'][] = $this->title;
 $url = Url::to(['/structure/entity-manage/goods-autocomplete']);
@@ -56,12 +59,14 @@ $this->registerJs($js, View::POS_HEAD);
 $checked = empty($startCategory) ? [] : is_array($startCategory) ? $startCategory : [$startCategory];
 $checked = array_merge($checked, CategoryGoods::getBindings($goods->id));
 StoreAsset::register($this);
-$form = ActiveForm::begin([
-    'id' => 'page-form',
-//    'options' => [
-//        'enctype' => 'multipart/form-data'
-//    ]
-]);
+$form = ActiveForm::begin(
+    [
+        'id' => 'page-form',
+        //    'options' => [
+        //        'enctype' => 'multipart/form-data'
+        //    ]
+    ]
+);
 ?>
 <?= Alert::widget() ?>
     <div class="nav-tabs-custom">
@@ -83,28 +88,34 @@ $form = ActiveForm::begin([
             <div class="tab-pane active" id="goods-data">
                 <div class="row">
                     <div class="col-sm-12 col-md-6">
-                        <?= $form->field($goods, 'parent_id')->widget(Select2::class, [
-                            'initValueText' => (null === $goods->parent)
-                                ? Yii::t('dotplant.store', 'Search for a parent ...')
-                                : $goods->parent->name,
-                            'options' => [
-                                'placeholder' => Yii::t('dotplant.store', 'Search for a parent ...')
-                            ],
-                            'pluginOptions' => [
-                                'allowClear' => true,
-                                'minimumInputLength' => 3,
-                                'ajax' => [
-                                    'url' => $url,
-                                    'dataType' => 'json',
-                                    'data' => new JsExpression('function(params) { return {q:params.term}; }'),
-                                    'delay' => '400',
-                                    'error' => new JsExpression('function(error) {alert(error.responseText);}'),
+                        <?= $form->field($goods, 'parent_id')->widget(
+                            Select2::class,
+                            [
+                                'initValueText' => (null === $goods->parent) ? Yii::t(
+                                    'dotplant.store',
+                                    'Search for a parent ...'
+                                ) : $goods->parent->name,
+                                'options' => [
+                                    'placeholder' => Yii::t('dotplant.store', 'Search for a parent ...'),
                                 ],
-                                'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
-                                'templateResult' => new JsExpression('function(parent) { return parent.text; }'),
-                                'templateSelection' => new JsExpression('function (parent) { return parent.text; }'),
+                                'pluginOptions' => [
+                                    'allowClear' => true,
+                                    'minimumInputLength' => 3,
+                                    'ajax' => [
+                                        'url' => $url,
+                                        'dataType' => 'json',
+                                        'data' => new JsExpression('function(params) { return {q:params.term}; }'),
+                                        'delay' => '400',
+                                        'error' => new JsExpression('function(error) {alert(error.responseText);}'),
+                                    ],
+                                    'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
+                                    'templateResult' => new JsExpression('function(parent) { return parent.text; }'),
+                                    'templateSelection' => new JsExpression(
+                                        'function (parent) { return parent.text; }'
+                                    ),
+                                ],
                             ]
-                        ]) ?>
+                        ) ?>
                         <?= $form->field($goods, 'vendor_id')->dropDownList(
                             Vendor::getArrayList(),
                             ['prompt' => Yii::t('dotplant.store', 'Choose vendor')]
@@ -113,33 +124,39 @@ $form = ActiveForm::begin([
                         <?php if (true === $undefinedType) : ?>
                             <?= $form->field($goods, 'type')->dropDownList($goodsTypes) ?>
                         <?php else : ?>
-                            <?= $form->field($goods, 'type')
-                                ->textInput(['value' => $goodsType, 'disabled' => 'disabled']) ?>
+                            <?= $form->field($goods, 'type')->textInput(
+                                    ['value' => $goodsType, 'disabled' => 'disabled']
+                                ) ?>
                         <?php endif; ?>
-                        <?= $form->field($goods, 'role')->textInput([
-                            'value' => $goodsRole,
-                            'disabled' => 'disabled'
-                        ]) ?>
+                        <?= $form->field($goods, 'role')->textInput(
+                            [
+                                'value' => $goodsRole,
+                                'disabled' => 'disabled',
+                            ]
+                        ) ?>
                     </div>
                     <div class="col-sm-12 col-md-6">
-                        <?= TreeWidget::widget([
-                            'id' => 'goodsTreeWidget',
-                            'treeDataRoute' => [
-                                '/structure/entity-manage/category-tree',
-                                'checked' => implode(',', $checked)
-                            ],
-                            'treeType' => TreeWidget::TREE_TYPE_ADJACENCY,
-                            'plugins' => ['checkbox', 'types'],
-                            'multiSelect' => true,
-                            'contextMenuItems' => [],
-                            'options' => [
-                                'checkbox' => [
-                                    'three_state' => false,
-                                ]
+                        <?= TreeWidget::widget(
+                            [
+                                'id' => 'goodsTreeWidget',
+                                'treeDataRoute' => [
+                                    '/structure/entity-manage/category-tree',
+                                    'checked' => implode(',', $checked),
+                                ],
+                                'treeType' => TreeWidget::TREE_TYPE_ADJACENCY,
+                                'plugins' => ['checkbox', 'types'],
+                                'multiSelect' => true,
+                                'contextMenuItems' => [],
+                                'options' => [
+                                    'checkbox' => [
+                                        'three_state' => false,
+                                    ],
+                                ],
                             ]
-                        ]) ?>
-                        <?= $form->field($goods, 'main_structure_id')
-                            ->dropDownList(ArrayHelper::map($goods->categories, 'id', 'name')) ?>
+                        ) ?>
+                        <?= $form->field($goods, 'main_structure_id')->dropDownList(
+                                ArrayHelper::map($goods->categories, 'id', 'name')
+                            ) ?>
 
 
                         <div class="clearfix"></div>
@@ -151,19 +168,23 @@ $form = ActiveForm::begin([
                 </div>
                 <div class="row">
                     <div class="col-sm-6">
-                        <?= MultilingualFormTabs::widget([
-                            'model' => $goods,
-                            'childView' => '@DotPlant/Store/views/goods-manage/multilingual-part.php',
-                            'form' => $form,
-                        ]) ?>
+                        <?= MultilingualFormTabs::widget(
+                            [
+                                'model' => $goods,
+                                'childView' => '@DotPlant/Store/views/goods-manage/multilingual-part.php',
+                                'form' => $form,
+                            ]
+                        ) ?>
                     </div>
                 </div>
             </div>
             <div class="tab-pane" id="goods-properties">
-                <?= PropertiesForm::widget([
-                    'model' => $goods,
-                    'form' => $form,
-                ]) ?>
+                <?= PropertiesForm::widget(
+                    [
+                        'model' => $goods,
+                        'form' => $form,
+                    ]
+                ) ?>
             </div>
             <?php if (true === $canSave) : ?>
                 <div class="btn-group pull-right" role="group" aria-label="Edit buttons">

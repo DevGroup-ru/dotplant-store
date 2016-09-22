@@ -19,6 +19,7 @@ interface PriceInterface
 
     /**
      * @param Goods $goods
+     *
      * @return Price
      */
     public static function create(Goods $goods);
@@ -38,4 +39,6 @@ interface PriceInterface
     public function getGoods();
 
     public function isWithDiscount();
+
+    public function getGoodsId();
 }

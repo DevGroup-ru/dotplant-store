@@ -14,6 +14,10 @@ class Module extends \yii\base\Module
     const EVENT_AFTER_ORDER_STATUS_CHANGE = 'dotplant.store.afterOrderStatusChange';
     const EVENT_AFTER_USER_REGISTERED = 'dotplant.store.afterUserRegistered';
     const EVENT_RETAIL_CHECK = 'dotplant.store.retailCheck';
+    const EVENT_PAYMENT_STATUS_SUCCESS = 'dotplant.store.paymentStatusSuccess';
+    const EVENT_PAYMENT_STATUS_ERROR = 'dotplant.store.paymentStatusError';
+    const EVENT_PAYMENT_STATUS_FORMED = 'dotplant.store.paymentStatusFormed';
+    const EVENT_PAYMENT_STATUS_PROCESSED = 'dotplant.store.paymentStatusProcessed';
 
     // cart
     public $allowToAddSameGoods = 0;

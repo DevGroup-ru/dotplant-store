@@ -42,8 +42,7 @@ class GoodsCategory extends BaseStructure
      */
     public static function getAccessRules()
     {
-        return [
-            //TODO
+        return [//TODO
         ];
     }
 
@@ -57,12 +56,12 @@ class GoodsCategory extends BaseStructure
             'products' => [
                 'label' => Yii::t('dotplant.store', 'Show Products'),
                 'action' => ContextMenuHelper::actionUrl(['/structure/entity-manage/products']),
-                'showWhen' => ['entity_id' => $categoryEntityId]
+                'showWhen' => ['entity_id' => $categoryEntityId],
             ],
             'addProduct' => [
                 'label' => Yii::t('dotplant.store', 'Add product'),
                 'action' => ContextMenuHelper::actionUrl(['/structure/entity-manage/goods-manage']),
-                'showWhen' => ['entity_id' => $categoryEntityId]
+                'showWhen' => ['entity_id' => $categoryEntityId],
             ],
         ];
     }
@@ -72,16 +71,16 @@ class GoodsCategory extends BaseStructure
      */
     protected static $injectionActions = [
         'products' => [
-            'class' => GoodsListAction::class
+            'class' => GoodsListAction::class,
         ],
         'goods-manage' => [
             'class' => GoodsManageAction::class,
         ],
         'goods-delete' => [
-            'class' => GoodsDeleteAction::class
+            'class' => GoodsDeleteAction::class,
         ],
         'goods-restore' => [
-            'class' => GoodsRestoreAction::class
+            'class' => GoodsRestoreAction::class,
         ],
         'goods-autocomplete' => [
             'class' => GoodsAutocompleteAction::class,
@@ -89,8 +88,8 @@ class GoodsCategory extends BaseStructure
         'category-tree' => [
             'class' => BaseEntityTreeAction::class,
             'className' => GoodsCategory::class,
-            'cacheKey' => 'GoodsManageCatTree'
-        ]
+            'cacheKey' => 'GoodsManageCatTree',
+        ],
     ];
 
     /**
@@ -98,9 +97,11 @@ class GoodsCategory extends BaseStructure
      */
     public function getEditPageTitle()
     {
-        return (true === $this->getIsNewRecord())
-            ? Yii::t('dotplant.store', 'New goods category')
-            : Yii::t('dotplant.store', 'Edit {title}', ['title' => $this->name]);
+        return (true === $this->getIsNewRecord()) ? Yii::t('dotplant.store', 'New goods category') : Yii::t(
+            'dotplant.store',
+            'Edit {title}',
+            ['title' => $this->name]
+        );
     }
 
     /**
@@ -111,8 +112,8 @@ class GoodsCategory extends BaseStructure
         return [
             [
                 'url' => ['/structure/entity-manage/index'],
-                'label' => Yii::t('dotplant.store', 'Goods category management')
-            ]
+                'label' => Yii::t('dotplant.store', 'Goods category management'),
+            ],
         ];
     }
 }

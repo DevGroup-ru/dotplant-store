@@ -2,6 +2,8 @@
 
 namespace DotPlant\Store\models\order;
 
+use DevGroup\DataStructure\behaviors\PackedJsonAttributes;
+use DotPlant\Store\events\PaymentEvent;
 use Yii;
 
 /**
@@ -27,6 +29,15 @@ class OrderTransaction extends \yii\db\ActiveRecord
         return '{{%dotplant_store_order_transaction}}';
     }
 
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => PackedJsonAttributes::className(),
+            ],
+        ];
+    }
+
     /**
      * @inheritdoc
      */
@@ -38,8 +49,20 @@ class OrderTransaction extends \yii\db\ActiveRecord
             [['sum'], 'number'],
             [['packed_json_data', 'packed_json_result'], 'string'],
             [['currency_iso_code'], 'string', 'max' => 3],
-            [['payment_id'], 'exist', 'skipOnError' => true, 'targetClass' => Payment::className(), 'targetAttribute' => ['payment_id' => 'id']],
-            [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => Order::className(), 'targetAttribute' => ['order_id' => 'id']],
+            [
+                ['payment_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Payment::className(),
+                'targetAttribute' => ['payment_id' => 'id'],
+            ],
+            [
+                ['order_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Order::className(),
+                'targetAttribute' => ['order_id' => 'id'],
+            ],
         ];
     }
 
@@ -52,12 +75,27 @@ class OrderTransaction extends \yii\db\ActiveRecord
             'id' => Yii::t('dotplant.store', 'ID'),
             'order_id' => Yii::t('dotplant.store', 'Order'),
             'payment_id' => Yii::t('dotplant.store', 'Payment'),
-            'start_time' => Yii::t('dotplant.store', 'Start Ttme'),
+            'start_time' => Yii::t('dotplant.store', 'Start Time'),
             'end_time' => Yii::t('dotplant.store', 'End time'),
             'sum' => Yii::t('dotplant.store', 'Sum'),
             'currency_iso_code' => Yii::t('dotplant.store', 'Currency iso code'),
             'packed_json_data' => Yii::t('dotplant.store', 'Data'),
             'packed_json_result' => Yii::t('dotplant.store', 'Result'),
         ];
+    }
+
+    /**
+     * @param PaymentEvent $event
+     */
+    public function logDataFromEvent($event)
+    {
+        $this->order_id = $event->order_id;
+        $this->payment_id = $event->payment_id;
+        $this->start_time = $event->start_time;
+        $this->end_time = $event->end_time;
+        $this->sum = $event->sum;
+        $this->currency_iso_code = $event->currency_iso_code;
+        $this->data = $event->payment_data;
+        $this->result = $event->payment_result;
     }
 }

@@ -17,6 +17,7 @@ interface GoodsInterface
      * Fabric method to instantiate fully configured goods
      *
      * @param int $type
+     *
      * @returns Goods
      * @throws GoodsException
      */
@@ -26,10 +27,11 @@ interface GoodsInterface
      * Returns properly instantiated Goods model if found
      *
      * @param int $id
+     *
      * @return Goods
      * @throws GoodsException
      */
     public static function get($id);
 
-    public function getPrice($warehouseId, $priceType, $withDiscount, $convertIsoCode) ;
+    public function getPrice($warehouseId, $priceType, $withDiscount, $convertIsoCode);
 }

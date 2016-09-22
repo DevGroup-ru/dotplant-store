@@ -2,6 +2,9 @@
 
 namespace DotPlant\Store\controllers;
 
+use DotPlant\Store\actions\order\PaymentCheckAction;
+use DotPlant\Store\actions\order\PaymentPayAction;
+use DotPlant\Store\actions\order\PaymentSuccessAction;
 use DotPlant\Store\actions\order\SingleStepOrderAction;
 
 class OrderController extends \yii\web\Controller
@@ -12,6 +15,9 @@ class OrderController extends \yii\web\Controller
             'create' => [
                 'class' => SingleStepOrderAction::class,
             ],
+            'payment' => PaymentPayAction::class,
+            'check' => PaymentCheckAction::class,
+            'success' => PaymentSuccessAction::class,
         ];
     }
 
@@ -25,18 +31,13 @@ class OrderController extends \yii\web\Controller
         return $this->render('list');
     }
 
-    public function actionPayment($hash)
-    {
-        return $this->render('payment');
-    }
-
     public function actionShow($hash)
     {
         return $this->render('show');
     }
 
-    public function actionSuccess($hash)
+    public function actionRefund($hash)
     {
-        return $this->render('success');
+        return $this->render('refund');
     }
 }

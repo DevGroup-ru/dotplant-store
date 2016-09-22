@@ -185,6 +185,16 @@ class Store
     }
 
     /**
+     * @param Order $order
+     * @return bool
+     */
+    public static function checkOrderIsPaid($order)
+    {
+        $paidStatusId = static::getPaidOrderStatusId($order->context_id);
+        return $order->status_id === $paidStatusId;
+    }
+
+    /**
      * Whether to show a retail price
      * @return bool true - retail, false - wholesale
      */
