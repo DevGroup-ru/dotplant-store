@@ -77,14 +77,29 @@ class m160901_113122_dotplant_goods_add_extended_price extends Migration
             $tableOptions
         );
 
-        $this->createIndex('idx-ext-price-calc_t-context-time', '{{%dotplant_store_extended_price}}',
-            ['calculator_type', 'context_id', 'start_time', 'end_time']);
+        $this->createIndex(
+            'idx-ext-price-calc_t-context-time',
+            '{{%dotplant_store_extended_price}}',
+            ['calculator_type', 'context_id', 'start_time', 'end_time']
+        );
         $this->createIndex('idx-ext_price_rule-priority', '{{%dotplant_store_extended_price_rule}}', ['priority']);
 
-        $this->addForeignKey('fk-ep_rules-ep', '{{%dotplant_store_extended_price_rule}}', 'extended_price_id',
-            '{{%dotplant_store_extended_price}}', 'id', 'CASCADE');
-        $this->addForeignKey('fk-ep_rules-ep_handlers', '{{%dotplant_store_extended_price_rule}}',
-            'extended_price_handler_id', '{{%dotplant_store_extended_price_handlers}}', 'id', 'CASCADE');
+        $this->addForeignKey(
+            'fk-ep_rules-ep',
+            '{{%dotplant_store_extended_price_rule}}',
+            'extended_price_id',
+            '{{%dotplant_store_extended_price}}',
+            'id',
+            'CASCADE'
+        );
+        $this->addForeignKey(
+            'fk-ep_rules-ep_handlers',
+            '{{%dotplant_store_extended_price_rule}}',
+            'extended_price_handler_id',
+            '{{%dotplant_store_extended_price_handlers}}',
+            'id',
+            'CASCADE'
+        );
 
 
         $this->batchInsert(
@@ -118,8 +133,6 @@ class m160901_113122_dotplant_goods_add_extended_price extends Migration
 
             ]
         );
-
-
     }
 
     public function down()

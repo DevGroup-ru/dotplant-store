@@ -2,9 +2,10 @@
 
 namespace DotPlant\Store\helpers;
 
+use DotPlant\Currencies\helpers\CurrencyHelper;
 use DotPlant\Store\models\extendedPrice\ExtendedPrice;
 use DotPlant\Store\models\goods\Goods;
-use DotPlant\Store\models\order\Order;
+use DotPlant\Store\models\order\Cart;
 use yii\base\InvalidParamException;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
@@ -96,7 +97,9 @@ class ExtendedPriceHelper
                     $check = false;
                     foreach ($extendedPrice['extendedPriceRules'] as $rule) {
                         $class = $rule['extendedPriceHandler']['handler_class'];
-                        $params = empty($rule['packed_json_params']) === false ? Json::decode($rule['packed_json_params']) : [];
+                        $params = empty($rule['packed_json_params']) === false ? Json::decode(
+                            $rule['packed_json_params']
+                        ) : [];
                         $check = $class::check($goods, $params);
 
                         if (($check === false && $rule['operand'] === 'AND') || ($check === true && $rule['operand'] === 'OR')) {
@@ -116,11 +119,11 @@ class ExtendedPriceHelper
     }
 
     /**
-     * @param $order
+     * @param $cart
      *
      * @return array
      */
-    private static function filterForOrder($order)
+    private static function filterForCart($cart)
     {
         return [];
     }
@@ -136,11 +139,70 @@ class ExtendedPriceHelper
 
         if ($object instanceof Goods) {
             $result = self::filterForGoods($object);
-        } elseif ($object instanceof Order) {
-            $result = self::filterForOrder($object);
+        } elseif ($object instanceof Cart) {
+            $result = self::filterForCart($object);
         } else {
             throw new InvalidParamException;
         }
         return $result;
+    }
+
+    /**
+     * @param array $extendedPrices
+     * @param float $priceBefore
+     * @param string $priceBeforeIsoCode
+     *
+     * @return array
+     */
+    public static function applyExtendedPrices($extendedPrices, $priceBefore, $priceBeforeIsoCode)
+    {
+        $price = [
+            'priceBefore' => $priceBefore,
+            'priceAfter' => $priceBefore,
+            'priceBeforeIsoCode' => $priceBeforeIsoCode,
+            'extendedPrice' => [],
+        ];
+        if (empty($extendedPrices) === false) {
+            foreach ($extendedPrices as $extendedPrice) {
+                $extendedPriceValue = CurrencyHelper::convertCurrencies(
+                    $extendedPrice['value'],
+                    $extendedPrice['currency_iso_code'],
+                    $priceBeforeIsoCode
+                );
+
+                switch ($extendedPrice['mode']) {
+                    case ExtendedPrice::MODE_AMOUNT:
+
+                        $price['priceAfter'] -= $extendedPriceValue;
+                        break;
+                    case ExtendedPrice::MODE_PERCENTAGE:
+                        $price['priceAfter'] *= (1 - $extendedPrice['value'] / 100);
+                        break;
+                    case ExtendedPrice::MODE_DEFINE:
+                        $price['priceAfter'] = $extendedPriceValue;
+                        break;
+                }
+
+                $minPrice = CurrencyHelper::convertCurrencies(
+                    $extendedPrice['min_product_price'],
+                    $extendedPrice['currency_iso_code'],
+                    $priceBeforeIsoCode
+                );
+                if (is_null($minPrice) === false) {
+                    if ($minPrice < $priceBefore) {
+                        $price['priceAfter'] = max($price['priceAfter'], $minPrice);
+                    } else {
+                        $price['priceAfter'] = $price['priceBefore'];
+                    }
+                }
+
+                $price['extendedPrice'][] = [
+                    'extended_price_id' => $extendedPrice['id'],
+                    'name' => $extendedPrice['name'],
+                    'value' => $price['priceAfter'] - $price['priceBefore'],
+                ];
+            }
+        }
+        return $price;
     }
 }

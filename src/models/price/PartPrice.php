@@ -2,7 +2,7 @@
 
 namespace DotPlant\Store\models\price;
 
-use DotPlant\Store\components\calculator\PartCalculator;
+use DotPlant\Store\components\calculator\PartGoodsCalculator;
 
 /**
  * Class PartPrice
@@ -11,5 +11,5 @@ use DotPlant\Store\components\calculator\PartCalculator;
  */
 class PartPrice extends Price
 {
-    protected $_calculatorClass = PartCalculator::class;
+    protected $_calculatorClass = PartGoodsCalculator::class;
 }

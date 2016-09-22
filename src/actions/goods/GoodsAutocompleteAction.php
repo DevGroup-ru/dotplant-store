@@ -70,13 +70,13 @@ class GoodsAutocompleteAction extends BaseAdminAction
         if (null !== $q) {
             $query = new Query;
             $query->select('id, name AS text')->from(Goods::tableName())->innerJoin(
-                    GoodsTranslation::tableName(),
-                    'id = model_id'
-                )->where($this->prepareCondition($q))->andWhere(
-                    [
+                GoodsTranslation::tableName(),
+                'id = model_id'
+            )->where($this->prepareCondition($q))->andWhere(
+                [
                         'language_id' => Yii::$app->multilingual->language_id,
                     ]
-                )->limit(20);
+            )->limit(20);
             $command = $query->createCommand();
             $data = $command->queryAll();
             $out['results'] = array_values($data);

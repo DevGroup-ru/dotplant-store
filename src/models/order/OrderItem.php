@@ -2,11 +2,9 @@
 
 namespace DotPlant\Store\models\order;
 
-use DotPlant\Currencies\CurrenciesModule;
-use DotPlant\Currencies\helpers\CurrencyHelper;
+use DotPlant\Store\components\calculator\OrderItemCalculator;
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\models\goods\Goods;
-use DotPlant\Store\models\price\Price;
 use DotPlant\Store\models\warehouse\Warehouse;
 use Yii;
 
@@ -100,7 +98,7 @@ class OrderItem extends \yii\db\ActiveRecord
     {
         $goods = $this->findGoods($this->goods_id);
         $warehouses = Warehouse::getWarehouses($this->goods_id);
-        $priceType = $this->cart->is_retail == 1 ? Price::TYPE_RETAIL : Price::TYPE_WHOLESALE;
+
         if (!empty($this->warehouse_id)) {
             if (!isset($warehouses[$this->warehouse_id])) {
                 throw new OrderException(Yii::t('dotplant.store', 'The warehouse is not available'));
@@ -125,18 +123,11 @@ class OrderItem extends \yii\db\ActiveRecord
             }
         }
         // @todo: Add a check warehouse count
-        // @todo: Calculate price and discount. Dummy calculation below
-        $price = $goods->getPrice($this->warehouse_id, $priceType);
-        $this->total_price_with_discount = CurrencyHelper::convertCurrencies(
-            $price['value'],
-            CurrencyHelper::findCurrencyByIso($price['iso_code']),
-            CurrencyHelper::findCurrencyByIso($this->cart->currency_iso_code)
-        ) * $this->quantity;
-        $this->total_price_without_discount = CurrencyHelper::convertCurrencies(
-            isset($price['original_value']) ? $price['original_value'] : $price['value'],
-            CurrencyHelper::findCurrencyByIso($price['iso_code']),
-            CurrencyHelper::findCurrencyByIso($this->cart->currency_iso_code)
-        ) * $this->quantity;
+
+        $price = OrderItemCalculator::getPrice($this);
+        $this->total_price_without_discount = $price['totalPriceWithoutDiscount'];
+        $this->total_price_with_discount = $price['totalPriceWithDiscount'];
+        $this->quantity = $price['items'];
     }
 
     /**

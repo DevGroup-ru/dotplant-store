@@ -9,7 +9,7 @@ use DotPlant\Store\exceptions\GoodsException;
  *
  * @package DotPlant\Store\interfaces
  */
-interface CalculatorInterface
+interface GoodsCalculatorInterface
 {
     /**
      * Calculates product price according to product type

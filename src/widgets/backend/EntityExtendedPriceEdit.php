@@ -3,7 +3,6 @@
 
 namespace DotPlant\Store\widgets\backend;
 
-
 use DotPlant\EntityStructure\models\BaseStructure;
 use DotPlant\Store\assets\ExtendedPriceAssets;
 use DotPlant\Store\models\extendedPrice\ExtendedPrice;
@@ -73,7 +72,6 @@ class EntityExtendedPriceEdit extends Widget
                         }
                     }
                     return $carry;
-
                 },
                 []
             );

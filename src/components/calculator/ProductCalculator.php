@@ -2,7 +2,7 @@
 
 namespace DotPlant\Store\components\calculator;
 
-use DotPlant\Store\interfaces\CalculatorInterface;
+use DotPlant\Store\interfaces\GoodsCalculatorInterface;
 use DotPlant\Store\interfaces\PriceInterface;
 use DotPlant\Store\models\warehouse\Warehouse;
 
@@ -11,7 +11,7 @@ use DotPlant\Store\models\warehouse\Warehouse;
  *
  * @package DotPlant\Store\components\calculator
  */
-class ProductCalculator extends Calculator
+class ProductCalculator extends GoodsCalculator
 {
     public static function calculate(PriceInterface $price)
     {

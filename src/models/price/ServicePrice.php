@@ -2,7 +2,7 @@
 
 namespace DotPlant\Store\models\price;
 
-use DotPlant\Store\components\calculator\ServiceCalculator;
+use DotPlant\Store\components\calculator\ServiceGoodsCalculator;
 
 /**
  * Class ServicePrice
@@ -11,5 +11,5 @@ use DotPlant\Store\components\calculator\ServiceCalculator;
  */
 class ServicePrice extends Price
 {
-    protected $_calculatorClass = ServiceCalculator::class;
+    protected $_calculatorClass = ServiceGoodsCalculator::class;
 }

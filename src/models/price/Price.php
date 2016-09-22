@@ -102,7 +102,6 @@ abstract class Price implements PriceInterface
         ]);
 
         if (empty($this->_price[$priceKey]) === true) {
-            $price = [];
             $this->_warehouseId = $warehouseId;
             $this->_priceType = $priceType;
             $this->_withDiscount = $withDiscount;

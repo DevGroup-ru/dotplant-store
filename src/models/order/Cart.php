@@ -4,6 +4,7 @@ namespace DotPlant\Store\models\order;
 
 use DevGroup\Entity\traits\BaseActionsInfoTrait;
 use DevGroup\Entity\traits\EntityTrait;
+use DotPlant\Store\components\calculator\CartCalculator;
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\models\warehouse\Warehouse;
 use DotPlant\Store\Module;
@@ -153,18 +154,10 @@ class Cart extends ActiveRecord
 
     public function calculate() // @todo: public or private?
     {
-        $this->items_count = 0;
-        $this->total_price_with_discount = 0;
-        $this->total_price_without_discount = 0;
-        foreach ($this->items as $item) {
-            $this->total_price_with_discount += $item->total_price_with_discount;
-            $this->total_price_without_discount += $item->total_price_without_discount;
-            if ($item->goods_id == 0) {
-                continue; // It's a delivery. Do not count it as an order item
-            }
-            $this->items_count += Module::module()->countUniqueItemsOnly == 1 ? 1 : $item->quantity;
-        }
-        // @todo: Add another calculation (discounts, etc)
+        $price = CartCalculator::getPrice($this);
+        $this->items_count = $price['items'];
+        $this->total_price_with_discount = $price['totalPriceWithDiscount'];
+        $this->total_price_without_discount = $price['totalPriceWithoutDiscount'];
     }
 
     /**

@@ -2,14 +2,14 @@
 
 namespace DotPlant\Store\components\calculator;
 
-use DotPlant\Store\interfaces\CalculatorInterface;
+use DotPlant\Store\interfaces\GoodsCalculatorInterface;
 
 /**
  * Class BundleCalculator
  *
  * @package DotPlant\Store\components\calculator
  */
-class BundleCalculator implements CalculatorInterface
+class BundleGoodsCalculator implements GoodsCalculatorInterface
 {
 
 }

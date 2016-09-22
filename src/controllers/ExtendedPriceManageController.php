@@ -2,7 +2,6 @@
 
 namespace DotPlant\Store\controllers;
 
-
 use DevGroup\AdminUtils\controllers\BaseController;
 use DevGroup\AdminUtils\traits\BackendRedirect;
 use DotPlant\Store\actions\extendedPrice\ExtendedPriceAjaxFormAction;
@@ -136,9 +135,9 @@ class ExtendedPriceManageController extends BaseController
                 }
 
                 if (Model::loadMultiple(
-                        $params['extendedPriceRules'],
-                        Yii::$app->request->post()
-                    ) && Model::validateMultiple($params['extendedPriceRules'])
+                    $params['extendedPriceRules'],
+                    Yii::$app->request->post()
+                ) && Model::validateMultiple($params['extendedPriceRules'])
                 ) {
                     foreach ($params['extendedPriceRules'] as $rule) {
                         $handlerClass = $rule->extendedPriceHandler->handler_class;
@@ -205,6 +204,5 @@ class ExtendedPriceManageController extends BaseController
             Yii::$app->session->setFlash('error', Yii::t('app', 'Object has not been removed'));
 
         return $this->redirect($returnUrl);
-
     }
 }

@@ -99,8 +99,7 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
     public static function getWarehouse($goodsId, $warehouseId, $asArray = true)
     {
         $result = false;
-        if($warehouse = static::getFromMap($warehouseId))
-        {
+        if ($warehouse = static::getFromMap($warehouseId)) {
             $goodsWarehouse = GoodsWarehouse::find()
                 ->where(
                     [
@@ -113,7 +112,7 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
                 ->one();
             if ($asArray) {
                 return $goodsWarehouse;
-            } elseif($goodsWarehouse !== null) {
+            } elseif ($goodsWarehouse !== null) {
                 $model = new static::$_typesMap[$warehouse['type']];
                 static::populateRecord($model, $goodsWarehouse);
                 $result = $model;

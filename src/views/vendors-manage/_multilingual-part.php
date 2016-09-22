@@ -15,4 +15,4 @@ use kartik\switchinput\SwitchInput;
 <?= $form->field($model, $attributePrefix . 'slug') ?>
 <?= $form->field($model, $attributePrefix . 'meta_description') ?>
 <?= $form->field($model, $attributePrefix . 'announce')->textarea(['rows' => 3]) ?>
-<?= $form->field($model, $attributePrefix . 'content')->textarea(['rows' => 3]) ?>
+<?= $form->field($model, $attributePrefix . 'content')->textarea(['rows' => 3]);

@@ -24,6 +24,4 @@ class Product extends Goods
     protected $isOption = false;
     protected $isPart = true;
     protected $hasOptions = true;
-
-
 }

@@ -237,7 +237,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         foreach (self::$_goodsMap as $key => $className) {
             /* @var Goods $class **/
             $class = new $className;
-            if($class->getIsPart() === true) {
+            if ($class->getIsPart() === true) {
                 $result[$key] = $className;
             }
         }

@@ -84,10 +84,9 @@ class SingleStepOrderAction extends Action
                     $user->password_is_temporary = true;
                     $user->email = $orderDeliveryInformation->email;
                     $user->password = Yii::$app->security->generateRandomString(10);
-                    if (
-                        $user->save(
-                            true,
-                            [
+                    if ($user->save(
+                        true,
+                        [
                                 'username',
                                 'email',
                                 'username_is_temporary',
@@ -95,7 +94,7 @@ class SingleStepOrderAction extends Action
                                 'password_is_temporary',
                                 'created_at',
                             ]
-                        )
+                    )
                     ) {
                         Module::module()->trigger(
                             Module::EVENT_AFTER_USER_REGISTERED,

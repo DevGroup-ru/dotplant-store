@@ -2,7 +2,7 @@
 
 namespace DotPlant\Store\models\price;
 
-use DotPlant\Store\components\calculator\FileCalculator;
+use DotPlant\Store\components\calculator\FileGoodsCalculator;
 
 /**
  * Class FilePrice
@@ -11,5 +11,5 @@ use DotPlant\Store\components\calculator\FileCalculator;
  */
 class FilePrice extends Price
 {
-    protected $_calculatorClass = FileCalculator::class;
+    protected $_calculatorClass = FileGoodsCalculator::class;
 }

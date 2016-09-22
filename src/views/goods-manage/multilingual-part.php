@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @var yii\web\View $this
  * @var \DotPlant\Store\models\goods\Goods $model
@@ -8,9 +7,7 @@
  * @var \DevGroup\Multilingual\models\Language $language
  * @var string $attributePrefix
  */
-
 use kartik\switchinput\SwitchInput;
-
 ?>
 <?= $form->field($model, $attributePrefix . 'is_active')->widget(SwitchInput::class) ?>
 <?= $form->field($model, $attributePrefix . 'name') ?>

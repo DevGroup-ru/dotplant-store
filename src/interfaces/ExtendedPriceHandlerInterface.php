@@ -2,7 +2,6 @@
 
 namespace DotPlant\Store\interfaces;
 
-
 use DotPlant\Store\models\extendedPrice\ExtendedPriceRule;
 use yii\widgets\ActiveForm;
 

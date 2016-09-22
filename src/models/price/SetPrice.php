@@ -2,7 +2,7 @@
 
 namespace DotPlant\Store\models\price;
 
-use DotPlant\Store\components\calculator\SetCalculator;
+use DotPlant\Store\components\calculator\SetGoodsCalculator;
 
 /**
  * Class SetPrice
@@ -11,5 +11,5 @@ use DotPlant\Store\components\calculator\SetCalculator;
  */
 class SetPrice extends Price
 {
-    protected $_calculatorClass = SetCalculator::class;
+    protected $_calculatorClass = SetGoodsCalculator::class;
 }

@@ -2,7 +2,6 @@
 
 namespace DotPlant\Store\controllers;
 
-
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DotPlant\Store\models\vendor\Vendor;

@@ -33,13 +33,12 @@ class OrderHandler
     {
         $statuses = OrderStatus::listData();
         $order = Order::findOne($event->orderId);
-        if (
-            isset(
-                $statuses[$event->oldStatusId],
-                $statuses[$event->statusId],
-                $event->data['emailTemplateId'],
-                $order->deliveryInformation
-            )
+        if (isset(
+            $statuses[$event->oldStatusId],
+            $statuses[$event->statusId],
+            $event->data['emailTemplateId'],
+            $order->deliveryInformation
+        )
         ) {
             EmailHelper::sendNewMessage(
                 $order->deliveryInformation->email,

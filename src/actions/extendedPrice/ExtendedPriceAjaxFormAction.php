@@ -3,7 +3,6 @@
 
 namespace DotPlant\Store\actions\extendedPrice;
 
-
 use DotPlant\Store\models\extendedPrice\ExtendedPrice;
 use DotPlant\Store\models\extendedPrice\ExtendedPriceRule;
 use Yii;

@@ -3,7 +3,6 @@
 
 namespace DotPlant\Store\assets;
 
-
 use yii\web\AssetBundle;
 use yii\web\JqueryAsset;
 

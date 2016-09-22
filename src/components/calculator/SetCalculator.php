@@ -6,11 +6,11 @@ use DotPlant\Store\interfaces\PriceInterface;
 use DotPlant\Store\models\warehouse\Warehouse;
 
 /**
- * Class SetCalculator
+ * Class SetGoodsCalculator
  *
  * @package DotPlant\Store\components\calculator
  */
-class SetCalculator extends Calculator
+class SetGoodsCalculator extends GoodsCalculator
 {
     public static function calculate(PriceInterface $price)
     {

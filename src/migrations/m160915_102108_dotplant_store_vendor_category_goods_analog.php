@@ -102,7 +102,7 @@ class m160915_102108_dotplant_store_vendor_category_goods_analog extends Migrati
         $this->dropForeignKey('fk-category_goods-goods', '{{%dotplant_store_category_goods}}');
         $this->dropForeignKey('fk-category_goods-structure', '{{%dotplant_store_category_goods}}');
         $this->dropForeignKey('fk-vendor-id-goods-vendor_id', Goods::tableName());
-        $this->dropForeignKey('fk-vt-vendor','{{%dotplant_store_vendor_translation}}');
+        $this->dropForeignKey('fk-vt-vendor', '{{%dotplant_store_vendor_translation}}');
         $this->dropIndex('idx-category_goods-struct_id-goods_id', '{{%dotplant_store_category_goods}}');
         $this->dropIndex('idx-vt-model_id-lang_id', '{{%dotplant_store_vendor_translation}}');
 
