@@ -25,4 +25,10 @@ class Bundle extends Goods
     protected $isOption = true;
     protected $isPart = true;
     protected $hasOptions = true;
+
+
+    public static function getChildTypes()
+    {
+        return [Goods::TYPE_PRODUCT, Goods::TYPE_SERVICE, Goods::TYPE_BUNDLE, Goods::TYPE_FILE];
+    }
 }

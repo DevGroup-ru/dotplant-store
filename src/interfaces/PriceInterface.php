@@ -40,5 +40,4 @@ interface PriceInterface
 
     public function isWithDiscount();
 
-    public function getGoodsId();
 }

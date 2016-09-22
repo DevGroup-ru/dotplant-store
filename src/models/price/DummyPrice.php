@@ -60,8 +60,4 @@ class DummyPrice extends Price
         // TODO: Implement getPriceType() method.
     }
 
-    public function getGoodsId()
-    {
-        // TODO: Implement getGoodsId() method.
-    }
 }

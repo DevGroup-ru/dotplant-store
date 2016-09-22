@@ -31,7 +31,6 @@ use yii\helpers\ArrayHelper;
  * @property integer $id
  * @property integer $seller_id
  * @property integer $vendor_id
- * @property integer $parent_id
  * @property integer $main_structure_id
  * @property integer $type
  * @property integer $role
@@ -231,19 +230,15 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
     /**
      * @return array
      */
-    public static function getTypesPart()
+    public static function getTypesMap()
     {
-        $result = [];
-        foreach (self::$_goodsMap as $key => $className) {
-            /* @var Goods $class **/
-            $class = new $className;
-            if ($class->getIsPart() === true) {
-                $result[$key] = $className;
-            }
-        }
-        return $result;
+        return self::$_goodsMap;
     }
 
+    public static function getChildTypes()
+    {
+        return [];
+    }
 
 
     /**
@@ -360,7 +355,6 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
                 [
                     [
                         'vendor_id',
-                        'parent_id',
                         'main_structure_id',
                         'type',
                         'role',
@@ -390,7 +384,6 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
             'id' => Yii::t('dotplant.store', 'ID'),
             'seller_id' => Yii::t('dotplant.store', 'Seller'),
             'vendor_id' => Yii::t('dotplant.store', 'Vendor'),
-            'parent_id' => Yii::t('dotplant.store', 'Parent'),
             'main_structure_id' => Yii::t('dotplant.store', 'Main structure ID'),
             'type' => Yii::t('dotplant.store', 'Type'),
             'role' => Yii::t('dotplant.store', 'Role'),
@@ -442,9 +435,10 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
     /**
      * @return ActiveQuery
      */
-    public function getParent()
+    public function getParents()
     {
-        return $this->hasOne(static::class, ['id' => 'parent_id']);
+        return $this->hasMany(static::class, ['id' => 'goods_parent_id'])
+            ->viaTable(GoodsParent::tableName(), ['goods_id' => 'id']);
     }
 
     /**
@@ -452,7 +446,8 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
      */
     public function getChildren()
     {
-        return $this->hasMany(static::class, ['parent_id' => 'id']);
+        return $this->hasMany(static::class, ['id' => 'goods_id'])
+            ->viaTable(GoodsParent::tableName(), ['goods_parent_id' => 'id']);
     }
 
     /**
@@ -460,7 +455,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
      */
     public function getCategories()
     {
-        return $this->hasMany(BaseStructure::class, ['id' => 'structure_id'])
+        return $this->hasMany(static::class, ['id' => 'structure_id'])
             ->viaTable(CategoryGoods::tableName(), ['goods_id' => 'id']);
     }
 
@@ -548,9 +543,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
                 'id = ' . CategoryGoods::tableName() . '.goods_id'
             )->andWhere(['structure_id' => $categoryId]);
         }
-        if (null != $this->parent_id) {
-            $query->andWhere(['parent_id' => $this->parent_id]);
-        }
+
         $dataProvider->sort->attributes['name'] = [
             'asc' => [GoodsTranslation::tableName() . '.name' => SORT_ASC],
             'desc' => [GoodsTranslation::tableName() . '.name' => SORT_DESC],

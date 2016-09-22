@@ -63,7 +63,7 @@ class GoodsAutocompleteAction extends BaseAdminAction
     /**
      * @inheritdoc
      */
-    public function run($q = null, $id = null)
+    public function run($q = null, $product_id = null, $id = null)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $out = ['results' => ['id' => '', 'text' => '']];
@@ -74,9 +74,16 @@ class GoodsAutocompleteAction extends BaseAdminAction
                 'id = model_id'
             )->where($this->prepareCondition($q))->andWhere(
                 [
-                        'language_id' => Yii::$app->multilingual->language_id,
-                    ]
+                    'language_id' => Yii::$app->multilingual->language_id,
+                ]
             )->limit(20);
+
+            if($product_id !== null) {
+                $goods = Goods::get($product_id);
+                $query->andWhere(['type' => $goods->getChildTypes()]);
+            }
+
+
             $command = $query->createCommand();
             $data = $command->queryAll();
             $out['results'] = array_values($data);

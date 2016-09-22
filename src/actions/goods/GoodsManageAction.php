@@ -7,8 +7,11 @@ use DevGroup\AdminUtils\traits\BackendRedirect;
 use DevGroup\DataStructure\behaviors\HasProperties;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
+use DotPlant\Store\models\extendedPrice\ExtendedPrice;
 use DotPlant\Store\models\goods\CategoryGoods;
 use DotPlant\Store\models\goods\Goods;
+use DotPlant\Store\models\goods\GoodsParent;
+use DotPlant\Store\models\goods\GoodsTranslation;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use Yii;
@@ -53,9 +56,16 @@ class GoodsManageAction extends BaseAdminAction
             $goods = Goods::create($type);
         }
         $canSave = true; //Yii::$app->user->can('');
-        $refresh = !$goods->isNewRecord;
+
+        $child = [];
+
         if (false === $goods->isNewRecord) {
             $goods->translations;
+            $child = $goods->getChildren()
+                ->select([GoodsTranslation::tableName() . '.name', Goods::tableName() . '.id'])
+                ->indexBy('id')
+                ->asArray()
+                ->column();
         } else {
             $goods->loadDefaultValues();
         }
@@ -76,6 +86,23 @@ class GoodsManageAction extends BaseAdminAction
                         $categories = isset($post[$goodsFormName]['categories']) ? $post[$goodsFormName]['categories'] : [];
                         $categories = array_unique($categories);
                         CategoryGoods::saveBindings($goods->id, $categories);
+
+
+                        if ($goods->getHasChild() === true) {
+                            $childGoods = isset($post['childGoods']) ? $post['childGoods'] : [];
+                            GoodsParent::deleteAll([
+                                'goods_parent_id' => $goods->id
+                            ]);
+                            foreach ($childGoods as $key => $childId) {
+                                (new GoodsParent([
+                                    'goods_id' => $childId,
+                                    'goods_parent_id' => $goods->id,
+                                    'sort_order' => $key
+                                ]))->save();
+                            }
+                        }
+
+
                         $this->redirectUser(
                             $id,
                             true,
@@ -103,6 +130,7 @@ class GoodsManageAction extends BaseAdminAction
             '@DotPlant/Store/views/goods-manage/edit',
             [
                 'goods' => $goods,
+                'child' => $child,
                 'canSave' => true,
                 'undefinedType' => $goods->isNewRecord,
                 'startCategory' => $id,

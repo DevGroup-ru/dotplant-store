@@ -88,34 +88,6 @@ $form = ActiveForm::begin(
             <div class="tab-pane active" id="goods-data">
                 <div class="row">
                     <div class="col-sm-12 col-md-6">
-                        <?= $form->field($goods, 'parent_id')->widget(
-                            Select2::class,
-                            [
-                                'initValueText' => (null === $goods->parent) ? Yii::t(
-                                    'dotplant.store',
-                                    'Search for a parent ...'
-                                ) : $goods->parent->name,
-                                'options' => [
-                                    'placeholder' => Yii::t('dotplant.store', 'Search for a parent ...'),
-                                ],
-                                'pluginOptions' => [
-                                    'allowClear' => true,
-                                    'minimumInputLength' => 3,
-                                    'ajax' => [
-                                        'url' => $url,
-                                        'dataType' => 'json',
-                                        'data' => new JsExpression('function(params) { return {q:params.term}; }'),
-                                        'delay' => '400',
-                                        'error' => new JsExpression('function(error) {alert(error.responseText);}'),
-                                    ],
-                                    'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
-                                    'templateResult' => new JsExpression('function(parent) { return parent.text; }'),
-                                    'templateSelection' => new JsExpression(
-                                        'function (parent) { return parent.text; }'
-                                    ),
-                                ],
-                            ]
-                        ) ?>
                         <?= $form->field($goods, 'vendor_id')->dropDownList(
                             Vendor::getArrayList(),
                             ['prompt' => Yii::t('dotplant.store', 'Choose vendor')]
@@ -161,6 +133,32 @@ $form = ActiveForm::begin(
 
                         <div class="clearfix"></div>
                         <?php if ($goods->getHasChild() === true) : ?>
+                            <label><?= Yii::t('dotplant.store', 'Child'); ?></label>
+
+                            <?= Select2::widget([
+                                'name' => 'childGoods',
+                                'data' => $child,
+                                'value' => array_keys($child),
+                                'options' => [
+                                    'placeholder' => Yii::t('dotplant.store', 'Search for a child ...'),
+                                    'multiple' => true
+                                ],
+                                'pluginOptions' => [
+                                    'allowClear' => true,
+                                    'minimumInputLength' => 3,
+                                    'ajax' => [
+                                        'url' => $url,
+                                        'dataType' => 'json',
+                                        'data' => new JsExpression('function(params) { return {q:params.term}; }'),
+                                        'delay' => '400',
+                                        'error' => new JsExpression('function(error) {alert(error.responseText);}'),
+                                    ],
+                                    'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
+                                    'templateResult' => new JsExpression('function(parent) { return parent.text; }'),
+                                    'templateSelection' => new JsExpression('function (parent) { return parent.text; }'),
+                                ]
+                            ]);
+                            ?>
                         <?php endif; ?>
 
 
