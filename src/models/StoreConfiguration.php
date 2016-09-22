@@ -137,10 +137,10 @@ class StoreConfiguration extends BaseConfigurationModel
     {
         return [
             'modelSortPermission' => [
-                \DotPlant\Store\models\order\OrderStatus::class => 'backend-view',
-                \DotPlant\Store\models\order\Payment::class => 'backend-view',
-                \DotPlant\Store\models\order\Delivery::class => 'backend-view',
-                \DotPlant\Store\models\warehouse\Warehouse::class => 'backend-view',
+                \DotPlant\Store\models\order\OrderStatus::class => 'dotplant-store-order-status-edit',
+                \DotPlant\Store\models\order\Payment::class => 'dotplant-store-payment-edit',
+                \DotPlant\Store\models\order\Delivery::class => 'dotplant-store-delivery-edit',
+                \DotPlant\Store\models\warehouse\Warehouse::class => 'dotplant-store-warehouse-edit',
             ],
         ];
     }

@@ -7,7 +7,10 @@ use DevGroup\Multilingual\traits\MultilingualTrait;
 use DotPlant\Store\models\order\Payment;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -20,7 +23,33 @@ class PaymentsManageController extends Controller
      */
     public function behaviors()
     {
-        return []; // @todo: add permissions
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'actions' => ['index', 'edit'],
+                        'allow' => true,
+                        'roles' => ['dotplant-store-payment-view'],
+                    ],
+                    [
+                        'actions' => ['delete'],
+                        'allow' => true,
+                        'roles' => ['dotplant-store-payment-delete'],
+                    ],
+                    [
+                        'allow' => false,
+                        'roles' => ['*'],
+                    ],
+                ],
+            ],
+            'verbs' => [
+                'class' => VerbFilter::class,
+                'actions' => [
+                    'delete' => ['POST'],
+                ],
+            ]
+        ];
     }
 
     /**
@@ -61,7 +90,12 @@ class PaymentsManageController extends Controller
         } else {
             $model = $this->findModel($id);
         }
+        $hasAccess = ($model->isNewRecord && Yii::$app->user->can('dotplant-store-payment-create'))
+            || (!$model->isNewRecord && Yii::$app->user->can('dotplant-store-payment-edit'));
         if ($model->load(Yii::$app->request->post())) {
+            if (!$hasAccess) {
+                throw new ForbiddenHttpException;
+            }
             $error = false;
             foreach (Yii::$app->request->post('PaymentTranslation') as $languageId => $attributes) {
                 $model->translate($languageId)->setAttributes($attributes);
@@ -79,6 +113,7 @@ class PaymentsManageController extends Controller
         return $this->render(
             'edit',
             [
+                'hasAccess' => $hasAccess,
                 'model' => $model,
             ]
         );

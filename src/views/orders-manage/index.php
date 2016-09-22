@@ -76,6 +76,7 @@ $paymentListData = \DotPlant\Store\models\order\Payment::listData($contextId);
                 // 'items_count',
                 [
                     'attribute' => 'total_price_with_discount',
+                    'format' => 'raw',
                     'value' => function ($model, $key, $index, $column) {
                         return CurrencyHelper::format(
                             $model->{$column->attribute},
@@ -85,6 +86,7 @@ $paymentListData = \DotPlant\Store\models\order\Payment::listData($contextId);
                 ],
                 [
                     'attribute' => 'total_price_without_discount',
+                    'format' => 'raw',
                     'value' => function ($model, $key, $index, $column) {
                         return CurrencyHelper::format(
                             $model->{$column->attribute},
@@ -109,9 +111,11 @@ $paymentListData = \DotPlant\Store\models\order\Payment::listData($contextId);
         ]); ?>
         <?php Pjax::end(); ?>
     </div>
+    <?php if (Yii::$app->user->can('dotplant-store-order-create')) : ?>
     <div class="box-footer">
         <div class="pull-right">
             <?= Html::a(Yii::t('dotplant.store', 'Create'), ['edit', 'contextId' => $contextId], ['class' => 'btn btn-success']) ?>
         </div>
     </div>
+    <?php endif; ?>
 </div>

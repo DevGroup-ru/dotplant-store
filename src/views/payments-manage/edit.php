@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /**
+ * @var bool $hasAccess
  * @var DotPlant\Store\models\order\Payment $model
  * @var yii\web\View $this
  */
@@ -43,6 +44,7 @@ $this->params['breadcrumbs'] = [
             </div>
         </div>
     </div>
+    <?php if ($hasAccess) : ?>
     <div class="box-footer">
         <div class="pull-right">
             <?=
@@ -53,5 +55,6 @@ $this->params['breadcrumbs'] = [
             ?>
         </div>
     </div>
+    <?php endif; ?>
 </div>
 <?php ActiveForm::end(); ?>

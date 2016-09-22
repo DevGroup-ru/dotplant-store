@@ -56,7 +56,7 @@ class m160901_083416_dotplant_goods_add_to_backend_menu extends Migration
                     'Products',
                     'fa fa-list',
                     0,
-                    'backend-view',
+                    'dotplant-store-goods-view',
                     '',
                     '/structure/entity-manage/products',
                     'dotplant.store',

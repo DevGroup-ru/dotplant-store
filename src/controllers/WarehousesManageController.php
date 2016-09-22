@@ -6,7 +6,9 @@ use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DotPlant\Store\models\warehouse\Warehouse;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
@@ -21,12 +23,31 @@ class WarehousesManageController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'actions' => ['index', 'edit'],
+                        'allow' => true,
+                        'roles' => ['dotplant-store-warehouse-view'],
+                    ],
+                    [
+                        'actions' => ['delete'],
+                        'allow' => true,
+                        'roles' => ['dotplant-store-warehouse-delete'],
+                    ],
+                    [
+                        'allow' => false,
+                        'roles' => ['*'],
+                    ],
+                ],
+            ],
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
                 ],
-            ],
+            ]
         ];
     }
 
@@ -68,7 +89,12 @@ class WarehousesManageController extends Controller
         } else {
             $model = $this->findModel($id);
         }
+        $hasAccess = ($model->isNewRecord && Yii::$app->user->can('dotplant-store-warehouse-create'))
+            || (!$model->isNewRecord && Yii::$app->user->can('dotplant-store-warehouse-edit'));
         if ($model->load(Yii::$app->request->post())) {
+            if (!$hasAccess) {
+                throw new ForbiddenHttpException;
+            }
             $error = false;
             foreach (Yii::$app->request->post('WarehouseTranslation') as $languageId => $attributes) {
                 $model->translate($languageId)->setAttributes($attributes);
@@ -86,6 +112,7 @@ class WarehousesManageController extends Controller
         return $this->render(
             'edit',
             [
+                'hasAccess' => $hasAccess,
                 'model' => $model,
             ]
         );
