@@ -55,7 +55,7 @@ class CartCalculator implements NoGoodsCalculatorInterface
             $cart->currency_iso_code
         );
 
-        $price['totalPriceWithDiscount'] = $extendedPrices['priceAfter'];
+        $price['totalPriceWithDiscount'] = $extPricesApplied['priceAfter'];
         $price['extendedPrice'] = ArrayHelper::merge($price['extendedPrice'], $extPricesApplied['extendedPrice']);
 
         return $price;

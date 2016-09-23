@@ -110,6 +110,7 @@ class Cart extends ActiveRecord
             throw new OrderException(Yii::t('dotplant.store', 'Can not add a goods to cart'));
         }
         $this->calculate();
+        $this->save();
     }
 
     public function changeItemQuantity($id, $quantity)
@@ -126,6 +127,7 @@ class Cart extends ActiveRecord
             $item->delete();
         }
         $this->calculate();
+        $this->save();
     }
 
     public function removeItem($id)
@@ -134,6 +136,7 @@ class Cart extends ActiveRecord
         $item = $this->findItem(['id' => $id, 'cart_id' => $this->id]);
         $item->delete();
         $this->calculate();
+        $this->save();
     }
 
     public function clear()

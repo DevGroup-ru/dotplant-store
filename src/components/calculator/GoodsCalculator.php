@@ -36,7 +36,10 @@ abstract class GoodsCalculator implements GoodsCalculatorInterface
 
         $priceArray['original_value'] = $priceArray['value'];
         $priceArray['value'] = $resultPrice['priceAfter'];
-        $priceArray['reason'] = ArrayHelper::merge($priceArray['reason'], $resultPrice['extendedPrice']);
+        $priceArray['reason'] = ArrayHelper::merge(
+            ArrayHelper::getValue($priceArray, 'reason', []),
+            $resultPrice['extendedPrice']
+        );
 
         return $priceArray;
     }

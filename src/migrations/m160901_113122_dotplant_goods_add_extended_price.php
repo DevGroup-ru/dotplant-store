@@ -138,7 +138,6 @@ class m160901_113122_dotplant_goods_add_extended_price extends Migration
     public function down()
     {
         $this->delete(
-        $this->delete(
             BackendMenu::tableName(),
             ['name' => ['Extended prices']]
         );
