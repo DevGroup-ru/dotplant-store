@@ -21,7 +21,7 @@ class Payment extends \yii\base\Component
     private static function createPayment($paymentId)
     {
         $paymentModel = \DotPlant\Store\models\order\Payment::findOne($paymentId);
-        if (is_object($paymentModel) && $paymentModel->handler_class_name instanceof AbstractPaymentType) {
+        if (is_object($paymentModel)) {
             /**
              * @var AbstractPaymentType $paymentObject
              */
@@ -32,7 +32,10 @@ class Payment extends \yii\base\Component
                     ['paymentId' => $paymentId]
                 )
             );
-            return $paymentObject;
+
+            if ($paymentObject instanceof AbstractPaymentType) {
+                return $paymentObject;
+            }
         }
         throw new InvalidParamException(Yii::t('dotplant.store', 'Set correct payment ID'));
     }

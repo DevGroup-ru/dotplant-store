@@ -3,6 +3,7 @@
 namespace DotPlant\Store\models\order;
 
 use arogachev\sortable\behaviors\numerical\ContinuousNumericalSortableBehavior;
+use DevGroup\DataStructure\behaviors\PackedJsonAttributes;
 use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SoftDeleteTrait;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
@@ -39,6 +40,9 @@ class Payment extends \yii\db\ActiveRecord
             'sortable' => [
                 'class' => ContinuousNumericalSortableBehavior::class,
                 'sortAttribute' => 'sort_order',
+            ],
+            'PackedJsonAttributes' => [
+                'class' => PackedJsonAttributes::class,
             ],
         ];
     }
