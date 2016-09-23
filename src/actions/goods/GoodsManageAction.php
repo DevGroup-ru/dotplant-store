@@ -12,6 +12,9 @@ use DotPlant\Store\models\goods\CategoryGoods;
 use DotPlant\Store\models\goods\Goods;
 use DotPlant\Store\models\goods\GoodsParent;
 use DotPlant\Store\models\goods\GoodsTranslation;
+use DotPlant\Store\models\warehouse\GoodsWarehouse;
+use DotPlant\Store\models\warehouse\Warehouse;
+use yii\base\Model;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use Yii;
@@ -59,6 +62,8 @@ class GoodsManageAction extends BaseAdminAction
 
         $child = [];
 
+        $prices = [];
+
         if (false === $goods->isNewRecord) {
             $goods->translations;
             $child = $goods->getChildren()
@@ -66,9 +71,23 @@ class GoodsManageAction extends BaseAdminAction
                 ->indexBy('id')
                 ->asArray()
                 ->column();
+
+            $prices = GoodsWarehouse::find()
+                ->indexBy('warehouse_id')
+                ->where(['goods_id' => $goods->id])
+                ->all();
         } else {
             $goods->loadDefaultValues();
         }
+
+        foreach (Warehouse::find()->asArray()->all() as $warehouse) {
+            if (!isset($prices[$warehouse['id']])) {
+                $price = new GoodsWarehouse(['warehouse_id' => $warehouse['id']]);
+                $price->loadDefaultValues();
+                $prices[$warehouse['id']] = $price;
+            }
+        }
+
         $post = Yii::$app->request->post();
         if (false === empty($post)) {
             if (false === $canSave) {
@@ -86,8 +105,12 @@ class GoodsManageAction extends BaseAdminAction
                         $categories = isset($post[$goodsFormName]['categories']) ? $post[$goodsFormName]['categories'] : [];
                         $categories = array_unique($categories);
                         CategoryGoods::saveBindings($goods->id, $categories);
-
-
+                        if (Model::loadMultiple($prices, $post)) {
+                            foreach ($prices as $price) {
+                                $price->goods_id = $goods->id;
+                                $price->save();
+                            }
+                        }
                         if ($goods->getHasChild() === true) {
                             $childGoods = isset($post['childGoods']) ? $post['childGoods'] : [];
                             GoodsParent::deleteAll([
@@ -131,6 +154,7 @@ class GoodsManageAction extends BaseAdminAction
             [
                 'goods' => $goods,
                 'child' => $child,
+                'prices' => $prices,
                 'canSave' => true,
                 'undefinedType' => $goods->isNewRecord,
                 'startCategory' => $id,

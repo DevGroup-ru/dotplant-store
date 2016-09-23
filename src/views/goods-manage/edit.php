@@ -5,12 +5,15 @@
  * @var bool $canSave
  * @var bool $undefinedType
  * @var [] $startCategory
+ * @var GoodsWarehouse[] $prices
  */
 
 use DevGroup\AdminUtils\FrontendHelper;
 use dmstr\widgets\Alert;
 use DevGroup\DataStructure\widgets\PropertiesForm;
 use DevGroup\Multilingual\widgets\MultilingualFormTabs;
+use DotPlant\Store\models\price\Price;
+use DotPlant\Store\models\warehouse\GoodsWarehouse;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -169,6 +172,43 @@ $form = ActiveForm::begin(
                             ]);
                             ?>
                         <?php endif; ?>
+
+                        <div class="clearfix"></div>
+
+                        <?php if (empty($prices) === false): ?>
+                            <table class="table">
+                                <caption><?= Yii::t('dotplant.store', 'Prices') ?></caption>
+                                <?php foreach ($prices as $key => $price): ?>
+                                    <tr>
+                                        <td>
+                                            <?= $form->field($price, "[$key]currency_iso_code")->label(false) ?>
+                                        </td>
+                                        <td>
+                                            <?= $form->field($price, "[$key]seller_price")->label(false) ?>
+                                        </td>
+                                        <td>
+                                            <?= $form->field($price, "[$key]retail_price")->label(false) ?>
+                                        </td>
+                                        <td>
+                                            <?= $form->field($price, "[$key]wholesale_price")->label(false) ?>
+                                        </td>
+                                        <td>
+                                            <?= $form->field($price, "[$key]available_count")->label(false) ?>
+                                        </td>
+                                        <td>
+                                            <?= $form->field($price, "[$key]reserved_count")->label(false) ?>
+                                        </td>
+                                        <td>
+                                            <?= $form->field($price, "[$key]is_unlimited")->label(false) ?>
+                                        </td>
+                                        <td>
+                                            <?= $form->field($price, "[$key]is_allowed")->label(false) ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </table>
+
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="row">
@@ -185,11 +225,11 @@ $form = ActiveForm::begin(
             </div>
             <div class="tab-pane" id="goods-properties">
                 <?= PropertiesForm::widget(
-                        [
+                    [
                         'model' => $goods,
                         'form' => $form,
-                        ]
-                    ) ?>
+                    ]
+                ) ?>
             </div>
             <?php if (true === $canSave) : ?>
                 <div class="btn-group pull-right" role="group" aria-label="Edit buttons">
