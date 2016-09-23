@@ -26,7 +26,7 @@ class OrderItemCalculator
         $price = ['totalPriceWithoutDiscount' => 0, 'totalPriceWithDiscount' => 0, 'items' => 0, 'extendedPrice' => []];
         $priceType = $orderItem->cart->is_retail == 1 ? Price::TYPE_RETAIL : Price::TYPE_WHOLESALE;
 
-        $goodsId = $orderItem->id;
+        $goodsId = $orderItem->goods_id;
         if ($goodsId === 0) {
             // @todo: Calculate delivery price
         } else {

@@ -122,7 +122,7 @@ class SingleStepOrderAction extends Action
             $orderDeliveryInformation->user_id = $userId;
             if ($order->save(false) && $orderDeliveryInformation->save()) {
                 return $this->controller->redirect(
-                    ArrayHelper::merge($this->paymentRoute, ['hash' => $order->hash])
+                    ArrayHelper::merge($this->paymentRoute, ['hash' => $order->hash, 'paymentId' => $order->payment_id])
                 );
             }
             Yii::$app->session->setFlash('error', Yii::t('dotplant.store', 'Can not save delivery information'));
