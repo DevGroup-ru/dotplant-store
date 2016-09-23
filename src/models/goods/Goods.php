@@ -43,8 +43,9 @@ use yii\helpers\ArrayHelper;
  * @property integer $updated_by
  *
  * @property Goods[] $children
- * @property Goods $parent
+ * @property Goods[] $parents
  * @property BaseStructure[] $categories
+ * @property BaseStructure $mainCategory
  */
 class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
 {
@@ -235,6 +236,9 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         return self::$_goodsMap;
     }
 
+    /**
+     * @return array
+     */
     public static function getChildTypes()
     {
         return [];
@@ -457,6 +461,14 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
     {
         return $this->hasMany(BaseStructure::class, ['id' => 'structure_id'])
             ->viaTable(CategoryGoods::tableName(), ['goods_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getMainCategory()
+    {
+        return $this->hasOne(BaseStructure::class, ['id' => 'main_structure_id']);
     }
 
     /**

@@ -2,9 +2,13 @@
 
 namespace DotPlant\Store\helpers;
 
+use DevGroup\DataStructure\tests\models\CategoryTranslation;
 use DevGroup\Multilingual\models\Context;
 use DevGroup\TagDependencyHelper\NamingHelper;
 use DevGroup\Users\helpers\ModelMapHelper;
+use DotPlant\EntityStructure\models\Entity;
+use DotPlant\EntityStructure\models\StructureTranslation;
+use DotPlant\Store\models\goods\GoodsCategory;
 use yii\caching\TagDependency;
 use yii\db\Expression;
 
@@ -15,6 +19,7 @@ use yii\db\Expression;
 class BackendHelper
 {
     const MANAGERS_LIST = 'dotplant.store.managers-list';
+
     /**
      * Get context id
      * @param int|null $contextId
@@ -62,6 +67,45 @@ class BackendHelper
                 )
             );
         }
+        return $result;
+    }
+
+    public static function getGoodsBreadCrumbs(GoodsCategory $category)
+    {
+        $cacheKey = 'StoreBackendHelperGoodsBreadCrumbs:' . $category->id;
+        if (false === $result = \Yii::$app->cache->get($cacheKey)) {
+            $result = [];
+            $parentCategories = GoodsCategory::find()
+                ->select([StructureTranslation::tableName() . '.name', GoodsCategory::tableName() . '.id'])
+                ->where(
+                    [
+                        'id' => $category->getParentsIds(),
+                        'entity_id' => Entity::getEntityIdForClass(GoodsCategory::class)
+                    ]
+                )
+                ->orderBy([new Expression('FIELD (id, ' . implode(',', $category->getParentsIds()) . ')')])
+                ->asArray()
+                ->all();
+            foreach ($parentCategories as $cat) {
+                $result[] = [
+                    'label' => $cat['name'],
+                    'url' => ['/structure/entity-manage/products', 'id' => $cat['id']]
+                ];
+            }
+            $result[] = $category->name;
+            \Yii::$app->cache->set(
+                $cacheKey,
+                $result,
+                86400,
+                new TagDependency(
+                    [
+                        'tags' => $category->objectCompositeTag(),
+                    ]
+                )
+            );
+        }
+
+
         return $result;
     }
 }

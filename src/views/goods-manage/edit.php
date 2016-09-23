@@ -37,10 +37,19 @@ $this->title = empty($goods->id) ? Yii::t('dotplant.store', 'New {goods}', ['goo
     ['goods' => $goodsType, 'id' => $goods->id]
 );
 
+
 $this->params['breadcrumbs'][] = [
     'url' => ['/structure/entity-manage/products'],
     'label' => Yii::t('dotplant.store', 'Goods management'),
 ];
+
+if (empty($goods->mainCategory) === false) {
+    $this->params['breadcrumbs'][] = [
+        'url' => ['/structure/entity-manage/products', 'id' => $goods->mainCategory->id],
+        'label' => Yii::t('dotplant.store', $goods->mainCategory->name),
+    ];
+}
+
 $this->params['breadcrumbs'][] = $this->title;
 $url = Url::to(['/structure/entity-manage/goods-autocomplete', 'product_id' => $goods->id]);
 $categoryEntityId = Entity::getEntityIdForClass(GoodsCategory::class);
@@ -160,8 +169,6 @@ $form = ActiveForm::begin(
                             ]);
                             ?>
                         <?php endif; ?>
-
-
                     </div>
                 </div>
                 <div class="row">
@@ -178,11 +185,11 @@ $form = ActiveForm::begin(
             </div>
             <div class="tab-pane" id="goods-properties">
                 <?= PropertiesForm::widget(
-                    [
+                        [
                         'model' => $goods,
                         'form' => $form,
-                    ]
-                ) ?>
+                        ]
+                    ) ?>
             </div>
             <?php if (true === $canSave) : ?>
                 <div class="btn-group pull-right" role="group" aria-label="Edit buttons">

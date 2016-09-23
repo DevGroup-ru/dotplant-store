@@ -2,9 +2,12 @@
 /**
  * @var \yii\data\ActiveDataProvider $dataProvider
  * @var  \DotPlant\EntityStructure\models\BaseStructure $searchModel
+ * @var BaseStructure $category
  * @var int $parentId
  */
 use DevGroup\AdminUtils\columns\ActionColumn;
+use DotPlant\EntityStructure\models\BaseStructure;
+use DotPlant\Store\helpers\BackendHelper;
 use yii\grid\GridView;
 use kartik\icons\Icon;
 use yii\helpers\Html;
@@ -13,6 +16,7 @@ use DotPlant\Store\models\goods\Goods;
 use devgroup\JsTreeWidget\widgets\TreeWidget;
 use devgroup\JsTreeWidget\helpers\ContextMenuHelper;
 use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 $this->title = Yii::t('dotplant.store', 'Goods');
 $this->params['breadcrumbs'][] = [
@@ -31,6 +35,7 @@ foreach ($types as $type => $name) {
 }
 $ul = Html::ul($links, ['encode' => false, 'class' => 'dropdown-menu', 'role' => 'menu']);
 $newText = Yii::t('dotplant.store', 'New');
+
 $buttons = '';
 $gridTpl = <<<HTML
 <div class="box-body">
@@ -61,11 +66,16 @@ HTML;
 
 <div class="row">
     <div class="col-sm-12 col-md-12">
-        <div class="box">
-            <div class="box-body">
-                //Categories path
+        <?php if ($category !== null) : ?>
+            <div class="box">
+                <div class="box-body">
+                    <?= Breadcrumbs::widget([
+                        'links' => BackendHelper::getGoodsBreadCrumbs($category),
+                        'homeLink' => false
+                    ]) ?>
+                </div>
             </div>
-        </div>
+        <?php endif; ?>
         <div class="goods__list box box-solid">
             <div class="box-header with-border clearfix">
                 <h3 class="box-title pull-left">
@@ -106,7 +116,10 @@ HTML;
                         'attribute' => 'is_deleted',
                         'label' => Yii::t('dotplant.store', 'Show deleted?'),
                         'value' => function ($model) {
-                            return $model->isDeleted() === true ? Yii::t('dotplant.store', 'Deleted') : Yii::t('dotplant.store', 'Active');
+                            return $model->isDeleted() === true ? Yii::t(
+                                'dotplant.store',
+                                'Deleted'
+                            ) : Yii::t('dotplant.store', 'Active');
                         },
                         'filter' => [
                             Yii::t('dotplant.store', 'Show only active'),
