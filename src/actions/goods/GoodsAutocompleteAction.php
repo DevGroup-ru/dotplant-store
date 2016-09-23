@@ -78,8 +78,9 @@ class GoodsAutocompleteAction extends BaseAdminAction
                 ]
             )->limit(20);
 
-            if($product_id !== null) {
+            if ($product_id !== null) {
                 $goods = Goods::get($product_id);
+                $query->andWhere(['!=', 'id', $goods->id]);
                 $query->andWhere(['type' => $goods->getChildTypes()]);
             }
 

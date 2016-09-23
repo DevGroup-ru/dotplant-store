@@ -455,7 +455,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
      */
     public function getCategories()
     {
-        return $this->hasMany(static::class, ['id' => 'structure_id'])
+        return $this->hasMany(BaseStructure::class, ['id' => 'structure_id'])
             ->viaTable(CategoryGoods::tableName(), ['goods_id' => 'id']);
     }
 

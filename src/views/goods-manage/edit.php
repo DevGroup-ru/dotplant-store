@@ -42,7 +42,7 @@ $this->params['breadcrumbs'][] = [
     'label' => Yii::t('dotplant.store', 'Goods management'),
 ];
 $this->params['breadcrumbs'][] = $this->title;
-$url = Url::to(['/structure/entity-manage/goods-autocomplete']);
+$url = Url::to(['/structure/entity-manage/goods-autocomplete', 'product_id' => $goods->id]);
 $categoryEntityId = Entity::getEntityIdForClass(GoodsCategory::class);
 $missingParamText = Yii::t('dotplant.store', 'Missing param');
 $mainStructureId = Html::getInputId($goods, 'main_structure_id');
@@ -97,8 +97,8 @@ $form = ActiveForm::begin(
                             <?= $form->field($goods, 'type')->dropDownList($goodsTypes) ?>
                         <?php else : ?>
                             <?= $form->field($goods, 'type')->textInput(
-                                    ['value' => $goodsType, 'disabled' => 'disabled']
-                                ) ?>
+                                ['value' => $goodsType, 'disabled' => 'disabled']
+                            ) ?>
                         <?php endif; ?>
                         <?= $form->field($goods, 'role')->textInput(
                             [
@@ -127,8 +127,8 @@ $form = ActiveForm::begin(
                             ]
                         ) ?>
                         <?= $form->field($goods, 'main_structure_id')->dropDownList(
-                                ArrayHelper::map($goods->categories, 'id', 'name')
-                            ) ?>
+                            ArrayHelper::map($goods->categories, 'id', 'name')
+                        ) ?>
 
 
                         <div class="clearfix"></div>
