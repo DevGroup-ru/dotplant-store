@@ -33,7 +33,7 @@ class ExtendedPriceManageController extends BaseController
                 'class' => AccessControl::class,
                 'rules' => [
                     [
-                        'actions' => ['index', 'edit'],
+                        'actions' => ['index', 'edit', 'extended-price-entity'],
                         'allow' => true,
                         'roles' => ['dotplant-store-extended-price-view'],
                     ],

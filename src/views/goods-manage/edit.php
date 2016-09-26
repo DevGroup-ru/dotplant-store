@@ -14,8 +14,10 @@ use DevGroup\DataStructure\widgets\PropertiesForm;
 use DevGroup\Multilingual\widgets\MultilingualFormTabs;
 use DotPlant\Currencies\helpers\CurrencyHelper;
 use DotPlant\Currencies\models\Currency;
+use DotPlant\Store\handlers\extendedPrice\ProductRule;
 use DotPlant\Store\models\price\Price;
 use DotPlant\Store\models\warehouse\GoodsWarehouse;
+use DotPlant\Store\widgets\backend\EntityExtendedPriceEdit;
 use kartik\switchinput\SwitchInput;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -84,230 +86,235 @@ $form = ActiveForm::begin(
 );
 ?>
 <?= Alert::widget() ?>
-    <div class="nav-tabs-custom">
-        <ul class="nav nav-tabs">
-            <li class="active">
-                <a href="#goods-data" data-toggle="tab" aria-expanded="true">
-                    <?= Yii::t('dotplant.store', 'Main options') ?>
+<div class="nav-tabs-custom">
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a href="#goods-data" data-toggle="tab" aria-expanded="true">
+                <?= Yii::t('dotplant.store', 'Main options') ?>
+            </a>
+        </li>
+        <?php if (false === $goods->isNewRecord) : ?>
+            <li class="">
+                <a href="#goods-properties" data-toggle="tab" aria-expanded="false">
+                    <?= Yii::t('dotplant.store', 'Goods properties') ?>
                 </a>
             </li>
-            <?php if (false === $goods->isNewRecord) : ?>
-                <li class="">
-                    <a href="#goods-properties" data-toggle="tab" aria-expanded="false">
-                        <?= Yii::t('dotplant.store', 'Goods properties') ?>
-                    </a>
-                </li>
-            <?php endif; ?>
-        </ul>
-        <div class="tab-content">
-            <div class="tab-pane active" id="goods-data">
-                <div class="row">
-                    <div class="col-sm-12 col-md-6">
-                        <?= $form->field($goods, 'vendor_id')->dropDownList(
-                            Vendor::getArrayList(),
-                            ['prompt' => Yii::t('dotplant.store', 'Choose vendor')]
+        <?php endif; ?>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="goods-data">
+            <div class="row">
+                <div class="col-sm-12 col-md-6">
+                    <?= $form->field($goods, 'vendor_id')->dropDownList(
+                        Vendor::getArrayList(),
+                        ['prompt' => Yii::t('dotplant.store', 'Choose vendor')]
+                    ) ?>
+                    <?= $form->field($goods, 'sku') ?>
+                    <?php if (true === $undefinedType) : ?>
+                        <?= $form->field($goods, 'type')->dropDownList($goodsTypes) ?>
+                    <?php else : ?>
+                        <?= $form->field($goods, 'type')->textInput(
+                            ['value' => $goodsType, 'disabled' => 'disabled']
                         ) ?>
-                        <?= $form->field($goods, 'sku') ?>
-                        <?php if (true === $undefinedType) : ?>
-                            <?= $form->field($goods, 'type')->dropDownList($goodsTypes) ?>
-                        <?php else : ?>
-                            <?= $form->field($goods, 'type')->textInput(
-                                ['value' => $goodsType, 'disabled' => 'disabled']
-                            ) ?>
-                        <?php endif; ?>
-                        <?= $form->field($goods, 'role')->textInput(
-                            [
-                                'value' => $goodsRole,
-                                'disabled' => 'disabled',
-                            ]
-                        ) ?>
-                    </div>
-                    <div class="col-sm-12 col-md-6">
-                        <?= TreeWidget::widget(
-                            [
-                                'id' => 'goodsTreeWidget',
-                                'treeDataRoute' => [
-                                    '/structure/entity-manage/category-tree',
-                                    'checked' => implode(',', $checked),
-                                ],
-                                'treeType' => TreeWidget::TREE_TYPE_ADJACENCY,
-                                'plugins' => ['checkbox', 'types'],
-                                'multiSelect' => true,
-                                'contextMenuItems' => [],
-                                'options' => [
-                                    'checkbox' => [
-                                        'three_state' => false,
-                                    ],
-                                ],
-                            ]
-                        ) ?>
-                        <?= $form->field($goods, 'main_structure_id')->dropDownList(
-                            ArrayHelper::map($goods->categories, 'id', 'name')
-                        ) ?>
-
-
-                        <div class="clearfix"></div>
-                        <?php if ($goods->getHasChild() === true) : ?>
-                            <label><?= Yii::t('dotplant.store', 'Child'); ?></label>
-
-                            <?= Select2::widget([
-                                'name' => 'childGoods',
-                                'data' => $child,
-                                'value' => array_keys($child),
-                                'options' => [
-                                    'placeholder' => Yii::t('dotplant.store', 'Search for a child ...'),
-                                    'multiple' => true
-                                ],
-                                'pluginOptions' => [
-                                    'allowClear' => true,
-                                    'minimumInputLength' => 3,
-                                    'ajax' => [
-                                        'url' => $url,
-                                        'dataType' => 'json',
-                                        'data' => new JsExpression('function(params) { return {q:params.term}; }'),
-                                        'delay' => '400',
-                                        'error' => new JsExpression('function(error) {alert(error.responseText);}'),
-                                    ],
-                                    'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
-                                    'templateResult' => new JsExpression('function(parent) { return parent.text; }'),
-                                    'templateSelection' => new JsExpression('function (parent) { return parent.text; }'),
-                                ]
-                            ]);
-                            ?>
-                        <?php endif; ?>
-
-                    </div>
-                </div>
-                <div class="row">
-                    <?php if (empty($prices) === false) : ?>
-                        <div class="col-sm-12">
-                            <table class="table ">
-                                <caption><?= Yii::t('dotplant.store', 'Prices') ?></caption>
-                                <?php $tableHead = true; ?>
-                                <?php foreach ($prices as $key => $price) : ?>
-                                    <?php if ($tableHead === true) : ?>
-                                        <tr>
-                                            <td>
-                                                <?= $price->warehouse->getAttributeLabel('name') ?>
-                                            </td>
-                                            <td>
-                                                <?= $price->getAttributeLabel('currency_iso_code'); ?>
-                                            </td>
-                                            <td>
-                                                <?= $price->getAttributeLabel('seller_price'); ?>
-                                            </td>
-                                            <td>
-                                                <?= $price->getAttributeLabel('retail_price'); ?>
-                                            </td>
-                                            <td>
-                                                <?= $price->getAttributeLabel('wholesale_price'); ?>
-                                            </td>
-                                            <td>
-                                                <?= $price->getAttributeLabel('available_count'); ?>
-                                            </td>
-                                            <td>
-                                                <?= $price->getAttributeLabel('reserved_count'); ?>
-                                            </td>
-                                            <td>
-                                                <?= $price->getAttributeLabel('is_unlimited'); ?>
-                                            </td>
-                                            <td>
-                                                <?= $price->getAttributeLabel('is_allowed'); ?>
-                                            </td>
-                                            <td>
-                                            </td>
-                                        </tr>
-                                        <?php $tableHead = false; ?>
-                                    <?php endif; ?>
-                                    <tr>
-                                        <td>
-                                            <?= $price->warehouse->name ?>
-                                        </td>
-                                        <td>
-                                            <?= $form->field($price, "[$key]currency_iso_code")->label(false)
-                                                ->dropDownList(
-                                                    ArrayHelper::map(
-                                                        Currency::findAll(),
-                                                        'iso_code',
-                                                        'iso_code'
-                                                    )
-                                                ); ?>
-                                        </td>
-                                        <td>
-                                            <?= $form->field($price, "[$key]seller_price")
-                                                ->input('number', ['step' => '0.01'])
-                                                ->label(false); ?>
-                                        </td>
-                                        <td>
-                                            <?= $form->field($price, "[$key]retail_price")
-                                                ->input('number', ['step' => '0.01'])
-                                                ->label(false); ?>
-                                        </td>
-                                        <td>
-                                            <?= $form->field($price, "[$key]wholesale_price")
-                                                ->input('number', ['step' => '0.01'])
-                                                ->label(false); ?>
-                                        </td>
-                                        <td>
-                                            <?= $form->field($price, "[$key]available_count")
-                                                ->input('number', ['step' => '1'])
-                                                ->label(false); ?>
-                                        </td>
-                                        <td>
-                                            <?= $form->field($price, "[$key]reserved_count")
-                                                ->input('number', ['step' => '1'])
-                                                ->label(false); ?>
-                                        </td>
-                                        <td>
-                                            <?= $form->field(
-                                                $price,
-                                                "[$key]is_unlimited"
-                                            )->widget(SwitchInput::class)->label(false); ?>
-                                        </td>
-                                        <td>
-                                            <?= $form->field(
-                                                $price,
-                                                "[$key]is_allowed"
-                                            )->widget(SwitchInput::class)->label(false); ?>
-                                        </td>
-                                        <td>
-                                            <?= $price->isNewRecord ?
-                                                Yii::t('dotplant.store', 'New') :
-                                                Yii::t('dotplant.store', 'Update'); ?>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </table>
-                        </div>
                     <?php endif; ?>
-                    <div class="clearfix"></div>
-
-
-                    <div class="col-sm-12">
-                        <?= MultilingualFormTabs::widget(
-                            [
-                                'model' => $goods,
-                                'childView' => '@DotPlant/Store/views/goods-manage/multilingual-part.php',
-                                'form' => $form,
-                            ]
-                        ) ?>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-pane" id="goods-properties">
-                <?= PropertiesForm::widget(
+                    <?= $form->field($goods, 'role')->textInput(
                         [
-                        'model' => $goods,
-                        'form' => $form,
+                            'value' => $goodsRole,
+                            'disabled' => 'disabled',
                         ]
                     ) ?>
-            </div>
-            <?php if (true === $canSave) : ?>
-                <div class="btn-group pull-right" role="group" aria-label="Edit buttons">
-                    <?= FrontendHelper::formSaveButtons($goods); ?>
                 </div>
+                <div class="col-sm-12 col-md-6">
+                    <?= TreeWidget::widget(
+                        [
+                            'id' => 'goodsTreeWidget',
+                            'treeDataRoute' => [
+                                '/structure/entity-manage/category-tree',
+                                'checked' => implode(',', $checked),
+                            ],
+                            'treeType' => TreeWidget::TREE_TYPE_ADJACENCY,
+                            'plugins' => ['checkbox', 'types'],
+                            'multiSelect' => true,
+                            'contextMenuItems' => [],
+                            'options' => [
+                                'checkbox' => [
+                                    'three_state' => false,
+                                ],
+                            ],
+                        ]
+                    ) ?>
+                    <?= $form->field($goods, 'main_structure_id')->dropDownList(
+                        ArrayHelper::map($goods->categories, 'id', 'name')
+                    ) ?>
+
+
+                    <div class="clearfix"></div>
+                    <?php if ($goods->getHasChild() === true) : ?>
+                        <label><?= Yii::t('dotplant.store', 'Child'); ?></label>
+
+                        <?= Select2::widget([
+                            'name' => 'childGoods',
+                            'data' => $child,
+                            'value' => array_keys($child),
+                            'options' => [
+                                'placeholder' => Yii::t('dotplant.store', 'Search for a child ...'),
+                                'multiple' => true
+                            ],
+                            'pluginOptions' => [
+                                'allowClear' => true,
+                                'minimumInputLength' => 3,
+                                'ajax' => [
+                                    'url' => $url,
+                                    'dataType' => 'json',
+                                    'data' => new JsExpression('function(params) { return {q:params.term}; }'),
+                                    'delay' => '400',
+                                    'error' => new JsExpression('function(error) {alert(error.responseText);}'),
+                                ],
+                                'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
+                                'templateResult' => new JsExpression('function(parent) { return parent.text; }'),
+                                'templateSelection' => new JsExpression('function (parent) { return parent.text; }'),
+                            ]
+                        ]);
+                        ?>
+                    <?php endif; ?>
+
+
+                </div>
+            </div>
+            <div class="row">
+                <?php if (empty($prices) === false) : ?>
+                    <div class="col-sm-12">
+                        <table class="table ">
+                            <caption><?= Yii::t('dotplant.store', 'Prices') ?></caption>
+                            <?php $tableHead = true; ?>
+                            <?php foreach ($prices as $key => $price) : ?>
+                                <?php if ($tableHead === true) : ?>
+                                    <tr>
+                                        <td>
+                                            <?= $price->warehouse->getAttributeLabel('name') ?>
+                                        </td>
+                                        <td>
+                                            <?= $price->getAttributeLabel('currency_iso_code'); ?>
+                                        </td>
+                                        <td>
+                                            <?= $price->getAttributeLabel('seller_price'); ?>
+                                        </td>
+                                        <td>
+                                            <?= $price->getAttributeLabel('retail_price'); ?>
+                                        </td>
+                                        <td>
+                                            <?= $price->getAttributeLabel('wholesale_price'); ?>
+                                        </td>
+                                        <td>
+                                            <?= $price->getAttributeLabel('available_count'); ?>
+                                        </td>
+                                        <td>
+                                            <?= $price->getAttributeLabel('reserved_count'); ?>
+                                        </td>
+                                        <td>
+                                            <?= $price->getAttributeLabel('is_unlimited'); ?>
+                                        </td>
+                                        <td>
+                                            <?= $price->getAttributeLabel('is_allowed'); ?>
+                                        </td>
+                                        <td>
+                                        </td>
+                                    </tr>
+                                    <?php $tableHead = false; ?>
+                                <?php endif; ?>
+                                <tr>
+                                    <td>
+                                        <?= $price->warehouse->name ?>
+                                    </td>
+                                    <td>
+                                        <?= $form->field($price, "[$key]currency_iso_code")->label(false)
+                                            ->dropDownList(
+                                                ArrayHelper::map(
+                                                    Currency::findAll(),
+                                                    'iso_code',
+                                                    'iso_code'
+                                                )
+                                            ); ?>
+                                    </td>
+                                    <td>
+                                        <?= $form->field($price, "[$key]seller_price")
+                                            ->input('number', ['step' => '0.01'])
+                                            ->label(false); ?>
+                                    </td>
+                                    <td>
+                                        <?= $form->field($price, "[$key]retail_price")
+                                            ->input('number', ['step' => '0.01'])
+                                            ->label(false); ?>
+                                    </td>
+                                    <td>
+                                        <?= $form->field($price, "[$key]wholesale_price")
+                                            ->input('number', ['step' => '0.01'])
+                                            ->label(false); ?>
+                                    </td>
+                                    <td>
+                                        <?= $form->field($price, "[$key]available_count")
+                                            ->input('number', ['step' => '1'])
+                                            ->label(false); ?>
+                                    </td>
+                                    <td>
+                                        <?= $form->field($price, "[$key]reserved_count")
+                                            ->input('number', ['step' => '1'])
+                                            ->label(false); ?>
+                                    </td>
+                                    <td>
+                                        <?= $form->field(
+                                            $price,
+                                            "[$key]is_unlimited"
+                                        )->widget(SwitchInput::class)->label(false); ?>
+                                    </td>
+                                    <td>
+                                        <?= $form->field(
+                                            $price,
+                                            "[$key]is_allowed"
+                                        )->widget(SwitchInput::class)->label(false); ?>
+                                    </td>
+                                    <td>
+                                        <?= $price->isNewRecord ?
+                                            Yii::t('dotplant.store', 'New') :
+                                            Yii::t('dotplant.store', 'Update'); ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </table>
+                    </div>
+                <?php endif; ?>
                 <div class="clearfix"></div>
-            <?php endif; ?>
+
+
+                <div class="col-sm-12">
+                    <?= MultilingualFormTabs::widget(
+                        [
+                            'model' => $goods,
+                            'childView' => '@DotPlant/Store/views/goods-manage/multilingual-part.php',
+                            'form' => $form,
+                        ]
+                    ) ?>
+                </div>
+            </div>
         </div>
+        <div class="tab-pane" id="goods-properties">
+            <?= PropertiesForm::widget(
+                    [
+                    'model' => $goods,
+                    'form' => $form,
+                    ]
+                ) ?>
+        </div>
+        <?php if (true === $canSave) : ?>
+            <div class="btn-group pull-right" role="group" aria-label="Edit buttons">
+                <?= FrontendHelper::formSaveButtons($goods); ?>
+            </div>
+            <div class="clearfix"></div>
+        <?php endif; ?>
     </div>
+</div>
 <?php $form::end(); ?>
+
+<?php if ($goods->isNewRecord === false) : ?>
+    <?= EntityExtendedPriceEdit::widget(['entity' => $goods, 'handlerClass' => ProductRule::class]) ?>
+<?php endif; ?>

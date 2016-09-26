@@ -5,6 +5,8 @@ namespace DotPlant\Store\widgets\backend;
 
 use DotPlant\EntityStructure\models\BaseStructure;
 use DotPlant\Store\assets\ExtendedPriceAssets;
+use DotPlant\Store\handlers\extendedPrice\ProductRule;
+use DotPlant\Store\handlers\extendedPrice\StructureRule;
 use DotPlant\Store\models\extendedPrice\ExtendedPrice;
 use DotPlant\Store\models\extendedPrice\ExtendedPriceHandler;
 use DotPlant\Store\models\extendedPrice\ExtendedPriceRule;
@@ -27,22 +29,30 @@ class EntityExtendedPriceEdit extends Widget
     /**
      * @var bool
      */
-    public $singleRule = true;
+    public $singleRule = false;
     /**
      * @var string
      */
-    public $handlerName = 'Structure rule';
+    public $handlerClass = StructureRule::class;
     /**
      * @var ExtendedPriceHandler
      */
     private $_handler;
 
+    private $_handlersMap = [
+        ProductRule::class => 'products',
+        StructureRule::class => 'structures'
+    ];
+
+    private $_findField;
+
     public function init()
     {
-        $this->_handler = ExtendedPriceHandler::findOne(['name' => $this->handlerName]);
-        if (is_null($this->_handler) === true) {
+        $this->_handler = ExtendedPriceHandler::findOne(['handler_class' => $this->handlerClass]);
+        if (is_null($this->_handler) === true || !isset($this->_handlersMap[$this->handlerClass])) {
             throw new InvalidParamException;
         }
+        $this->_findField = $this->_handlersMap[$this->handlerClass];
     }
 
     function run()
@@ -62,12 +72,12 @@ class EntityExtendedPriceEdit extends Widget
                 $allRules,
                 function ($carry, ExtendedPriceRule $item) {
                     if ($this->singleRule) {
-                        $ids = ArrayHelper::getValue($item->params, 'structures', []);
+                        $ids = ArrayHelper::getValue($item->params, $this->_findField, []);
                         if (array_search($this->entity->id, $ids) !== false) {
                             $carry[] = $item;
                         }
                     } else {
-                        if (ArrayHelper::getValue($item->params, 'structures', 0) === $this->entity->id) {
+                        if (ArrayHelper::getValue($item->params, $this->_findField, 0) === $this->entity->id) {
                             $carry[] = $item;
                         }
                     }
@@ -79,10 +89,11 @@ class EntityExtendedPriceEdit extends Widget
                 $rule = new ExtendedPriceRule();
                 $rule->loadDefaultValues();
                 $rule->extended_price_handler_id = $this->_handler->id;
+
                 if ($this->singleRule) {
-                    $params = ['structures' => $this->entity->id];
+                    $params = [$this->_findField => $this->entity->id];
                 } else {
-                    $params = ['structures' => [$this->entity->id]];
+                    $params = [$this->_findField => [$this->entity->id]];
                 }
                 $rule->params = $params;
                 $rule->packAttributes();
