@@ -6,6 +6,7 @@
  * @var $additionalFields array
  */
 
+use DevGroup\AdminUtils\FrontendHelper;
 use DevGroup\Multilingual\models\Context;
 use DotPlant\Store\models\extendedPrice\ExtendedPrice;
 use kartik\switchinput\SwitchInput;
@@ -50,7 +51,10 @@ use yii\widgets\ActiveForm;
         );
         echo $form->field($model, 'calculator_type')->dropDownList(ExtendedPrice::getCalculatorTypes());
         echo $form->field($model, 'target_class')->dropDownList(ExtendedPrice::getTargetTypes());
-        echo Html::submitButton(Yii::t('dotplant.store', 'Save'));
+        echo FrontendHelper::formSaveButtons(
+            $model,
+            '/store/extended-price-manage/index'
+        );
         $form->end();
         ?>
 

@@ -21,4 +21,7 @@
         });
         return false;
     });
+    $('.extended_price_form .form-action-button--backbtn-sm').hide();
+    $('.extended_price_form .form-action-button--save-and-nextbtn-sm').hide();
+    $('.extended_price_form .form-action-button--save-and-backbtn-sm').hide();
 })(jQuery);

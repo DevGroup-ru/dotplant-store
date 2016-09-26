@@ -22,7 +22,7 @@ $this->title = Yii::t('app', 'Edit Extended price');
 
 $this->params['breadcrumbs'][] = [
     'url' => ['/store/extended-price-manage/index'],
-    'label' => Yii::t('app', 'Extended prices')
+    'label' => Yii::t('app', 'Extended prices'),
 ];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -31,54 +31,10 @@ $this->params['breadcrumbs'][] = $this->title;
 <section class="content">
     <div class="row">
         <div class="col-md-6">
-            <div class="configuration-navigation box box-solid">
-                <div class="box-header with-border">
-                    <h3 class="box-title">
-                        <i class="fa fa-list-alt"></i>
-
-                    </h3>
-                </div>
-                <div class="box-body">
-
-
-                    <?php
-                    /**
-                     * @var ActiveForm $form ;
-                     */
-                    $form = ActiveForm::begin();
-
-                    echo $form->field($model, 'name');
-                    echo $form->field($model, 'mode')->dropDownList(ExtendedPrice::getModeList());
-                    echo $form->field($model, 'is_final')->widget(SwitchInput::class);
-                    echo $form->field($model, 'priority');
-                    echo $form->field($model, 'value');
-                    echo $form->field($model, 'currency_iso_code')
-                        ->dropDownList(
-                            ArrayHelper::map(
-                                Currency::findAll(),
-                                'iso_code',
-                                'iso_code'
-                            ),
-                            ['prompt' => '---']
-                        );
-                    echo $form->field($model, 'min_product_price');
-                    echo $form->field($model, 'start_time');
-                    echo $form->field($model, 'end_time');
-                    echo $form->field($model, 'context_id')->dropDownList(
-                        ArrayHelper::map(Context::find()->all(), 'id', 'name'),
-                        ['prompt' => '---']
-                    );
-                    echo $form->field($model, 'calculator_type')->dropDownList(ExtendedPrice::getCalculatorTypes());
-                    echo $form->field($model, 'target_class')->dropDownList(ExtendedPrice::getTargetTypes());
-                    echo FrontendHelper::formSaveButtons(
-                        $model,
-                        '/store/extended-price-manage/index'
-                    );
-                    $form->end();
-                    ?>
-
-                </div>
-            </div>
+            <?= $this->render(
+                '_form',
+                ['model' => $model, 'formAction' => Yii::$app->request->url, 'additionalFields' => []]
+            ) ?>
         </div>
         <div class="col-md-6">
             <?php if (empty($handlers) === false) : ?>
@@ -135,7 +91,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                             [
                                                 '/store/extended-price-manage/delete-rule',
                                                 'id' => $rule->id,
-                                                'returnUrl' => Helper::returnUrl()
+                                                'returnUrl' => Helper::returnUrl(),
                                             ]
                                         ) ?>
                                     </div>
