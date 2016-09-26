@@ -21,9 +21,14 @@ use Yii;
  * @property double $reserved_count
  * @property integer $is_unlimited
  * @property integer $is_allowed
+ * @property Goods $goods
+ * @property Warehouse $warehouse
  */
 class GoodsWarehouse extends \yii\db\ActiveRecord implements WarehousePriceInterface
 {
+    /**
+     * @var array
+     */
     private static $_pricesMap = [
         Price::TYPE_SELLER => 'seller_price',
         Price::TYPE_RETAIL => 'retail_price',
@@ -102,9 +107,9 @@ class GoodsWarehouse extends \yii\db\ActiveRecord implements WarehousePriceInter
     public function lockForUpdate()
     {
         $sql = self::find()
-            ->where(['goods_id' => $this->goods_id, 'warehouse_id' => $this->warehouse_id])
-            ->createCommand()
-            ->getRawSql() . ' FOR UPDATE';
+                ->where(['goods_id' => $this->goods_id, 'warehouse_id' => $this->warehouse_id])
+                ->createCommand()
+                ->getRawSql() . ' FOR UPDATE';
         $this->setAttributes(self::findBySql($sql)->asArray(true)->one());
     }
 
@@ -114,5 +119,22 @@ class GoodsWarehouse extends \yii\db\ActiveRecord implements WarehousePriceInter
     public function getCount()
     {
         return $this->available_count - $this->reserved_count;
+    }
+
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getGoods()
+    {
+        return $this->hasOne(Goods::class, ['id' => 'goods_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWarehouse()
+    {
+        return $this->hasOne(Warehouse::class, ['id' => 'warehouse_id']);
     }
 }

@@ -62,6 +62,7 @@ class GoodsManageAction extends BaseAdminAction
 
         $child = [];
 
+        /**@var GoodsWarehouse[] $prices */
         $prices = [];
 
         if (false === $goods->isNewRecord) {
@@ -106,9 +107,18 @@ class GoodsManageAction extends BaseAdminAction
                         $categories = array_unique($categories);
                         CategoryGoods::saveBindings($goods->id, $categories);
                         if (Model::loadMultiple($prices, $post)) {
+                            /**@var GoodsWarehouse[] $prices */
                             foreach ($prices as $price) {
                                 $price->goods_id = $goods->id;
-                                $price->save();
+                                if ($price->seller_price !== '' ||
+                                    $price->retail_price !== '' &&
+                                    $price->wholesale_price !== ''
+                                ) {
+                                    $price->save();
+                                } elseif ($price->isNewRecord === false) {
+                                    $price->delete();
+                                }
+
                             }
                         }
                         if ($goods->getHasChild() === true) {

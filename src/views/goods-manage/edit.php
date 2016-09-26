@@ -12,8 +12,11 @@ use DevGroup\AdminUtils\FrontendHelper;
 use dmstr\widgets\Alert;
 use DevGroup\DataStructure\widgets\PropertiesForm;
 use DevGroup\Multilingual\widgets\MultilingualFormTabs;
+use DotPlant\Currencies\helpers\CurrencyHelper;
+use DotPlant\Currencies\models\Currency;
 use DotPlant\Store\models\price\Price;
 use DotPlant\Store\models\warehouse\GoodsWarehouse;
+use kartik\switchinput\SwitchInput;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -173,46 +176,114 @@ $form = ActiveForm::begin(
                             ?>
                         <?php endif; ?>
 
-                        <div class="clearfix"></div>
-
-                        <?php if (empty($prices) === false): ?>
-                            <table class="table">
+                    </div>
+                </div>
+                <div class="row">
+                    <?php if (empty($prices) === false) : ?>
+                        <div class="col-sm-12">
+                            <table class="table ">
                                 <caption><?= Yii::t('dotplant.store', 'Prices') ?></caption>
-                                <?php foreach ($prices as $key => $price): ?>
+                                <?php $tableHead = true; ?>
+                                <?php foreach ($prices as $key => $price) : ?>
+                                    <?php if ($tableHead === true) : ?>
+                                        <tr>
+                                            <td>
+                                                <?= $price->warehouse->getAttributeLabel('name') ?>
+                                            </td>
+                                            <td>
+                                                <?= $price->getAttributeLabel('currency_iso_code'); ?>
+                                            </td>
+                                            <td>
+                                                <?= $price->getAttributeLabel('seller_price'); ?>
+                                            </td>
+                                            <td>
+                                                <?= $price->getAttributeLabel('retail_price'); ?>
+                                            </td>
+                                            <td>
+                                                <?= $price->getAttributeLabel('wholesale_price'); ?>
+                                            </td>
+                                            <td>
+                                                <?= $price->getAttributeLabel('available_count'); ?>
+                                            </td>
+                                            <td>
+                                                <?= $price->getAttributeLabel('reserved_count'); ?>
+                                            </td>
+                                            <td>
+                                                <?= $price->getAttributeLabel('is_unlimited'); ?>
+                                            </td>
+                                            <td>
+                                                <?= $price->getAttributeLabel('is_allowed'); ?>
+                                            </td>
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <?php $tableHead = false; ?>
+                                    <?php endif; ?>
                                     <tr>
                                         <td>
-                                            <?= $form->field($price, "[$key]currency_iso_code")->label(false) ?>
+                                            <?= $price->warehouse->name ?>
                                         </td>
                                         <td>
-                                            <?= $form->field($price, "[$key]seller_price")->label(false) ?>
+                                            <?= $form->field($price, "[$key]currency_iso_code")->label(false)
+                                                ->dropDownList(
+                                                    ArrayHelper::map(
+                                                        Currency::findAll(),
+                                                        'iso_code',
+                                                        'iso_code'
+                                                    )
+                                                ); ?>
                                         </td>
                                         <td>
-                                            <?= $form->field($price, "[$key]retail_price")->label(false) ?>
+                                            <?= $form->field($price, "[$key]seller_price")
+                                                ->input('number', ['step' => '0.01'])
+                                                ->label(false); ?>
                                         </td>
                                         <td>
-                                            <?= $form->field($price, "[$key]wholesale_price")->label(false) ?>
+                                            <?= $form->field($price, "[$key]retail_price")
+                                                ->input('number', ['step' => '0.01'])
+                                                ->label(false); ?>
                                         </td>
                                         <td>
-                                            <?= $form->field($price, "[$key]available_count")->label(false) ?>
+                                            <?= $form->field($price, "[$key]wholesale_price")
+                                                ->input('number', ['step' => '0.01'])
+                                                ->label(false); ?>
                                         </td>
                                         <td>
-                                            <?= $form->field($price, "[$key]reserved_count")->label(false) ?>
+                                            <?= $form->field($price, "[$key]available_count")
+                                                ->input('number', ['step' => '1'])
+                                                ->label(false); ?>
                                         </td>
                                         <td>
-                                            <?= $form->field($price, "[$key]is_unlimited")->label(false) ?>
+                                            <?= $form->field($price, "[$key]reserved_count")
+                                                ->input('number', ['step' => '1'])
+                                                ->label(false); ?>
                                         </td>
                                         <td>
-                                            <?= $form->field($price, "[$key]is_allowed")->label(false) ?>
+                                            <?= $form->field(
+                                                $price,
+                                                "[$key]is_unlimited"
+                                            )->widget(SwitchInput::class)->label(false); ?>
+                                        </td>
+                                        <td>
+                                            <?= $form->field(
+                                                $price,
+                                                "[$key]is_allowed"
+                                            )->widget(SwitchInput::class)->label(false); ?>
+                                        </td>
+                                        <td>
+                                            <?= $price->isNewRecord ?
+                                                Yii::t('dotplant.store', 'New') :
+                                                Yii::t('dotplant.store', 'Update'); ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </table>
+                        </div>
+                    <?php endif; ?>
+                    <div class="clearfix"></div>
 
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-6">
+
+                    <div class="col-sm-12">
                         <?= MultilingualFormTabs::widget(
                             [
                                 'model' => $goods,
@@ -225,11 +296,11 @@ $form = ActiveForm::begin(
             </div>
             <div class="tab-pane" id="goods-properties">
                 <?= PropertiesForm::widget(
-                    [
+                        [
                         'model' => $goods,
                         'form' => $form,
-                    ]
-                ) ?>
+                        ]
+                    ) ?>
             </div>
             <?php if (true === $canSave) : ?>
                 <div class="btn-group pull-right" role="group" aria-label="Edit buttons">
