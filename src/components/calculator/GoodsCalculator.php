@@ -20,8 +20,6 @@ abstract class GoodsCalculator implements GoodsCalculatorInterface
      * @param Goods $goods
      * @param $priceArray
      *
-     * @todo think to transfer this method in ExtendedPriceHelper: reasons - no $this, self or static; will fully
-     *     duplicated in NoGoodsCalculator
      * @return array
      */
     protected static function applyExtendedPrice(Goods $goods, $priceArray)

@@ -109,6 +109,9 @@ class SingleStepOrderAction extends Action
                         $userId = $user->id;
                     }
                 }
+
+                $cart->addDelivery(ArrayHelper::getValue(Yii::$app->request->post(),$order->formName() . '.delivery_id'));
+
                 /** @var Cart $cart */
                 $order = Store::createOrder($cart);
                 if ($order === null) {

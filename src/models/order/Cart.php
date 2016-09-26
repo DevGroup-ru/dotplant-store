@@ -10,6 +10,7 @@ use DotPlant\Store\models\warehouse\Warehouse;
 use DotPlant\Store\Module;
 use Yii;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%dotplant_store_cart}}".
@@ -32,6 +33,8 @@ class Cart extends ActiveRecord
 {
     use EntityTrait;
     use BaseActionsInfoTrait;
+
+    private $_delivery = null;
 
     protected $blameableAttributes = [
         ActiveRecord::EVENT_BEFORE_INSERT => ['created_by'],
@@ -78,7 +81,7 @@ class Cart extends ActiveRecord
         ];
     }
 
-    public function addItem($goodsId, $quantity, $warehouseId)
+    public function addItem($goodsId, $quantity, $warehouseId, $itemParams = [])
     {
         $this->checkLock();
         if ($quantity <= 0) {
@@ -87,16 +90,14 @@ class Cart extends ActiveRecord
         if (empty($warehouseId)) {
             $warehouseId = Warehouse::getOptimalWarehouse($goodsId, $quantity)->warehouse_id;
         }
-        $item = Module::module()->allowToAddSameGoods == 0
-            ? $this->findItem(
-                [
-                    'cart_id' => $this->id,
-                    'goods_id' => $goodsId,
-                    'warehouse_id' => $warehouseId,
-                ],
-                false
-            )
-            : null;
+        $item = Module::module()->allowToAddSameGoods == 0 ? $this->findItem(
+            [
+                'cart_id' => $this->id,
+                'goods_id' => $goodsId,
+                'warehouse_id' => $warehouseId,
+            ],
+            false
+        ) : null;
         if ($item === null) {
             $item = new OrderItem;
             $item->loadDefaultValues();
@@ -104,8 +105,31 @@ class Cart extends ActiveRecord
             $item->goods_id = $goodsId;
             $item->warehouse_id = $warehouseId;
         }
+        $item->params = $itemParams;
         $item->quantity += $quantity;
         $item->calculate();
+        if (!$item->save()) {
+            throw new OrderException(Yii::t('dotplant.store', 'Can not add a goods to cart'));
+        }
+        $this->calculate();
+        $this->save();
+    }
+
+    public function addDelivery($deliveryId, $deliveryParams = [])
+    {
+        $this->checkLock();
+
+        $item = new OrderItem;
+        $item->loadDefaultValues();
+        $item->cart_id = $this->id;
+        $item->goods_id = null;
+        $params = $item->params;
+        $params['deliveryHandlerParams'] =ArrayHelper::merge(['deliveryId' => $deliveryId], $deliveryParams);
+        $item->params = $params;
+        $item->quantity = 0;
+        $item->calculate();
+        OrderItem::deleteAll(['cart_id' => $this->id, 'goods_id' => null]);
+        $this->_delivery = $item;
         if (!$item->save()) {
             throw new OrderException(Yii::t('dotplant.store', 'Can not add a goods to cart'));
         }
@@ -183,7 +207,7 @@ class Cart extends ActiveRecord
     public function prepare()
     {
         foreach ($this->items as $item) {
-            if (!empty($item->warehouse_id)) {
+            if (!empty($item->warehouse_id) || $item->isDelivery()) {
                 continue;
             }
             $item->warehouse_id = Warehouse::getOptimalWarehouse($item->goods_id, $item->quantity)->warehouse_id;
@@ -197,6 +221,9 @@ class Cart extends ActiveRecord
     public function reserve()
     {
         foreach ($this->items as $item) {
+            if ($item->isDelivery()) {
+                continue;
+            }
             Warehouse::getWarehouse($item->goods_id, $item->warehouse_id, false)->reserve($item->quantity);
         }
     }

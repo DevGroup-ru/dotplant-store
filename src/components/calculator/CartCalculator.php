@@ -40,10 +40,6 @@ class CartCalculator implements NoGoodsCalculatorInterface
             $item->calculate();
             $price['totalPriceWithDiscount'] += $item->total_price_with_discount;
             $price['totalPriceWithoutDiscount'] += $item->total_price_without_discount;
-            if ($item->goods_id == 0) {
-                $delivery = $item;
-                continue; // It's a delivery. Do not count it as an order item
-            }
             $price['items'] += Module::module()->countUniqueItemsOnly == 1 ? 1 : $item->quantity;
         }
 

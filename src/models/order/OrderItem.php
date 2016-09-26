@@ -2,11 +2,14 @@
 
 namespace DotPlant\Store\models\order;
 
+use DevGroup\DataStructure\behaviors\PackedJsonAttributes;
 use DotPlant\Store\components\calculator\OrderItemCalculator;
+use DotPlant\Store\components\calculator\OrderItemDeliveryCalculator;
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\models\goods\Goods;
 use DotPlant\Store\models\warehouse\Warehouse;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%dotplant_store_order_item}}".
@@ -20,6 +23,7 @@ use Yii;
  * @property double $total_price_with_discount
  * @property double $total_price_without_discount
  * @property double $seller_price
+ * @property string $packed_json_params
  *
  * @property Order $order
  * @property Cart $cart
@@ -34,20 +38,38 @@ class OrderItem extends \yii\db\ActiveRecord
         return '{{%dotplant_store_order_item}}';
     }
 
+    public function behaviors()
+    {
+        return [
+            'PackedJsonAttributes' => [
+                'class' => PackedJsonAttributes::class,
+            ],
+        ];
+    }
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['goods_id'], 'required'],
             [['cart_id', 'order_id', 'goods_id', 'warehouse_id'], 'integer'],
             [['quantity', 'total_price_with_discount', 'total_price_without_discount', 'seller_price'], 'number'],
             [['warehouse_id'], 'exist', 'skipOnError' => true, 'targetClass' => Warehouse::className(), 'targetAttribute' => ['warehouse_id' => 'id']],
             [['cart_id'], 'exist', 'skipOnError' => true, 'targetClass' => Cart::className(), 'targetAttribute' => ['cart_id' => 'id']],
-            [['goods_id'], 'exist', 'skipOnError' => true, 'targetClass' => Goods::className(), 'targetAttribute' => ['goods_id' => 'id']],
+            [
+                ['goods_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Goods::className(),
+                'targetAttribute' => ['goods_id' => 'id'],
+                'when' => function ($model) {
+                    return $model->goods_id != null;
+                },
+            ],
             [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => Order::className(), 'targetAttribute' => ['order_id' => 'id']],
             [['warehouse_id'], 'validateWarehouse'],
+            [['packed_json_params'], 'string'],
         ];
     }
 
@@ -96,38 +118,44 @@ class OrderItem extends \yii\db\ActiveRecord
 
     public function calculate()
     {
-        $goods = $this->findGoods($this->goods_id);
-        $warehouses = Warehouse::getWarehouses($this->goods_id);
-
-        if (!empty($this->warehouse_id)) {
-            if (!isset($warehouses[$this->warehouse_id])) {
-                throw new OrderException(Yii::t('dotplant.store', 'The warehouse is not available'));
-            }
-            if ($warehouses[$this->warehouse_id]['available_count'] < $this->quantity) {
-                throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
-            }
+        if ($this->isDelivery()) {
+            $price = OrderItemDeliveryCalculator::getPrice($this);
         } else {
-            /**
-             * @todo: There will be a autoselecting of warehouse by priority or another logic
-             * Now we just check that one of warehouses has enough items
-             */
-            $hasEnough = false;
-            foreach ($warehouses as $warehouseId => $warehouse) {
-                if ($warehouse['available_count'] >= $this->quantity) {
-                    $hasEnough = true;
-                    break;
+            $goods = $this->findGoods($this->goods_id);
+            $warehouses = Warehouse::getWarehouses($this->goods_id);
+
+            if (!empty($this->warehouse_id)) {
+                if (!isset($warehouses[$this->warehouse_id])) {
+                    throw new OrderException(Yii::t('dotplant.store', 'The warehouse is not available'));
+                }
+                if ($warehouses[$this->warehouse_id]['available_count'] < $this->quantity) {
+                    throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
+                }
+            } else {
+                /**
+                 * @todo: There will be a autoselecting of warehouse by priority or another logic
+                 * Now we just check that one of warehouses has enough items
+                 */
+                $hasEnough = false;
+                foreach ($warehouses as $warehouseId => $warehouse) {
+                    if ($warehouse['available_count'] >= $this->quantity) {
+                        $hasEnough = true;
+                        break;
+                    }
+                }
+                if (!$hasEnough) {
+                    throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
                 }
             }
-            if (!$hasEnough) {
-                throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
-            }
-        }
-        // @todo: Add a check warehouse count
+            // @todo: Add a check warehouse count
 
-        $price = OrderItemCalculator::getPrice($this);
+            $price = OrderItemCalculator::getPrice($this);
+        }
+
         $this->total_price_without_discount = $price['totalPriceWithoutDiscount'];
         $this->total_price_with_discount = $price['totalPriceWithDiscount'];
         $this->quantity = $price['items'];
+        $this->params = ArrayHelper::merge($this->params, ['extendedPrice' => $price['extendedPrice']]);
     }
 
     /**
@@ -138,9 +166,17 @@ class OrderItem extends \yii\db\ActiveRecord
     protected function findGoods($id)
     {
         $model = Goods::get($id);
-        if ($model === null) {
+        if ($model === null && $this->isDelivery() === false) {
             throw new OrderException(Yii::t('dotplant.store', 'Goods not found'));
         }
         return $model;
+    }
+
+    public function isDelivery()
+    {
+        if (is_null($this->goods_id) === true) {
+            return true;
+        }
+        return false;
     }
 }
