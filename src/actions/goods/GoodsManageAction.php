@@ -3,6 +3,7 @@
 namespace DotPlant\Store\actions\goods;
 
 use DevGroup\AdminUtils\actions\BaseAdminAction;
+use DevGroup\AdminUtils\events\ModelEditAction;
 use DevGroup\AdminUtils\traits\BackendRedirect;
 use DevGroup\DataStructure\behaviors\HasProperties;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
@@ -26,6 +27,17 @@ use Yii;
  */
 class GoodsManageAction extends BaseAdminAction
 {
+
+    const EVENT_BEFORE_INSERT = 'dotplant.store.goodsBeforeInsert';
+    const EVENT_BEFORE_UPDATE = 'dotplant.store.goodsBeforeUpdate';
+    const EVENT_AFTER_INSERT = 'dotplant.store.goodsAfterInsert';
+    const EVENT_AFTER_UPDATE = 'dotplant.store.goodsAfterUpdate';
+
+    const EVENT_FORM_BEFORE_SUBMIT = 'dotplant.store.goodsFormBeforeSubmit';
+    const EVENT_FORM_AFTER_SUBMIT = 'dotplant.store.goodsFormAfterSubmit';
+
+    const EVENT_BEFORE_FORM = 'dotplant.store.goodsBeforeForm';
+    const EVENT_AFTER_FORM = 'dotplant.store.goodsAfterForm';
 
     use BackendRedirect;
 
@@ -100,8 +112,18 @@ class GoodsManageAction extends BaseAdminAction
                         $goods->translate($language)->$attribute = $translation;
                     }
                 }
-                if (true === $goods->validate()) {
+                $event = new ModelEditAction($goods);
+                $event->isValid = $goods->validate();
+                $goods->isNewRecord === true ?
+                    $this->trigger(self::EVENT_BEFORE_INSERT, $event) :
+                    $this->trigger(self::EVENT_BEFORE_UPDATE, $event);
+
+                if (true === $event->isValid) {
                     if (true === $goods->save(false)) {
+                        $goods->isNewRecord === true ?
+                            $this->trigger(self::EVENT_AFTER_INSERT, $event) :
+                            $this->trigger(self::EVENT_AFTER_UPDATE, $event);
+
                         $goodsFormName = $goods->formName();
                         $categories = isset($post[$goodsFormName]['categories']) ? $post[$goodsFormName]['categories'] : [];
                         $categories = array_unique($categories);
@@ -118,7 +140,6 @@ class GoodsManageAction extends BaseAdminAction
                                 } elseif ($price->isNewRecord === false) {
                                     $price->delete();
                                 }
-
                             }
                         }
                         if ($goods->getHasChild() === true) {

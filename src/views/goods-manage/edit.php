@@ -8,16 +8,15 @@
  * @var GoodsWarehouse[] $prices
  */
 
+use DevGroup\AdminUtils\events\ModelEditForm;
 use DevGroup\AdminUtils\FrontendHelper;
 use dmstr\widgets\Alert;
 use DevGroup\DataStructure\widgets\PropertiesForm;
 use DevGroup\Multilingual\widgets\MultilingualFormTabs;
-use DotPlant\Currencies\helpers\CurrencyHelper;
 use DotPlant\Currencies\models\Currency;
-use DotPlant\Store\handlers\extendedPrice\ProductRule;
-use DotPlant\Store\models\price\Price;
+use DotPlant\Store\actions\goods\GoodsManageAction;
 use DotPlant\Store\models\warehouse\GoodsWarehouse;
-use DotPlant\Store\widgets\backend\EntityExtendedPriceEdit;
+use DotPlant\Store\Module;
 use kartik\switchinput\SwitchInput;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -76,6 +75,8 @@ $this->registerJs($js, View::POS_HEAD);
 $checked = empty($startCategory) ? [] : is_array($startCategory) ? $startCategory : [$startCategory];
 $checked = array_merge($checked, CategoryGoods::getBindings($goods->id));
 StoreAsset::register($this);
+
+Module::module()->trigger(GoodsManageAction::EVENT_BEFORE_FORM);
 $form = ActiveForm::begin(
     [
         'id' => 'page-form',
@@ -84,6 +85,7 @@ $form = ActiveForm::begin(
         //    ]
     ]
 );
+$event = new ModelEditForm($form, $goods);
 ?>
 <?= Alert::widget() ?>
 <div class="nav-tabs-custom">
@@ -299,22 +301,21 @@ $form = ActiveForm::begin(
         </div>
         <div class="tab-pane" id="goods-properties">
             <?= PropertiesForm::widget(
-                    [
+                [
                     'model' => $goods,
                     'form' => $form,
-                    ]
-                ) ?>
+                ]
+            ) ?>
         </div>
+        <?php Module::module()->trigger(GoodsManageAction::EVENT_FORM_BEFORE_SUBMIT, $event); ?>
         <?php if (true === $canSave) : ?>
             <div class="btn-group pull-right" role="group" aria-label="Edit buttons">
                 <?= FrontendHelper::formSaveButtons($goods); ?>
             </div>
             <div class="clearfix"></div>
         <?php endif; ?>
+        <?php Module::module()->trigger(GoodsManageAction::EVENT_FORM_AFTER_SUBMIT, $event); ?>
     </div>
 </div>
 <?php $form::end(); ?>
-
-<?php if ($goods->isNewRecord === false) : ?>
-    <?= EntityExtendedPriceEdit::widget(['entity' => $goods, 'handlerClass' => ProductRule::class]) ?>
-<?php endif; ?>
+<?php Module::module()->trigger(GoodsManageAction::EVENT_AFTER_FORM, $event); ?>
