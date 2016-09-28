@@ -7,7 +7,9 @@
  * @var int $userId
  */
 
-$user = \DevGroup\Users\models\User::findOne($userId);
+use DevGroup\Users\helpers\ModelMapHelper;
+
+$user = call_user_func([ModelMapHelper::User()['class'], 'findOne'], $userId);
 $language = call_user_func([Yii::$app->multilingual->modelsMap['Language'], 'findOne'], $languageId);
 $domain = $language !== null ? $language->domain : 'Unknown domain';
 

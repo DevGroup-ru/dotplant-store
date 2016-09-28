@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\actions\order;
 
+use DevGroup\Users\helpers\ModelMapHelper;
 use DevGroup\Users\models\User;
 use DotPlant\Store\components\Store;
 use DotPlant\Store\events\AfterUserRegisteredEvent;
@@ -78,7 +79,7 @@ class SingleStepOrderAction extends Action
         if ($orderDeliveryInformationIsValid && $orderIsValid) {
             if ($order->isNewRecord) {
                 if (Yii::$app->user->isGuest && Module::module()->registerGuestInCart == 1) {
-                    $user = new User;
+                    $user = new (ModelMapHelper::User()['class']);
                     $user->username = uniqid("", true);
                     $user->username_is_temporary = true;
                     $user->password_is_temporary = true;
