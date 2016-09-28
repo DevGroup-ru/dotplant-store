@@ -30,35 +30,15 @@ $this->registerJs($js);
     <input type="submit" value="Add" />
 </form>
 <?php if ($model !== null && $model->items_count > 0) : ?>
-    <table class="table table-striped table-condensed table-bordered">
-        <?php foreach ($model->items as $item) : ?>
-            <tr>
-                <td><?= $item->goods_id ?></td>
-                <td>
-                    <form action="<?= \yii\helpers\Url::toRoute(['/store/cart/change-quantity']) ?>" data-action="ajax-tester">
-                        <input type="hidden" name="id" value="<?= $item->id ?>" />
-                        <input type="number" name="quantity" value="<?= $item->quantity ?>" />
-                        <input type="submit" value="Save" />
-                    </form>
-                </td>
-                <td><?= $item->total_price_with_discount ?></td>
-                <td><?= $item->total_price_without_discount ?></td>
-                <td>
-                    <form action="<?= \yii\helpers\Url::toRoute(['/store/cart/remove']) ?>" data-action="ajax-tester">
-                        <input type="hidden" name="id" value="<?= $item->id ?>" />
-                        <input type="submit" value="Remove" />
-                    </form>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-        <tr>
-            <td><?= Yii::t('dotplant.store', 'Summary') ?></td>
-            <td><?= $model->items_count ?></td>
-            <td><?= $model->total_price_with_discount ?></td>
-            <td><?= $model->total_price_without_discount ?></td>
-            <td></td>
-        </tr>
-    </table>
+    <?=
+    \DotPlant\Store\widgets\common\OrderItems::widget(
+        [
+            'languageId' => Yii::$app->multilingual->language_id,
+            'model' => $model,
+            'viewFile' => 'cart-items',
+        ]
+    )
+    ?>
     <?php if ($model->canEdit()) : ?>
         <a href="<?= \yii\helpers\Url::toRoute(['/store/order/create']) ?>" class="btn btn-primary">Create an order</a>
     <?php else : ?>
