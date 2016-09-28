@@ -2,9 +2,11 @@
 
 namespace DotPlant\Store\handlers;
 
+use DevGroup\Users\helpers\ModelMapHelper;
 use DotPlant\Currencies\events\AfterUserCurrencyChangeEvent;
 use DotPlant\Emails\helpers\EmailHelper;
 use DotPlant\Store\components\Store;
+use DotPlant\Store\events\AfterOrderManagerChangeEvent;
 use DotPlant\Store\events\AfterOrderStatusChangeEvent;
 use DotPlant\Store\helpers\BackendHelper;
 use DotPlant\Store\models\order\Order;
@@ -36,6 +38,32 @@ class OrderHandler
         if ($event->statusId == Store::getPaidOrderStatusId($order->context_id) && $order->manager_id == 0) {
             $managerId = array_rand(BackendHelper::managersDropDownList());
             $order->attachManager($managerId);
+        }
+    }
+
+    /**
+     * You should set `emailTemplateId` via params. It is a template id from Template model of `dotplant/email` extension
+     * @param AfterOrderManagerChangeEvent $event
+     */
+    public static function sendEmailToNewManager(AfterOrderManagerChangeEvent $event)
+    {
+        if (isset($event->data['emailTemplateId'])) {
+            $managerEmail = call_user_func([ModelMapHelper::User()['class'], 'find'])
+                ->select(['email'])
+                ->where(['id' => $event->managerId])
+                ->scalar();
+            if (!empty($managerEmail)) {
+                EmailHelper::sendNewMessage(
+                    $managerEmail,
+                    $event->data['emailTemplateId'],
+                    [
+                        'managers' => BackendHelper::managersDropDownList(),
+                        'managerId' => $event->managerId,
+                        'oldManagerId' => $event->oldManagerId,
+                        'orderId' => $event->orderId,
+                    ]
+                );
+            }
         }
     }
 

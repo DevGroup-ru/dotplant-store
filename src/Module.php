@@ -12,6 +12,7 @@ namespace DotPlant\Store;
 class Module extends \yii\base\Module
 {
     const EVENT_AFTER_ORDER_STATUS_CHANGE = 'dotplant.store.afterOrderStatusChange';
+    const EVENT_AFTER_ORDER_MANAGER_CHANGE = 'dotplant.store.afterOrderManagerChange';
     const EVENT_AFTER_USER_REGISTERED = 'dotplant.store.afterUserRegistered';
     const EVENT_RETAIL_CHECK = 'dotplant.store.retailCheck';
     const EVENT_PAYMENT_STATUS_SUCCESS = 'dotplant.store.paymentStatusSuccess';

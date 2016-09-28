@@ -48,7 +48,6 @@ class OrderItems extends Widget
                 $this->languageId = reset($languages)->id;
             }
         }
-        // @todo: add language to query
     }
 
     /**

@@ -5,6 +5,7 @@ namespace DotPlant\Store\models\order;
 use DevGroup\Entity\traits\BaseActionsInfoTrait;
 use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SoftDeleteTrait;
+use DotPlant\Store\events\AfterOrderManagerChangeEvent;
 use DotPlant\Store\events\AfterOrderStatusChangeEvent;
 use DotPlant\Store\events\OrderEvent;
 use DotPlant\Store\Module;
@@ -231,6 +232,18 @@ class Order extends \yii\db\ActiveRecord
                         'orderId' => $this->id,
                         'statusId' => $this->status_id,
                         'oldStatusId' => $changedAttributes['status_id'],
+                    ]
+                )
+            );
+        }
+        if (isset($changedAttributes['manager_id']) && $changedAttributes['manager_id'] != $this->manager_id) {
+            Module::module()->trigger(
+                Module::EVENT_AFTER_ORDER_MANAGER_CHANGE,
+                new AfterOrderManagerChangeEvent(
+                    [
+                        'orderId' => $this->id,
+                        'managerId' => $this->manager_id,
+                        'oldManagerId' => $changedAttributes['manager_id'],
                     ]
                 )
             );
