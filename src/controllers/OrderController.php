@@ -6,11 +6,10 @@ use DotPlant\Store\actions\order\PaymentCheckAction;
 use DotPlant\Store\actions\order\PaymentPayAction;
 use DotPlant\Store\actions\order\PaymentSuccessAction;
 use DotPlant\Store\actions\order\SingleStepOrderAction;
-use DotPlant\Store\models\order\Order;
 use DotPlant\Store\models\order\Payment;
 use DotPlant\Store\components\Store;
 use DotPlant\Store\models\order\OrderDeliveryInformation;
-use yii\data\ActiveDataProvider;
+use yii\base\Exception;
 
 class OrderController extends \yii\web\Controller
 {
@@ -48,5 +47,16 @@ class OrderController extends \yii\web\Controller
     public function actionRefund($hash)
     {
         return $this->render('refund');
+    }
+
+    public function actionCancel($hash)
+    {
+        $order = Store::getOrder($hash);
+        if (Store::checkOrderIsPaid($order)) {
+            throw new Exception('Canceling paid order is not implemented');
+        } else {
+            $order->status_id = Store::getCanceledOrderStatusId($order->context_id);
+            \Yii::$app->session->setFlash('success', \Yii::t('dotplant.store', 'Order successfully canceled'));
+        }
     }
 }
