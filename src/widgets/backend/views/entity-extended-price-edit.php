@@ -10,10 +10,21 @@ use yii\bootstrap\Modal;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
+?>
+
+<?php $this->beginBlock('extendedPriceWidget'); ?>
+    <a class="btn btn-primary" data-toggle="modal" data-target="#extendedPriceWidget">
+        <?= Yii::t(
+            'dotplant.store',
+            'Extended price'
+        ); ?>
+    </a>
+<?php $this->endBlock(); ?>
+<?php
 Modal::begin(
     [
         'header' => Html::tag('h2', Yii::t('dotplant.store', 'Extended price')),
-        'toggleButton' => ['label' => Yii::t('dotplant.store', 'Extended price')],
+        'id' => 'extendedPriceWidget'
     ]
 );
 foreach ($acceptableRules as $acceptableRule) {
@@ -34,3 +45,4 @@ foreach ($acceptableRules as $acceptableRule) {
 
 
 Modal::end();
+$this->registerJs('$(".tab-pane.active:first").append(\''. str_replace(["\r","\n"], '', $this->blocks['extendedPriceWidget']) .'\')');

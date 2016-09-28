@@ -264,11 +264,11 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         return [
             self::TYPE_PRODUCT => Yii::t('dotplant.store', 'Product'),
             self::TYPE_BUNDLE => Yii::t('dotplant.store', 'Bundle'),
-            self::TYPE_SET => Yii::t('dotplant.store', 'Set'),
-            self::TYPE_PART => Yii::t('dotplant.store', 'Part'),
-            self::TYPE_OPTION => Yii::t('dotplant.store', 'Option'),
-            self::TYPE_SERVICE => Yii::t('dotplant.store', 'Service'),
-            self::TYPE_FILE => Yii::t('dotplant.store', 'File'),
+          //  self::TYPE_SET => Yii::t('dotplant.store', 'Set'),
+          //  self::TYPE_PART => Yii::t('dotplant.store', 'Part'),
+          //  self::TYPE_OPTION => Yii::t('dotplant.store', 'Option'),
+          //  self::TYPE_SERVICE => Yii::t('dotplant.store', 'Service'),
+          //  self::TYPE_FILE => Yii::t('dotplant.store', 'File'),
         ];
     }
 
@@ -365,7 +365,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
                     ],
                     'integer'
                 ],
-                [['sku'], 'required'],
+                [['sku', 'main_structure_id'], 'required'],
                 [['sku', 'inner_sku'], 'string', 'max' => 255],
                 [
                     ['vendor_id'],
@@ -373,6 +373,13 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
                     'skipOnError' => true,
                     'targetClass' => Vendor::class,
                     'targetAttribute' => ['vendor_id' => 'id']
+                ],
+                [
+                    ['main_structure_id'],
+                    'exist',
+                    'skipOnError' => true,
+                    'targetClass' => BaseStructure::class,
+                    'targetAttribute' => ['main_structure_id' => 'id']
                 ],
             ],
             $this->propertiesRules()

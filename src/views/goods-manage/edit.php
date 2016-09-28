@@ -107,6 +107,7 @@ $event = new ModelEditForm($form, $goods);
         <div class="tab-pane active" id="goods-data">
             <div class="row">
                 <div class="col-sm-12 col-md-6">
+                    <?= $form->errorSummary([$goods], ['class' => 'info-box bg-red well']) ?>
                     <?= $form->field($goods, 'vendor_id')->dropDownList(
                         Vendor::getArrayList(),
                         ['prompt' => Yii::t('dotplant.store', 'Choose vendor')]
@@ -211,9 +212,6 @@ $event = new ModelEditForm($form, $goods);
                                             <?= $price->getAttributeLabel('available_count'); ?>
                                         </td>
                                         <td>
-                                            <?= $price->getAttributeLabel('reserved_count'); ?>
-                                        </td>
-                                        <td>
                                             <?= $price->getAttributeLabel('is_unlimited'); ?>
                                         </td>
                                         <td>
@@ -259,11 +257,6 @@ $event = new ModelEditForm($form, $goods);
                                             ->label(false); ?>
                                     </td>
                                     <td>
-                                        <?= $form->field($price, "[$key]reserved_count")
-                                            ->input('number', ['step' => '1'])
-                                            ->label(false); ?>
-                                    </td>
-                                    <td>
                                         <?= $form->field(
                                             $price,
                                             "[$key]is_unlimited"
@@ -301,11 +294,11 @@ $event = new ModelEditForm($form, $goods);
         </div>
         <div class="tab-pane" id="goods-properties">
             <?= PropertiesForm::widget(
-                [
+                    [
                     'model' => $goods,
                     'form' => $form,
-                ]
-            ) ?>
+                    ]
+                ) ?>
         </div>
         <?php Module::module()->trigger(GoodsManageAction::EVENT_FORM_BEFORE_SUBMIT, $event); ?>
         <?php if (true === $canSave) : ?>

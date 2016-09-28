@@ -33,13 +33,19 @@ class GoodsTranslation extends ActiveRecord
         return '{{%dotplant_store_goods_translation}}';
     }
 
-    protected $rules = [
-        [['name'], 'required'],
-        [['is_active'], 'integer'],
-        [['announce', 'content'], 'string'],
-        [['name'], 'string', 'max' => 255],
-        [['url'], 'string', 'max' => 800],
-    ];
+    /**
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            [['name', 'slug', 'name'], 'required'],
+            [['is_active'], 'integer'],
+            [['announce', 'content'], 'string'],
+            [['name'], 'string', 'max' => 255],
+            [['url'], 'string', 'max' => 800],
+        ];
+    }
 
     /**
      * @inheritdoc

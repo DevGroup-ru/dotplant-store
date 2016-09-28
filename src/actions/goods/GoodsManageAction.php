@@ -50,7 +50,7 @@ class GoodsManageAction extends BaseAdminAction
      * @throws NotFoundHttpException
      * @throws \DotPlant\Store\exceptions\GoodsException
      */
-    public function run($product_id = null, $id = null, $type = null)
+    public function run($product_id = null, $id = null, $type = Goods::TYPE_PRODUCT)
     {
         /** @var Goods | MultilingualActiveRecord | MultilingualTrait | HasProperties $goods */
         if (null !== $product_id) {
@@ -67,37 +67,37 @@ class GoodsManageAction extends BaseAdminAction
                 );
             }
         } else {
-            $type = (null === $type) ? Goods::TYPE_PRODUCT : $type;
             $goods = Goods::create($type);
         }
         $canSave = true; //Yii::$app->user->can('');
-
+        /**@var Goods[] $child */
         $child = [];
-
         /**@var GoodsWarehouse[] $prices */
         $prices = [];
-
         if (false === $goods->isNewRecord) {
             $goods->translations;
-            $child = $goods->getChildren()
-                ->select([GoodsTranslation::tableName() . '.name', Goods::tableName() . '.id'])
-                ->indexBy('id')
-                ->asArray()
-                ->column();
-
-            $prices = GoodsWarehouse::find()
-                ->indexBy('warehouse_id')
-                ->where(['goods_id' => $goods->id])
-                ->all();
+            if ($goods->getHasChild() === false) {
+                $prices = GoodsWarehouse::find()
+                    ->indexBy('warehouse_id')
+                    ->where(['goods_id' => $goods->id])
+                    ->all();
+            } else {
+                $child = $goods->getChildren()
+                    ->select([GoodsTranslation::tableName() . '.name', Goods::tableName() . '.id'])
+                    ->indexBy('id')
+                    ->asArray()
+                    ->column();
+            }
         } else {
             $goods->loadDefaultValues();
         }
-
-        foreach (Warehouse::find()->asArray()->all() as $warehouse) {
-            if (!isset($prices[$warehouse['id']])) {
-                $price = new GoodsWarehouse(['warehouse_id' => $warehouse['id']]);
-                $price->loadDefaultValues();
-                $prices[$warehouse['id']] = $price;
+        if ($goods->getHasChild() === false) {
+            foreach (Warehouse::find()->asArray()->all() as $warehouse) {
+                if (!isset($prices[$warehouse['id']])) {
+                    $price = new GoodsWarehouse(['warehouse_id' => $warehouse['id']]);
+                    $price->loadDefaultValues();
+                    $prices[$warehouse['id']] = $price;
+                }
             }
         }
 
@@ -114,6 +114,27 @@ class GoodsManageAction extends BaseAdminAction
                 }
                 $event = new ModelEditAction($goods);
                 $event->isValid = $goods->validate();
+                $usedPriceWarehouses = [];
+                Model::loadMultiple($prices, $post);
+                foreach ($prices as $warehouseIs => $price) {
+                    if ($price->seller_price !== '' ||
+                        $price->retail_price !== '' &&
+                        $price->wholesale_price !== ''
+                    ) {
+                        $usedPriceWarehouses[] = $warehouseIs;
+                    }
+                }
+                if (empty($usedPriceWarehouses) === true && $goods->getHasChild() === false) {
+                    $goods->addError(
+                        'id',
+                        Yii::t(
+                            'dotplant.store',
+                            'Please add price!'
+                        )
+                    );
+                    $event->isValid = false;
+                }
+
                 $goods->isNewRecord === true ?
                     $this->trigger(self::EVENT_BEFORE_INSERT, $event) :
                     $this->trigger(self::EVENT_BEFORE_UPDATE, $event);
@@ -128,20 +149,6 @@ class GoodsManageAction extends BaseAdminAction
                         $categories = isset($post[$goodsFormName]['categories']) ? $post[$goodsFormName]['categories'] : [];
                         $categories = array_unique($categories);
                         CategoryGoods::saveBindings($goods->id, $categories);
-                        if (Model::loadMultiple($prices, $post)) {
-                            /**@var GoodsWarehouse[] $prices */
-                            foreach ($prices as $price) {
-                                $price->goods_id = $goods->id;
-                                if ($price->seller_price !== '' ||
-                                    $price->retail_price !== '' &&
-                                    $price->wholesale_price !== ''
-                                ) {
-                                    $price->save();
-                                } elseif ($price->isNewRecord === false) {
-                                    $price->delete();
-                                }
-                            }
-                        }
                         if ($goods->getHasChild() === true) {
                             $childGoods = isset($post['childGoods']) ? $post['childGoods'] : [];
                             GoodsParent::deleteAll([
@@ -154,9 +161,17 @@ class GoodsManageAction extends BaseAdminAction
                                     'sort_order' => $key
                                 ]))->save();
                             }
+                        } else {
+                            /**@var GoodsWarehouse[] $prices */
+                            foreach ($prices as $warehouseIs => $price) {
+                                $price->goods_id = $goods->id;
+                                if (in_array($warehouseIs, $usedPriceWarehouses)) {
+                                    $price->save();
+                                } elseif ($price->isNewRecord === false) {
+                                    $price->delete();
+                                }
+                            }
                         }
-
-
                         $this->redirectUser(
                             $id,
                             true,
