@@ -2,8 +2,6 @@
 
 namespace DotPlant\Store\helpers;
 
-use DevGroup\DataStructure\tests\models\CategoryTranslation;
-use DevGroup\Multilingual\models\Context;
 use DevGroup\TagDependencyHelper\NamingHelper;
 use DevGroup\Users\helpers\ModelMapHelper;
 use DotPlant\EntityStructure\models\Entity;
@@ -30,7 +28,7 @@ class BackendHelper
         if ($contextId !== null) {
             return $contextId;
         }
-        $context = Context::find()->one();
+        $context = call_user_func([\Yii::$app->multilingual->modelsMap['Context'], 'find'])->one();
         return $context !== null ? $context->id : null;
     }
 

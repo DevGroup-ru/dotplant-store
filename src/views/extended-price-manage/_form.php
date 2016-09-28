@@ -7,11 +7,9 @@
  */
 
 use DevGroup\AdminUtils\FrontendHelper;
-use DevGroup\Multilingual\models\Context;
 use DotPlant\Store\models\extendedPrice\ExtendedPrice;
 use kartik\switchinput\SwitchInput;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Html;
 use yii\web\View;
 use yii\widgets\ActiveForm;
 
@@ -46,7 +44,7 @@ use yii\widgets\ActiveForm;
         echo $form->field($model, 'start_time');
         echo $form->field($model, 'end_time');
         echo $form->field($model, 'context_id')->dropDownList(
-            ArrayHelper::map(Context::find()->all(), 'id', 'name'),
+            ArrayHelper::map(call_user_func([\Yii::$app->multilingual->modelsMap['Context'], 'find'])->all(), 'id', 'name'),
             ['prompt' => '---']
         );
         echo $form->field($model, 'calculator_type')->dropDownList(ExtendedPrice::getCalculatorTypes());

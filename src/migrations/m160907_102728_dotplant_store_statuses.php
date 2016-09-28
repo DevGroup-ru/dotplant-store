@@ -1,7 +1,5 @@
 <?php
 
-use DevGroup\Multilingual\models\Context;
-use DevGroup\Multilingual\models\Language;
 use DotPlant\Store\models\order\OrderStatus;
 use yii\db\Migration;
 
@@ -51,7 +49,7 @@ class m160907_102728_dotplant_store_statuses extends Migration
                 'label' => 'Canceled',
             ],
         ];
-        $contexts = Context::find()->all();
+        $contexts = call_user_func([\Yii::$app->multilingual->modelsMap['Context'], 'find'])->all();
         foreach ($statuses as $index => $status) {
             foreach ($contexts as $context) {
                 /** @var OrderStatus|\DevGroup\Multilingual\behaviors\MultilingualActiveRecord $model */

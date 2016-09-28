@@ -3,7 +3,6 @@
 namespace DotPlant\Store\controllers;
 
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
-use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DotPlant\Store\helpers\BackendHelper;
 use DotPlant\Store\models\order\OrderStatus;
@@ -12,7 +11,6 @@ use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;

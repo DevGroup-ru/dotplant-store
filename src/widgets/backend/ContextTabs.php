@@ -25,7 +25,7 @@ class ContextTabs extends Widget
             $this->contextId = \Yii::$app->request->get('contextId', \Yii::$app->multilingual->context_id);
         }
         $tabs = [];
-        foreach (Context::find()->all() as $context) {
+        foreach (call_user_func([\Yii::$app->multilingual->modelsMap['Context'], 'find'])->all() as $context) {
             $tabs[] = [
                 'active' => $context->id == $this->contextId,
                 'label' => $context->name,

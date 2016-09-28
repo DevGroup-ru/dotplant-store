@@ -2,7 +2,6 @@
 
 namespace DotPlant\Store\components;
 
-use DevGroup\Multilingual\models\Language;
 use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 
@@ -14,7 +13,10 @@ class SortByLanguageExpression extends Expression
     {
         $lang = \Yii::$app->language;
         if (!isset(self::$_languageIds[$lang])) {
-            self::$_languageIds[$lang] = ArrayHelper::getColumn(Language::findAll(['iso_639_1' => $lang]), 'id');
+            self::$_languageIds[$lang] = ArrayHelper::getColumn(
+                call_user_func([\Yii::$app->multilingual->modelsMap['Language'], 'findAll'], ['iso_639_1' => $lang]),
+                'id'
+            );
             if (count(self::$_languageIds[$lang]) === 0) {
                 self::$_languageIds[$lang] = [0]; // It's a dummy if language not found
             }

@@ -8,7 +8,7 @@
 
 use kartik\switchinput\SwitchInput;
 
-$contexts = \DevGroup\Multilingual\models\Context::find()->all();
+$contexts = call_user_func([\Yii::$app->multilingual->modelsMap['Context'], 'find'])->all();
 $tabs = [];
 foreach ($contexts as $context) {
     $tabs[] = [

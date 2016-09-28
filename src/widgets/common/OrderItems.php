@@ -2,7 +2,6 @@
 
 namespace DotPlant\Store\widgets\common;
 
-use DevGroup\Multilingual\models\Context;
 use DotPlant\Store\models\goods\Goods;
 use DotPlant\Store\models\goods\GoodsTranslation;
 use DotPlant\Store\models\order\Cart;
@@ -32,7 +31,10 @@ class OrderItems extends Widget
             throw new InvalidParamException(\Yii::t('dotplant.store', 'Bad model class'));
         }
         if ($this->languageId === null) {
-            $context = Context::findOne($this->model->context_id);
+            $context = call_user_func(
+                [\Yii::$app->multilingual->modelsMap['Context'], 'findOne'],
+                $this->model->context_id
+            );
             if ($context === null) {
                 throw new InvalidParamException(\Yii::t('dotplant.store', 'Wrong context'));
             }
