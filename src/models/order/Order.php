@@ -60,6 +60,7 @@ class Order extends \yii\db\ActiveRecord
     {
         return [
             [['context_id', 'status_id', 'currency_iso_code'], 'required'],
+            [['manager_id'], 'required', 'on' => 'backend-order-updating'],
             [
                 [
                     'context_id',
@@ -132,10 +133,7 @@ class Order extends \yii\db\ActiveRecord
                 'total_price_without_discount',
                 'rate_to_main_currency',
             ] + $baseActionsInfoAttributes,
-            'single-step-order' => [
-                'payment_id',
-                'delivery_id',
-            ] + $baseActionsInfoAttributes,
+            'single-step-order' => ['payment_id', 'delivery_id'] + $baseActionsInfoAttributes,
             'status-changing' => ['status_id'] + $baseActionsInfoAttributes,
             // backend
             'backend-order-updating' => [
@@ -144,9 +142,8 @@ class Order extends \yii\db\ActiveRecord
                 'payment_id',
                 'manager_id',
             ] + $baseActionsInfoAttributes,
-            'backend-order-soft-deleting' => [
-                'is_deleted',
-            ] + $baseActionsInfoAttributes,
+            'backend-order-soft-deleting' => ['is_deleted'] + $baseActionsInfoAttributes,
+            'attach-manager' => ['manager_id'] + $baseActionsInfoAttributes,
         ];
     }
 
@@ -194,6 +191,17 @@ class Order extends \yii\db\ActiveRecord
     public function getItems()
     {
         return $this->hasMany(OrderItem::class, ['order_id' => 'id']);
+    }
+
+    /**
+     * Attach a manager to the order
+     * @param int $userId
+     */
+    public function attachManager($userId)
+    {
+        $this->manager_id = $userId;
+        $this->scenario = 'attach-manager';
+        return $this->save();
     }
 
     /**

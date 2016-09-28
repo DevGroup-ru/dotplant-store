@@ -4,7 +4,9 @@ namespace DotPlant\Store\handlers;
 
 use DotPlant\Currencies\events\AfterUserCurrencyChangeEvent;
 use DotPlant\Emails\helpers\EmailHelper;
+use DotPlant\Store\components\Store;
 use DotPlant\Store\events\AfterOrderStatusChangeEvent;
+use DotPlant\Store\helpers\BackendHelper;
 use DotPlant\Store\models\order\Order;
 use DotPlant\Store\models\order\OrderStatus;
 
@@ -23,6 +25,18 @@ class OrderHandler
          * @todo: set created_by for cart model after login
          * @todo: set created_by for order model after login
          */
+    }
+
+    /**
+     * @param AfterOrderStatusChangeEvent $event
+     */
+    public static function attachRandomManagerToNewOrder(AfterOrderStatusChangeEvent $event)
+    {
+        $order = Order::findOne($event->orderId);
+        if ($event->statusId == Store::getPaidOrderStatusId($order->context_id) && $order->manager_id == 0) {
+            $managerId = array_rand(BackendHelper::managersDropDownList());
+            $order->attachManager($managerId);
+        }
     }
 
     /**
@@ -52,5 +66,10 @@ class OrderHandler
                 ]
             );
         }
+    }
+
+    public static function sendEmailToManager(AfterOrderStatusChangeEvent $event)
+    {
+        //
     }
 }

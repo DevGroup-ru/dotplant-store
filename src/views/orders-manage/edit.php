@@ -28,7 +28,14 @@ $this->params['breadcrumbs'] = [
                 <?= $form->field($model, 'delivery_id')->dropDownList(Delivery::listData($model->context_id)) ?>
                 <?= $form->field($model, 'payment_id')->dropDownList(Payment::listData($model->context_id)) ?>
                 <?= $form->field($model, 'is_retail')->textInput(['readonly' => 'readonly']) ?>
-                <?= $form->field($model, 'manager_id')->dropDownList(\DotPlant\Store\helpers\BackendHelper::managersDropDownList()) ?>
+                <?=
+                $form
+                    ->field($model, 'manager_id')
+                    ->dropDownList(
+                        [null => Yii::t('dotplant.store', 'Select the option')]
+                        + \DotPlant\Store\helpers\BackendHelper::managersDropDownList()
+                    )
+                ?>
             </div>
             <div class="col-xs-12 col-md-4">
                 <?= $form->field($model, 'currency_iso_code')->textInput(['readonly' => 'readonly']) ?>
@@ -45,6 +52,20 @@ $this->params['breadcrumbs'] = [
                 <?= $form->field($model, 'updated_by')->textInput(['readonly' => 'readonly']) ?>
                 <?= $form->field($model, 'updated_at')->textInput(['readonly' => 'readonly']) ?>
                 <?= $form->field($model, 'forming_time')->textInput(['readonly' => 'readonly']) ?>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-md-8">
+                <?=
+                \DotPlant\Store\widgets\common\OrderItems::widget(
+                    [
+                        'model' => $model,
+                    ]
+                )
+                ?>
+            </div>
+            <div class="col-xs-12 col-md-4">
+                <p>There will be a managers chat here</p>
             </div>
         </div>
     </div>
