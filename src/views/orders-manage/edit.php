@@ -15,7 +15,7 @@ use yii\widgets\ActiveForm;
 $this->title = Yii::t('dotplant.store', $model->isNewRecord ? 'Create' : 'Update');
 $this->params['breadcrumbs'] = [
     ['label' => Yii::t('dotplant.store', 'Orders'), 'url' => ['index', 'contextId' => $model->context_id]],
-    Yii::t('dotplant.store', $model->isNewRecord ? 'Create' : 'Update')
+    Yii::t('dotplant.store', $model->isNewRecord ? 'Create' : 'Update'),
 ];
 
 ?>
@@ -27,7 +27,6 @@ $this->params['breadcrumbs'] = [
                 <?= $form->field($model, 'status_id')->dropDownList(OrderStatus::listData($model->context_id)) ?>
                 <?= $form->field($model, 'delivery_id')->dropDownList(Delivery::listData($model->context_id)) ?>
                 <?= $form->field($model, 'payment_id')->dropDownList(Payment::listData($model->context_id)) ?>
-                <?= $form->field($model, 'is_retail')->textInput(['readonly' => 'readonly']) ?>
                 <?=
                 $form
                     ->field($model, 'manager_id')
@@ -38,10 +37,7 @@ $this->params['breadcrumbs'] = [
                 ?>
             </div>
             <div class="col-xs-12 col-md-4">
-                <?= $form->field($model, 'currency_iso_code')->textInput(['readonly' => 'readonly']) ?>
-                <?= $form->field($model, 'items_count')->textInput(['readonly' => 'readonly']) ?>
-                <?= $form->field($model, 'total_price_with_discount')->textInput(['readonly' => 'readonly']) ?>
-                <?= $form->field($model, 'total_price_without_discount')->textInput(['readonly' => 'readonly']) ?>
+                <?= $form->field($model, 'is_retail')->textInput(['readonly' => 'readonly']) ?>
                 <?= $form->field($model, 'promocode_id')->textInput(['readonly' => 'readonly']) ?>
                 <?= $form->field($model, 'promocode_discount')->textInput(['readonly' => 'readonly']) ?>
                 <?= $form->field($model, 'promocode_name')->textInput(['readonly' => 'readonly']) ?>
@@ -51,7 +47,6 @@ $this->params['breadcrumbs'] = [
                 <?= $form->field($model, 'created_at')->textInput(['readonly' => 'readonly']) ?>
                 <?= $form->field($model, 'updated_by')->textInput(['readonly' => 'readonly']) ?>
                 <?= $form->field($model, 'updated_at')->textInput(['readonly' => 'readonly']) ?>
-                <?= $form->field($model, 'forming_time')->textInput(['readonly' => 'readonly']) ?>
             </div>
         </div>
         <div class="row">
@@ -65,7 +60,7 @@ $this->params['breadcrumbs'] = [
                 ?>
             </div>
             <div class="col-xs-12 col-md-4">
-                <p>There will be a managers chat here</p>
+                <p>There will be managers chat here</p>
             </div>
         </div>
     </div>
