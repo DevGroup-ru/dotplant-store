@@ -8,6 +8,7 @@ use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\models\order\Cart;
 use DotPlant\Store\models\order\Order;
 use DotPlant\Store\models\order\OrderItem;
+use DotPlant\Store\models\order\OrderTransaction;
 use DotPlant\Store\Module;
 use Yii;
 use yii\helpers\ArrayHelper;
@@ -213,7 +214,21 @@ class Store
     public static function checkOrderIsPaid($order)
     {
         $paidStatusId = static::getPaidOrderStatusId($order->context_id);
-        return $order->status_id === $paidStatusId;
+        $transactions = OrderTransaction::findAll(['order_id' => $order->id]);
+        foreach ($transactions as $transaction) {
+            if (CurrencyHelper::convertCurrencies(
+                    $transaction->sum,
+                    CurrencyHelper::findCurrencyByIso($transaction->currency_iso_code),
+                    CurrencyHelper::findCurrencyByIso($order->currency_iso_code)
+                ) >= $order->total_price_with_discount && ArrayHelper::getValue(
+                    $transaction->result,
+                    'status'
+                ) == $paidStatusId
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

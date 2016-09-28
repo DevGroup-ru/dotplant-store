@@ -79,7 +79,8 @@ class SingleStepOrderAction extends Action
         if ($orderDeliveryInformationIsValid && $orderIsValid) {
             if ($order->isNewRecord) {
                 if (Yii::$app->user->isGuest && Module::module()->registerGuestInCart == 1) {
-                    $user = new (ModelMapHelper::User()['class']);
+                    $userClass = ModelMapHelper::User()['class'];
+                    $user = new $userClass;
                     $user->username = uniqid("", true);
                     $user->username_is_temporary = true;
                     $user->password_is_temporary = true;

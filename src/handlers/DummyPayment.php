@@ -32,8 +32,20 @@ class DummyPayment extends AbstractPaymentType
             [],
             ['status' => Module::EVENT_PAYMENT_STATUS_FORMED]
         );
-        Store::markOrderAsPaid($order);
-        Yii::$app->controller->redirect(['/store/order/show', 'hash' => $order->hash]);
+        $result = Store::markOrderAsPaid($order);
+        if ($result) {
+            $this->logData(
+                $order->id,
+                $this->_paymentId,
+                time(),
+                time(),
+                $order->total_price_with_discount,
+                $currencyIsoCode,
+                [],
+                ['status' => Store::getPaidOrderStatusId($order->context_id)]
+            );
+            Yii::$app->controller->redirect(['/store/order/show', 'hash' => $order->hash]);
+        }
     }
 
     public function refund($order, $currency, $amount)
