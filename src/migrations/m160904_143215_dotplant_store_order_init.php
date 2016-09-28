@@ -162,6 +162,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
                 'created_by' => $this->integer(),
                 'created_at' => $this->integer(),
                 'updated_at' => $this->integer(),
+                'user_id' => $this->integer(),
             ],
             $tableOptions
         );
@@ -193,6 +194,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
                 'forming_time' => $this->integer(),
                 'hash' => $this->char(32)->notNull(),
                 'is_deleted' => $this->boolean()->defaultValue(false),
+                'user_id' => $this->integer(),
             ],
             $tableOptions
         );

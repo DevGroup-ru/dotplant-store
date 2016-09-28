@@ -13,4 +13,5 @@ class DummyDelivery extends Component
     {
         return 0;
     }
+
 }

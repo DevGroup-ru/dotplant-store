@@ -28,6 +28,7 @@ class Store
         $model->loadDefaultValues();
         $model->context_id = Yii::$app->multilingual->context_id;
         $model->created_by = Yii::$app->user->id;
+        $model->user_id = Yii::$app->user->id;
         $model->currency_iso_code = CurrencyHelper::getUserCurrency()->iso_code;
         $model->is_retail = (int) static::isRetail();
         if (!$model->save()) {
@@ -51,7 +52,7 @@ class Store
             $model = Cart::findOne(
                 [
                     'context_id' => Yii::$app->multilingual->context_id,
-                    'created_by' => $userId,
+                    'user_id' => $userId,
                 ]
             );
         }
@@ -83,6 +84,26 @@ class Store
             ]
         );
         return $model;
+    }
+
+    /**
+     * @param int $userId
+     *
+     * @return \DotPlant\Store\models\order\Order[]
+     */
+    public static function getOrders($userId = null)
+    {
+        if (is_null($userId)) {
+            $hashes = Yii::$app->session->get(self::ORDER_HASHES_SESSION_KEY, []);
+            return array_reduce(
+                $hashes,
+                function ($carry, $item) {
+                    return $carry[] = self::getOrder($item);
+                },
+                []
+            );
+        }
+        return Order::findAll(['user_id' => $userId]);
     }
 
     /**
@@ -119,6 +140,7 @@ class Store
                         'items_count',
                         'total_price_with_discount',
                         'total_price_without_discount',
+                        'user_id',
                     ]
                 )
             );

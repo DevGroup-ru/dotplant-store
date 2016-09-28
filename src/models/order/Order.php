@@ -75,7 +75,9 @@ class Order extends \yii\db\ActiveRecord
                     'updated_by',
                     'updated_at',
                     'forming_time',
-                    'is_deleted'],
+                    'is_deleted',
+                    'user_id',
+                ],
                 'integer'
             ],
             [
@@ -121,7 +123,7 @@ class Order extends \yii\db\ActiveRecord
      */
     public function scenarios()
     {
-        $baseActionsInfoAttributes = ['created_by', 'created_at', 'updated_by', 'updated_at'];
+        $baseActionsInfoAttributes = ['created_by', 'created_at', 'updated_by', 'updated_at', 'user_id'];
         return [
             'order-creation' => [
                 'context_id',
