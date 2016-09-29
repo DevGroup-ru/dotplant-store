@@ -163,6 +163,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
                 'created_at' => $this->integer(),
                 'updated_at' => $this->integer(),
                 'user_id' => $this->integer(),
+                'packed_json_params' => $this->text(),
             ],
             $tableOptions
         );

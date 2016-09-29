@@ -36,7 +36,7 @@ class ExtendedPriceHelper
     /**
      * @var array
      */
-    private static $_gooodsExtendedPriceMap = [];
+    private static $_cartExtendedPriceMap = [];
 
 
     /**
@@ -81,6 +81,13 @@ class ExtendedPriceHelper
      */
     private static function getAllForOrder()
     {
+        if (self::$_allOrdersExtendedPrices === []) {
+            self::$_allOrdersExtendedPrices = self::getExtendedPriceQuery()->andWhere(
+                ['calculator_type' => 'order',]
+            )->asArray()->all();
+        }
+
+        return self::$_allOrdersExtendedPrices;
     }
 
     /**
@@ -125,7 +132,33 @@ class ExtendedPriceHelper
      */
     private static function filterForCart($cart)
     {
-        return [];
+        if (isset(self::$_cartExtendedPriceMap[$cart->id]) === false) {
+            self::$_cartExtendedPriceMap[$cart->id] = [];
+            //@todo add checking of target class
+            foreach (self::getAllForOrder() as $extendedPrice) {
+                if (false === empty($extendedPrice['extendedPriceRules'])) {
+                    $check = false;
+                    foreach ($extendedPrice['extendedPriceRules'] as $rule) {
+                        $class = $rule['extendedPriceHandler']['handler_class'];
+                        $params = empty($rule['packed_json_params']) === false ? Json::decode(
+                            $rule['packed_json_params']
+                        ) : [];
+                        $check = $class::check($cart, $params);
+
+                        if (($check === false && $rule['operand'] === 'AND') || ($check === true && $rule['operand'] === 'OR')) {
+                            break;
+                        }
+                    }
+                    if ($check === true) {
+                        self::$_cartExtendedPriceMap[$cart->id][] = $extendedPrice;
+                        if ((bool) $extendedPrice['is_final'] === true) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return self::$_cartExtendedPriceMap[$cart->id];
     }
 
     /**
@@ -164,10 +197,11 @@ class ExtendedPriceHelper
         ];
         if (empty($extendedPrices) === false) {
             foreach ($extendedPrices as $extendedPrice) {
+                $currentPrice = $price['priceAfter'];
                 $extendedPriceValue = CurrencyHelper::convertCurrencies(
                     $extendedPrice['value'],
-                    $extendedPrice['currency_iso_code'],
-                    $priceBeforeIsoCode
+                    CurrencyHelper::findCurrencyByIso($extendedPrice['currency_iso_code']),
+                    CurrencyHelper::findCurrencyByIso($priceBeforeIsoCode)
                 );
 
                 switch ($extendedPrice['mode']) {
@@ -185,8 +219,8 @@ class ExtendedPriceHelper
 
                 $minPrice = CurrencyHelper::convertCurrencies(
                     $extendedPrice['min_product_price'],
-                    $extendedPrice['currency_iso_code'],
-                    $priceBeforeIsoCode
+                    CurrencyHelper::findCurrencyByIso($extendedPrice['currency_iso_code']),
+                    CurrencyHelper::findCurrencyByIso($priceBeforeIsoCode)
                 );
                 if (is_null($minPrice) === false) {
                     if ($minPrice < $priceBefore) {
@@ -199,7 +233,7 @@ class ExtendedPriceHelper
                 $price['extendedPrice'][] = [
                     'extended_price_id' => $extendedPrice['id'],
                     'name' => $extendedPrice['name'],
-                    'value' => $price['priceAfter'] - $price['priceBefore'],
+                    'value' => $price['priceAfter'] - $currentPrice,
                 ];
             }
         }

@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\models\order;
 
+use DevGroup\DataStructure\behaviors\PackedJsonAttributes;
 use DevGroup\Entity\traits\BaseActionsInfoTrait;
 use DevGroup\Entity\traits\EntityTrait;
 use DotPlant\Store\components\calculator\CartCalculator;
@@ -27,6 +28,7 @@ use yii\helpers\ArrayHelper;
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $user_id
+ * @property string $packed_json_params
  *
  * @property OrderItem[] $items
  */
@@ -59,6 +61,16 @@ class Cart extends ActiveRecord
             [['context_id', 'is_locked', 'is_retail', 'created_by', 'created_at', 'updated_at', 'user_id'], 'integer'],
             [['items_count', 'total_price_with_discount', 'total_price_without_discount'], 'number'],
             [['currency_iso_code'], 'string', 'max' => 3],
+            [['packed_json_params'], 'string',],
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            'PackedJsonAttributes' => [
+                'class' => PackedJsonAttributes::class,
+            ],
         ];
     }
 
@@ -186,6 +198,9 @@ class Cart extends ActiveRecord
         $this->items_count = $price['items'];
         $this->total_price_with_discount = $price['totalPriceWithDiscount'];
         $this->total_price_without_discount = $price['totalPriceWithoutDiscount'];
+        $params = $this->params;
+        $params['extendedPrice'] = $price['extendedPrice'];
+        $this->params = $params;
     }
 
     /**
