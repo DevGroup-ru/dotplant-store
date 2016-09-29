@@ -27,23 +27,6 @@ class m160901_080611_dotplant_goods_add_goods_category extends Migration
                 'StoreBackendProductManager'
             ],
         ],
-        'StoreBackendCategoryManager' => [
-            'descr' => 'Backend Store Category Manager Role',
-            'permits' => [
-                'store-backend-category-view' => 'Backend Category View',
-                'store-backend-category-edit' => 'Backend Category Edit',
-                'store-backend-category-activate' => 'Backend Category Activate',
-            ]
-        ],
-        'StoreBackendCategoryAdministrator' => [
-            'descr' => 'Backend Store Category Administrator Role',
-            'permits' => [
-                'store-backend-category-delete' => 'Backend Category Delete',
-            ],
-            'roles' => [
-                'StoreBackendCategoryManager'
-            ],
-        ],
     ];
 
     public function up()

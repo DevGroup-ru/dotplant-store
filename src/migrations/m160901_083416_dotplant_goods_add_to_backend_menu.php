@@ -42,17 +42,6 @@ class m160901_083416_dotplant_goods_add_to_backend_menu extends Migration
             [
                 [
                     $storeItemId,
-                    'Categories',
-                    'fa fa-folder',
-                    0,
-                    'backend-view',
-                    '',
-                    '/store/goods-category-manage',
-                    'dotplant.store',
-                    'store'
-                ],
-                [
-                    $storeItemId,
                     'Products',
                     'fa fa-list',
                     0,
