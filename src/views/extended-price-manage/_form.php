@@ -7,6 +7,7 @@
  */
 
 use DevGroup\AdminUtils\FrontendHelper;
+use DotPlant\Currencies\models\Currency;
 use DotPlant\Store\models\extendedPrice\ExtendedPrice;
 use kartik\switchinput\SwitchInput;
 use yii\helpers\ArrayHelper;
@@ -39,7 +40,9 @@ use yii\widgets\ActiveForm;
         echo $form->field($model, 'is_final')->widget(SwitchInput::class);
         echo $form->field($model, 'priority');
         echo $form->field($model, 'value');
-        echo $form->field($model, 'currency_iso_code');
+        echo $form->field($model, 'currency_iso_code')->label(false)->dropDownList(
+            ArrayHelper::map(Currency::findAll(), 'iso_code', 'iso_code')
+        );
         echo $form->field($model, 'min_product_price');
         echo $form->field($model, 'start_time');
         echo $form->field($model, 'end_time');
