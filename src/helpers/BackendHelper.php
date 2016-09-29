@@ -81,7 +81,15 @@ class BackendHelper
                         'entity_id' => Entity::getEntityIdForClass(GoodsCategory::class)
                     ]
                 )
-                ->orderBy([new Expression('FIELD (id, ' . implode(',', $category->getParentsIds()) . ')')])
+                ->orderBy(
+                    [
+                        new Expression(
+                            'FIELD (id, '
+                            . (count($category->getParentsIds()) > 0 ? implode(',', $category->getParentsIds()) : 0)
+                            . ')'
+                        )
+                    ]
+                )
                 ->asArray()
                 ->all();
             foreach ($parentCategories as $cat) {
@@ -102,8 +110,6 @@ class BackendHelper
                 )
             );
         }
-
-
         return $result;
     }
 }
