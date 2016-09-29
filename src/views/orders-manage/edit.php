@@ -43,10 +43,13 @@ $this->params['breadcrumbs'] = [
                 <?= $form->field($model, 'promocode_name')->textInput(['readonly' => 'readonly']) ?>
             </div>
             <div class="col-xs-12 col-md-4">
-                <?= $form->field($model, 'created_by')->textInput(['readonly' => 'readonly']) ?>
-                <?= $form->field($model, 'created_at')->textInput(['readonly' => 'readonly']) ?>
-                <?= $form->field($model, 'updated_by')->textInput(['readonly' => 'readonly']) ?>
-                <?= $form->field($model, 'updated_at')->textInput(['readonly' => 'readonly']) ?>
+                <?=
+                \DevGroup\Entity\widgets\BaseActionsInfoWidget::widget(
+                    [
+                        'model' => $model,
+                    ]
+                )
+                ?>
             </div>
         </div>
         <div class="row">
