@@ -26,8 +26,14 @@ use yii\bootstrap\ActiveForm;
     <div class="col-xs-12 col-md-6">
         <div class="box">
             <div class="box-body">
-                <?= $form->field($order, 'payment_id')->dropDownList(\DotPlant\Store\models\order\Payment::listData()) ?>
-                <?= $form->field($order, 'delivery_id')->dropDownList(\DotPlant\Store\models\order\Delivery::listData()) ?>
+                <?=
+                $form->field($order, 'payment_id')
+                    ->dropDownList(\DotPlant\Store\models\order\Payment::listData($order->context_id))
+                ?>
+                <?=
+                $form->field($order, 'delivery_id')
+                    ->dropDownList(\DotPlant\Store\models\order\Delivery::listData($order->context_id))
+                ?>
             </div>
         </div>
     </div>
