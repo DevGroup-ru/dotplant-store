@@ -1,5 +1,7 @@
 <?php
 
+use DotPlant\Store\models\goods\Goods;
+use DotPlant\Store\models\warehouse\Warehouse;
 use DotPlant\Store\models\order\Cart;
 use DotPlant\Store\models\order\Delivery;
 use DotPlant\Store\models\order\DeliveryTranslation;
@@ -11,15 +13,11 @@ use DotPlant\Store\models\order\OrderStatusTranslation;
 use DotPlant\Store\models\order\OrderTransaction;
 use DotPlant\Store\models\order\Payment;
 use DotPlant\Store\models\order\PaymentTranslation;
+use DevGroup\Users\helpers\ModelMapHelper;
 use yii\db\Migration;
 
 class m160904_143215_dotplant_store_order_init extends Migration
 {
-    protected function unsignedPrimaryKey($length = null)
-    {
-        return $this->getDb()->getSchema()->createColumnSchemaBuilder(\yii\db\mysql\Schema::TYPE_UPK, $length);
-    }
-
     public function up()
     {
         $tableOptions = $this->db->driverName === 'mysql'
@@ -31,7 +29,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
         $this->createTable(
             Delivery::tableName(),
             [
-                'id' => $this->unsignedPrimaryKey(),
+                'id' => $this->primaryKey(),
                 'context_id' => $this->integer()->unsigned()->notNull(),
                 'handler_class_name' => $this->string(255),
                 'packed_json_handler_params' => $this->text(),
@@ -41,10 +39,15 @@ class m160904_143215_dotplant_store_order_init extends Migration
             ],
             $tableOptions
         );
+        $this->createIndex(
+            'ix-dotplant_store_delivery-active-context_id-sort_order',
+            Delivery::tableName(),
+            ['is_active', 'context_id', 'sort_order']
+        );
         $this->createTable(
             DeliveryTranslation::tableName(),
             [
-                'model_id' => $this->integer()->unsigned()->notNull(),
+                'model_id' => $this->integer()->notNull(),
                 'language_id' => $this->integer()->unsigned()->notNull(),
                 'name' => $this->string(255)->notNull(),
                 'description' => $this->text(),
@@ -71,7 +74,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
         $this->createTable(
             Payment::tableName(),
             [
-                'id' => $this->unsignedPrimaryKey(),
+                'id' => $this->primaryKey(),
                 'context_id' => $this->integer()->unsigned()->notNull(),
                 'handler_class_name' => $this->string(255),
                 'packed_json_handler_params' => $this->text(),
@@ -81,10 +84,15 @@ class m160904_143215_dotplant_store_order_init extends Migration
             ],
             $tableOptions
         );
+        $this->createIndex(
+            'ix-dotplant_store_payment-active-context_id-sort_order',
+            Payment::tableName(),
+            ['is_active', 'context_id', 'sort_order']
+        );
         $this->createTable(
             PaymentTranslation::tableName(),
             [
-                'model_id' => $this->integer()->unsigned()->notNull(),
+                'model_id' => $this->integer()->notNull(),
                 'language_id' => $this->integer()->unsigned()->notNull(),
                 'name' => $this->string(255)->notNull(),
                 'description' => $this->text(),
@@ -111,7 +119,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
         $this->createTable(
             OrderStatus::tableName(),
             [
-                'id' => $this->unsignedPrimaryKey(),
+                'id' => $this->primaryKey(),
                 'context_id' => $this->integer()->unsigned()->notNull(),
                 'label_class' => $this->string(255),
                 'sort_order' => $this->integer()->defaultValue(1),
@@ -120,10 +128,15 @@ class m160904_143215_dotplant_store_order_init extends Migration
             ],
             $tableOptions
         );
+        $this->createIndex(
+            'ix-dotplant_store_order_status-active-context_id-sort_order',
+            OrderStatus::tableName(),
+            ['is_active', 'context_id', 'sort_order']
+        );
         $this->createTable(
             OrderStatusTranslation::tableName(),
             [
-                'model_id' => $this->integer()->unsigned()->notNull(),
+                'model_id' => $this->integer()->notNull(),
                 'language_id' => $this->integer()->unsigned()->notNull(),
                 'name' => $this->string(255),
                 'label' => $this->string(255)->notNull(),
@@ -151,7 +164,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
         $this->createTable(
             Cart::tableName(),
             [
-                'id' => $this->unsignedPrimaryKey(),
+                'id' => $this->primaryKey(),
                 'context_id' => $this->integer()->unsigned()->notNull(),
                 'is_locked' => $this->boolean()->notNull()->defaultValue(false),
                 'is_retail' => $this->boolean()->notNull()->defaultValue(true),
@@ -167,17 +180,26 @@ class m160904_143215_dotplant_store_order_init extends Migration
             ],
             $tableOptions
         );
+        $this->addForeignKey(
+            'fk-dotplant_store_cart-user_id-user-id',
+            Cart::tableName(),
+            'user_id',
+            call_user_func([ModelMapHelper::User()['class'], 'tableName']),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
         /**
          * Order
          */
         $this->createTable(
             Order::tableName(),
             [
-                'id' => $this->unsignedPrimaryKey(),
+                'id' => $this->primaryKey(),
                 'context_id' => $this->integer()->unsigned()->notNull(),
-                'status_id' => $this->integer()->unsigned()->notNull(),
-                'delivery_id' => $this->integer()->unsigned(),
-                'payment_id' => $this->integer()->unsigned(),
+                'status_id' => $this->integer()->notNull(),
+                'delivery_id' => $this->integer(),
+                'payment_id' => $this->integer(),
                 'currency_iso_code' => $this->char(3)->notNull(),
                 'items_count' => $this->double(),
                 'total_price_with_discount' => $this->decimal(10, 2),
@@ -206,6 +228,15 @@ class m160904_143215_dotplant_store_order_init extends Migration
             true
         );
         $this->addForeignKey(
+            'fk-dotplant_store_order-user_id-user-id',
+            Order::tableName(),
+            'user_id',
+            call_user_func([ModelMapHelper::User()['class'], 'tableName']),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+        $this->addForeignKey(
             'fk-dotplant_store_order-status_id-order_status-id',
             Order::tableName(),
             'status_id',
@@ -232,7 +263,15 @@ class m160904_143215_dotplant_store_order_init extends Migration
             'CASCADE',
             'CASCADE'
         );
-        // @todo: fk to manager
+        $this->addForeignKey(
+            'fk-dotplant_store_order-manager_id-user-id',
+            Order::tableName(),
+            'manager_id',
+            call_user_func([ModelMapHelper::User()['class'], 'tableName']),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
         // @todo: fk to promocode
         /**
          * Order item
@@ -240,11 +279,11 @@ class m160904_143215_dotplant_store_order_init extends Migration
         $this->createTable(
             OrderItem::tableName(),
             [
-                'id' => $this->unsignedPrimaryKey(),
-                'cart_id' => $this->integer()->unsigned(),
-                'order_id' => $this->integer()->unsigned(),
-                'goods_id' => $this->integer(), // @todo: make it as unsigned column
-                'warehouse_id' => $this->integer(), // @todo: make it as unsigned column
+                'id' => $this->primaryKey(),
+                'cart_id' => $this->integer(),
+                'order_id' => $this->integer(),
+                'goods_id' => $this->integer(),
+                'warehouse_id' => $this->integer(),
                 'quantity' => $this->double()->notNull()->defaultValue(0),
                 'total_price_with_discount' => $this->decimal(10, 2),
                 'total_price_without_discount' => $this->decimal(10, 2),
@@ -275,7 +314,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
             'fk-dotplant_store_order_item-goods_id-goods-id',
             OrderItem::tableName(),
             'goods_id',
-            \DotPlant\Store\models\goods\Goods::tableName(),
+            Goods::tableName(),
             'id',
             'CASCADE',
             'CASCADE'
@@ -284,7 +323,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
             'fk-dotplant_store_order_item-warehouse_id-warehouse-id',
             OrderItem::tableName(),
             'warehouse_id',
-            \DotPlant\Store\models\warehouse\Warehouse::tableName(),
+            Warehouse::tableName(),
             'id',
             'CASCADE',
             'CASCADE'
@@ -295,9 +334,9 @@ class m160904_143215_dotplant_store_order_init extends Migration
         $this->createTable(
             OrderTransaction::tableName(),
             [
-                'id' => $this->unsignedPrimaryKey(),
-                'order_id' => $this->integer()->unsigned()->notNull(),
-                'payment_id' => $this->integer()->unsigned()->notNull(),
+                'id' => $this->primaryKey(),
+                'order_id' => $this->integer()->notNull(),
+                'payment_id' => $this->integer()->notNull(),
                 'start_time' => $this->integer()->notNull(),
                 'end_time' => $this->integer()->notNull(),
                 'sum' => $this->decimal(10, 2)->notNull(),
@@ -331,9 +370,9 @@ class m160904_143215_dotplant_store_order_init extends Migration
         $this->createTable(
             OrderDeliveryInformation::tableName(),
             [
-                'id' => $this->unsignedPrimaryKey(),
+                'id' => $this->primaryKey(),
                 'context_id' => $this->integer()->unsigned()->notNull(),
-                'order_id' => $this->integer()->unsigned(),
+                'order_id' => $this->integer(),
                 'user_id' => $this->integer(),
                 'country_id' => $this->integer(),
                 'full_name' => $this->string(255)->notNull(),
@@ -356,7 +395,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
             'fk-dotplant_store_order_delivery_information-user_id-user-id',
             OrderDeliveryInformation::tableName(),
             'user_id',
-            \DevGroup\Users\models\User::tableName(),
+            call_user_func([ModelMapHelper::User()['class'], 'tableName']),
             'id',
             'CASCADE',
             'CASCADE'

@@ -14,35 +14,21 @@ class m160901_113122_dotplant_goods_add_extended_price extends Migration
 {
     public function up()
     {
-        $this->insert(
-            BackendMenu::tableName(),
-            [
-                'parent_id' => BackendMenu::find()->select('id')->where(['name'=>'Store'])->scalar(),
-                'name' => 'Extended prices',
-                'icon' => 'fa fa-ils',
-                'sort_order' => 70,
-                'rbac_check' => 'dotplant-store-extended-price-view',
-                'css_class' => '',
-                'route' => '/store/extended-price-manage/index',
-                'translation_category' => 'dotplant.store',
-                'added_by_ext' => 'store',
-            ]
-        );
-
         mb_internal_encoding("UTF-8");
         $tableOptions = $this->db->driverName === 'mysql'
             ? 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB'
             : null;
+        // ExtendedPrice
         $this->createTable(
             ExtendedPrice::tableName(),
             [
                 'id' => $this->primaryKey(),
-                'name' => $this->string()->notNull(),
+                'name' => $this->string(255)->notNull(),
                 'mode' => "enum('-', '%', '=') NOT NULL DEFAULT '%'",
                 'is_final' => $this->boolean()->notNull()->defaultValue(0),
-                'priority' => $this->integer(5)->notNull()->defaultValue(0),
+                'priority' => $this->integer()->notNull()->defaultValue(0),
                 'value' => $this->decimal(10, 2)->notNull()->defaultValue(0),
-                'currency_iso_code' => $this->string(),
+                'currency_iso_code' => $this->char(3),
                 'min_product_price' => $this->decimal(10, 2),
                 'start_time' => $this->dateTime(),
                 'end_time' => $this->dateTime(),
@@ -52,7 +38,12 @@ class m160901_113122_dotplant_goods_add_extended_price extends Migration
             ],
             $tableOptions
         );
-
+        $this->createIndex(
+            'idx-ext-price-calc_t-context-time',
+            ExtendedPrice::tableName(),
+            ['calculator_type', 'context_id', 'start_time', 'end_time']
+        );
+        // ExtendedPriceRule
         $this->createTable(
             ExtendedPriceRule::tableName(),
             [
@@ -65,7 +56,17 @@ class m160901_113122_dotplant_goods_add_extended_price extends Migration
             ],
             $tableOptions
         );
-
+        $this->createIndex('idx-ext_price_rule-priority', ExtendedPriceRule::tableName(), ['priority']);
+        $this->addForeignKey(
+            'fk-ep_rules-ep',
+            ExtendedPriceRule::tableName(),
+            'extended_price_id',
+            ExtendedPrice::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+        // ExtendedPriceHandler
         $this->createTable(
             ExtendedPriceHandler::tableName(),
             [
@@ -76,32 +77,17 @@ class m160901_113122_dotplant_goods_add_extended_price extends Migration
             ],
             $tableOptions
         );
-
-        $this->createIndex(
-            'idx-ext-price-calc_t-context-time',
-            '{{%dotplant_store_extended_price}}',
-            ['calculator_type', 'context_id', 'start_time', 'end_time']
-        );
-        $this->createIndex('idx-ext_price_rule-priority', '{{%dotplant_store_extended_price_rule}}', ['priority']);
-
-        $this->addForeignKey(
-            'fk-ep_rules-ep',
-            '{{%dotplant_store_extended_price_rule}}',
-            'extended_price_id',
-            '{{%dotplant_store_extended_price}}',
-            'id',
-            'CASCADE'
-        );
         $this->addForeignKey(
             'fk-ep_rules-ep_handlers',
-            '{{%dotplant_store_extended_price_rule}}',
+            ExtendedPriceRule::tableName(),
             'extended_price_handler_id',
-            '{{%dotplant_store_extended_price_handlers}}',
+            ExtendedPriceHandler::tableName(),
             'id',
+            'CASCADE',
             'CASCADE'
         );
 
-
+        // Data
         $this->batchInsert(
             ExtendedPriceHandler::tableName(),
             [
@@ -130,7 +116,20 @@ class m160901_113122_dotplant_goods_add_extended_price extends Migration
                     StructureRule::class,
                     'goods'
                 ]
-
+            ]
+        );
+        $this->insert(
+            BackendMenu::tableName(),
+            [
+                'parent_id' => BackendMenu::find()->select('id')->where(['name'=>'Store'])->scalar(),
+                'name' => 'Extended prices',
+                'icon' => 'fa fa-ils',
+                'sort_order' => 70,
+                'rbac_check' => 'dotplant-store-extended-price-view',
+                'css_class' => '',
+                'route' => '/store/extended-price-manage/index',
+                'translation_category' => 'dotplant.store',
+                'added_by_ext' => 'store',
             ]
         );
     }
@@ -141,15 +140,8 @@ class m160901_113122_dotplant_goods_add_extended_price extends Migration
             BackendMenu::tableName(),
             ['name' => ['Extended prices']]
         );
-
-        $this->dropForeignKey('fk-ep_rules-ep', '{{%dotplant_store_extended_price_rule}}');
-        $this->dropForeignKey('fk-ep_rules-ep_handlers', '{{%dotplant_store_extended_price_rule}}');
-
-        $this->dropIndex('idx-ext-price-calc_t-context-time', '{{%dotplant_store_extended_price}}');
-        $this->dropIndex('idx-ext_price_rule-priority', '{{%dotplant_store_extended_price_rule}}');
-
-        $this->dropTable('{{%dotplant_store_extended_price}}');
         $this->dropTable('{{%dotplant_store_extended_price_rule}}');
         $this->dropTable('{{%dotplant_store_extended_price_handlers}}');
+        $this->dropTable('{{%dotplant_store_extended_price}}');
     }
 }

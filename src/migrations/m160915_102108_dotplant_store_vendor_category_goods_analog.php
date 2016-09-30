@@ -2,7 +2,10 @@
 
 use yii\db\Migration;
 use DotPlant\Store\models\goods\Goods;
+use DotPlant\Store\models\goods\CategoryGoods;
 use DotPlant\EntityStructure\models\BaseStructure;
+use DotPlant\Store\models\vendor\Vendor;
+use DotPlant\Store\models\vendor\VendorTranslation;
 
 class m160915_102108_dotplant_store_vendor_category_goods_analog extends Migration
 {
@@ -12,9 +15,11 @@ class m160915_102108_dotplant_store_vendor_category_goods_analog extends Migrati
         $tableOptions = $this->db->driverName === 'mysql'
             ? 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB'
             : null;
-
+        $longText = $this->db->driverName === 'mysql'
+            ? 'LONGTEXT'
+            : $this->text();
         $this->createTable(
-            '{{%dotplant_store_category_goods}}',
+            CategoryGoods::tableName(),
             [
                 'structure_id' => $this->integer()->notNull(),
                 'goods_id' => $this->integer()->notNull(),
@@ -24,30 +29,30 @@ class m160915_102108_dotplant_store_vendor_category_goods_analog extends Migrati
         );
         $this->createIndex(
             'idx-category_goods-struct_id-goods_id',
-            '{{%dotplant_store_category_goods}}',
+            CategoryGoods::tableName(),
             ['goods_id', 'structure_id'],
             true
         );
         $this->addForeignKey(
             'fk-category_goods-goods',
-            '{{%dotplant_store_category_goods}}',
+            CategoryGoods::tableName(),
             'goods_id',
             Goods::tableName(),
             'id',
+            'CASCADE',
             'CASCADE'
         );
-
         $this->addForeignKey(
             'fk-category_goods-structure',
-            '{{%dotplant_store_category_goods}}',
+            CategoryGoods::tableName(),
             'structure_id',
             BaseStructure::tableName(),
             'id',
+            'CASCADE',
             'CASCADE'
         );
-
         $this->createTable(
-            '{{%dotplant_store_vendor}}',
+            Vendor::tableName(),
             [
                 'id' => $this->primaryKey(),
                 'name' => $this->string(255)->notNull(),
@@ -64,12 +69,11 @@ class m160915_102108_dotplant_store_vendor_category_goods_analog extends Migrati
             'fk-vendor-id-goods-vendor_id',
             Goods::tableName(),
             'vendor_id',
-            '{{%dotplant_store_vendor}}',
+            Vendor::tableName(),
             'id'
         );
-
         $this->createTable(
-            '{{%dotplant_store_vendor_translation}}',
+            VendorTranslation::tableName(),
             [
                 'model_id' => $this->integer()->notNull(),
                 'language_id' => $this->integer()->notNull(),
@@ -80,34 +84,28 @@ class m160915_102108_dotplant_store_vendor_category_goods_analog extends Migrati
                 'slug' => $this->string(80)->notNull(),
                 'url' => $this->string(800),
                 'is_active' => $this->boolean()->notNull()->defaultValue(true),
-                'announce' => 'LONGTEXT',
-                'content' => 'LONGTEXT',
+                'announce' => $longText,
+                'content' => $longText,
             ],
             $tableOptions
         );
-
-        $this->createIndex('idx-vt-model_id-lang_id', '{{%dotplant_store_vendor_translation}}', ['model_id', 'language_id'], true);
+        $this->addPrimaryKey('pk-vt-model_id-lang_id', VendorTranslation::tableName(), ['model_id', 'language_id']);
         $this->addForeignKey(
             'fk-vt-vendor',
-            '{{%dotplant_store_vendor_translation}}',
+            VendorTranslation::tableName(),
             'model_id',
-            '{{%dotplant_store_vendor}}',
+            Vendor::tableName(),
             'id',
+            'CASCADE',
             'CASCADE'
         );
     }
 
     public function down()
     {
-        $this->dropForeignKey('fk-category_goods-goods', '{{%dotplant_store_category_goods}}');
-        $this->dropForeignKey('fk-category_goods-structure', '{{%dotplant_store_category_goods}}');
         $this->dropForeignKey('fk-vendor-id-goods-vendor_id', Goods::tableName());
-        $this->dropForeignKey('fk-vt-vendor', '{{%dotplant_store_vendor_translation}}');
-        $this->dropIndex('idx-category_goods-struct_id-goods_id', '{{%dotplant_store_category_goods}}');
-        $this->dropIndex('idx-vt-model_id-lang_id', '{{%dotplant_store_vendor_translation}}');
-
-        $this->dropTable('{{%dotplant_store_vendor}}');
-        $this->dropTable('{{%dotplant_store_category_goods}}');
-        $this->dropTable('{{%dotplant_store_vendor_translation}}');
+        $this->dropTable(VendorTranslation::tableName());
+        $this->dropTable(Vendor::tableName());
+        $this->dropTable(CategoryGoods::tableName());
     }
 }

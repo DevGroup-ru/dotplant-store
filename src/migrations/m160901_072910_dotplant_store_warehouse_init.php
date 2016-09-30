@@ -13,6 +13,7 @@ class m160901_072910_dotplant_store_warehouse_init extends Migration
         $tableOptions = $this->db->driverName === 'mysql'
             ? 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB'
             : null;
+        // Warehouse
         $this->createTable(
             Warehouse::tableName(),
             [
@@ -22,6 +23,8 @@ class m160901_072910_dotplant_store_warehouse_init extends Migration
             ],
             $tableOptions
         );
+
+        // WarehouseTranslation
         $this->createTable(
             WarehouseTranslation::tableName(),
             [
@@ -32,6 +35,22 @@ class m160901_072910_dotplant_store_warehouse_init extends Migration
             ],
             $tableOptions
         );
+        $this->addPrimaryKey(
+            'pk-warehouse_translation-model_id-language_id',
+            WarehouseTranslation::tableName(),
+            ['model_id', 'language_id']
+        );
+        $this->addForeignKey(
+            'fk-warehouse_translation-model_id-warehouse-id',
+            WarehouseTranslation::tableName(),
+            'model_id',
+            Warehouse::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+
+        // GoodsWarehouse
         $this->createTable(
             GoodsWarehouse::tableName(),
             [
@@ -49,23 +68,9 @@ class m160901_072910_dotplant_store_warehouse_init extends Migration
             $tableOptions
         );
         $this->addPrimaryKey(
-            'pk-warehouse_translation-model_id-language_id',
-            WarehouseTranslation::tableName(),
-            ['model_id', 'language_id']
-        );
-        $this->addPrimaryKey(
             'pk-goods_warehouse-goods_id-warehouse_id',
             GoodsWarehouse::tableName(),
             ['goods_id', 'warehouse_id']
-        );
-        $this->addForeignKey(
-            'fk-warehouse_translation-model_id-warehouse-id',
-            WarehouseTranslation::tableName(),
-            'model_id',
-            Warehouse::tableName(),
-            'id',
-            'CASCADE',
-            'CASCADE'
         );
         $this->addForeignKey(
             'fk-goods_warehouse-warehouse_id-warehouse-id',

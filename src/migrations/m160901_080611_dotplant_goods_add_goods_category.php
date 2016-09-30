@@ -1,11 +1,11 @@
 <?php
 
-use yii\db\Migration;
-use DotPlant\EntityStructure\models\Entity;
-use yii\helpers\Console;
 use app\helpers\PermissionsHelper;
-use DotPlant\Store\models\goods\GoodsCategory;
 use DevGroup\DataStructure\helpers\PropertiesTableGenerator;
+use DotPlant\EntityStructure\models\Entity;
+use DotPlant\Store\models\goods\GoodsCategory;
+use yii\helpers\Console;
+use yii\db\Migration;
 
 class m160901_080611_dotplant_goods_add_goods_category extends Migration
 {

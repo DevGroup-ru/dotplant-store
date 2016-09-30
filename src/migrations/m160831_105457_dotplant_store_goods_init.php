@@ -1,9 +1,9 @@
 <?php
 
 use yii\db\Migration;
-use DotPlant\EntityStructure\models\BaseStructure;
 use DevGroup\DataStructure\helpers\PropertiesTableGenerator;
 use DotPlant\Store\models\goods\Goods;
+use DotPlant\Store\models\goods\GoodsTranslation;
 
 class m160831_105457_dotplant_store_goods_init extends Migration
 {
@@ -13,12 +13,14 @@ class m160831_105457_dotplant_store_goods_init extends Migration
         $tableOptions = $this->db->driverName === 'mysql'
             ? 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB'
             : null;
+        $longText = $this->db->driverName === 'mysql'
+            ? 'LONGTEXT'
+            : $this->text();
         $this->createTable(
-            '{{%dotplant_store_goods}}',
+            Goods::tableName(),
             [
                 'id' => $this->primaryKey(),
                 'vendor_id' => $this->integer(),
-                'parent_id' => $this->integer(),
                 'main_structure_id' => $this->integer(),
                 'type' => $this->integer()->notNull()->defaultValue(1),
                 'role' => $this->integer(),
@@ -32,29 +34,15 @@ class m160831_105457_dotplant_store_goods_init extends Migration
             ],
             $tableOptions
         );
-        $this->createIndex('idx-goods-vendor_id', '{{%dotplant_store_goods}}', 'vendor_id');
-        $this->createIndex('idx-goods-parent_id', '{{%dotplant_store_goods}}', 'parent_id');
-        $this->createIndex('idx-goods-main_structure_id', '{{%dotplant_store_goods}}', 'main_structure_id');
-        $this->createIndex('idx-goods-type', '{{%dotplant_store_goods}}', 'type');
-        $this->createIndex('idx-goods-sku', '{{%dotplant_store_goods}}', 'sku');
-        $this->createIndex('idx-goods-inner_sku', '{{%dotplant_store_goods}}', 'inner_sku');
+        $this->createIndex('idx-goods-vendor_id', Goods::tableName(), 'vendor_id');
+        $this->createIndex('idx-dotplant_store_goods-main_structure_id', Goods::tableName(), 'main_structure_id'); // @todo: fk?
+        $this->createIndex('idx-dotplant_store_goods-type', Goods::tableName(), 'type');
+        $this->createIndex('idx-dotplant_store_goods-sku', Goods::tableName(), 'sku');
+        $this->createIndex('idx-dotplant_store_goods-inner_sku', Goods::tableName(), 'inner_sku');
 
+        // Translations
         $this->createTable(
-            '{{%dotplant_store_goods_analog}}',
-            [
-                'goods_id' => $this->integer()->notNull(),
-                'goods_analog_id' => $this->integer()->notNull()
-            ],
-            $tableOptions
-        );
-
-        $this->createIndex('idx-goods_analog-id_analog_id', '{{%dotplant_store_goods_analog}}', ['goods_id', 'goods_analog_id'], true);
-
-        $this->addForeignKey('fk-g-a-goods-goods', '{{%dotplant_store_goods_analog}}', 'goods_id', '{{%dotplant_store_goods}}', 'id', 'CASCADE');
-        $this->addForeignKey('fk-g-a-goods-analog', '{{%dotplant_store_goods_analog}}', 'goods_analog_id', '{{%dotplant_store_goods}}', 'id', 'CASCADE');
-
-        $this->createTable(
-            '{{%dotplant_store_goods_translation}}',
+            GoodsTranslation::tableName(),
             [
                 'model_id' => $this->integer()->notNull(),
                 'language_id' => $this->integer()->notNull(),
@@ -66,36 +54,72 @@ class m160831_105457_dotplant_store_goods_init extends Migration
                 'slug' => $this->string(80)->notNull(),
                 'url' => $this->string(800),
                 'is_active' => $this->boolean()->notNull()->defaultValue(true),
-                'announce' => 'LONGTEXT',
-                'content' => 'LONGTEXT',
+                'announce' => $longText,
+                'content' => $longText,
             ],
             $tableOptions
         );
+        $this->addPrimaryKey(
+            'pk-dotplant_store_goods_translation-model_id-language_id',
+            GoodsTranslation::tableName(),
+            ['model_id', 'language_id']
+        );
+//        $this->createIndex(
+//            'uq-ds-gt-language_id-url',
+//            GoodsTranslation::tableName(),
+//            ['url', 'language_id'],
+//            true
+//        );
+        $this->addForeignKey(
+            'fk-dotplant_store_goods_translation-model_id-goods-id',
+            '{{%dotplant_store_goods_translation}}',
+            'model_id',
+            Goods::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
 
-        $this->createIndex('idx-g-t-model_id-lang_id', '{{%dotplant_store_goods_translation}}', ['model_id', 'language_id'], true);
-        $this->addForeignKey('fk-g-t-goods', '{{%dotplant_store_goods_translation}}', 'model_id', '{{%dotplant_store_goods}}', 'id', 'CASCADE');
+        // Analog
+        // @todo: implement via Model::tableName()
+        $this->createTable(
+            '{{%dotplant_store_goods_analog}}',
+            [
+                'goods_id' => $this->integer()->notNull(),
+                'goods_analog_id' => $this->integer()->notNull()
+            ],
+            $tableOptions
+        );
+        $this->createIndex(
+            'idx-goods_analog-id_analog_id',
+            '{{%dotplant_store_goods_analog}}',
+            ['goods_id', 'goods_analog_id'],
+            true
+        );
+        $this->addForeignKey(
+            'fk-g-a-goods-goods',
+            '{{%dotplant_store_goods_analog}}',
+            'goods_id', Goods::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+        $this->addForeignKey(
+            'fk-g-a-goods-analog',
+            '{{%dotplant_store_goods_analog}}',
+            'goods_analog_id', Goods::tableName(),
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
         PropertiesTableGenerator::getInstance()->generate(Goods::class);
     }
 
     public function down()
     {
-        $this->dropForeignKey('fk-g-a-goods-goods', '{{%dotplant_store_goods_analog}}');
-        $this->dropForeignKey('fk-g-a-goods-analog', '{{%dotplant_store_goods_analog}}');
-        $this->dropForeignKey('fk-g-t-goods', '{{%dotplant_store_goods_translation}}');
-
-        $this->dropIndex('idx-goods-vendor_id', '{{%dotplant_store_goods}}');
-        $this->dropIndex('idx-goods-parent_id', '{{%dotplant_store_goods}}');
-        $this->dropIndex('idx-goods-main_structure_id', '{{%dotplant_store_goods}}');
-        $this->dropIndex('idx-goods-type', '{{%dotplant_store_goods}}');
-        $this->dropIndex('idx-goods-sku', '{{%dotplant_store_goods}}');
-        $this->dropIndex('idx-goods-inner_sku', '{{%dotplant_store_goods}}');
-        $this->dropIndex('idx-goods_analog-id_analog_id', '{{%dotplant_store_goods_analog}}');
-        $this->dropIndex('idx-g-t-model_id-lang_id', '{{%dotplant_store_goods_translation}}');
-
         PropertiesTableGenerator::getInstance()->drop(Goods::class);
-
-        $this->dropTable('{{%dotplant_store_goods}}');
+        $this->dropTable(GoodsTranslation::tableName());
         $this->dropTable('{{%dotplant_store_goods_analog}}');
-        $this->dropTable('{{%dotplant_store_goods_translation}}');
+        $this->dropTable(Goods::tableName());
     }
 }
