@@ -5,8 +5,10 @@ namespace DotPlant\Store\controllers;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DotPlant\Store\models\warehouse\Warehouse;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
+use yii\helpers\Json;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -96,6 +98,12 @@ class WarehousesManageController extends Controller
                 throw new ForbiddenHttpException;
             }
             $error = false;
+            try {
+                $model->params = Json::decode($model->packed_json_params);
+            } catch (InvalidParamException $e) {
+                $model->addError('packed_json_params', 'Syntax error.');
+                $error = true;
+            }
             foreach (Yii::$app->request->post('WarehouseTranslation') as $languageId => $attributes) {
                 $model->translate($languageId)->setAttributes($attributes);
                 if (!$model->translate($languageId)->validate()) {

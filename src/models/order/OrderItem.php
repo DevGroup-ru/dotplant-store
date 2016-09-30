@@ -8,8 +8,8 @@ use DotPlant\Store\components\calculator\OrderItemDeliveryCalculator;
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\models\goods\Goods;
 use DotPlant\Store\models\warehouse\Warehouse;
-use Yii;
 use yii\helpers\ArrayHelper;
+use Yii;
 
 /**
  * This is the model class for table "{{%dotplant_store_order_item}}".
@@ -27,6 +27,7 @@ use yii\helpers\ArrayHelper;
  *
  * @property Order $order
  * @property Cart $cart
+ * @property Warehouse $warehouse
  */
 class OrderItem extends \yii\db\ActiveRecord
 {
@@ -38,6 +39,9 @@ class OrderItem extends \yii\db\ActiveRecord
         return '{{%dotplant_store_order_item}}';
     }
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -55,8 +59,20 @@ class OrderItem extends \yii\db\ActiveRecord
         return [
             [['cart_id', 'order_id', 'goods_id', 'warehouse_id'], 'integer'],
             [['quantity', 'total_price_with_discount', 'total_price_without_discount', 'seller_price'], 'number'],
-            [['warehouse_id'], 'exist', 'skipOnError' => true, 'targetClass' => Warehouse::className(), 'targetAttribute' => ['warehouse_id' => 'id']],
-            [['cart_id'], 'exist', 'skipOnError' => true, 'targetClass' => Cart::className(), 'targetAttribute' => ['cart_id' => 'id']],
+            [
+                ['warehouse_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Warehouse::className(),
+                'targetAttribute' => ['warehouse_id' => 'id']
+            ],
+            [
+                ['cart_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Cart::className(),
+                'targetAttribute' => ['cart_id' => 'id']
+            ],
             [
                 ['goods_id'],
                 'exist',
@@ -67,12 +83,21 @@ class OrderItem extends \yii\db\ActiveRecord
                     return $model->goods_id != null;
                 },
             ],
-            [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => Order::className(), 'targetAttribute' => ['order_id' => 'id']],
+            [
+                ['order_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Order::className(),
+                'targetAttribute' => ['order_id' => 'id']
+            ],
             [['warehouse_id'], 'validateWarehouse'],
             [['packed_json_params'], 'string'],
         ];
     }
 
+    /**
+     *
+     */
     public function validateWarehouse()
     {
         if (!empty($this->order_id) && empty($this->warehouse_id)) {
@@ -116,6 +141,17 @@ class OrderItem extends \yii\db\ActiveRecord
         return $this->hasOne(Order::class, ['id' => 'order_id']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWarehouse()
+    {
+        return $this->hasOne(Warehouse::class, ['id' => 'warehouse_id']);
+    }
+
+    /**
+     * @throws OrderException
+     */
     public function calculate()
     {
         if ($this->isDelivery()) {
@@ -158,6 +194,15 @@ class OrderItem extends \yii\db\ActiveRecord
         $this->params = ArrayHelper::merge($this->params, ['extendedPrice' => $price['extendedPrice']]);
     }
 
+
+    /**
+     * @return bool|int
+     */
+    public function getDeliveryTerm()
+    {
+        return $this->isDelivery() === true ? false : OrderItemCalculator::getDeliveryTerm($this);
+    }
+
     /**
      * @param $id
      * @return Goods
@@ -172,6 +217,9 @@ class OrderItem extends \yii\db\ActiveRecord
         return $model;
     }
 
+    /**
+     * @return bool
+     */
     public function isDelivery()
     {
         if (is_null($this->goods_id) === true) {

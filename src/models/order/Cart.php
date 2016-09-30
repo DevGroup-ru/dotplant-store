@@ -204,6 +204,14 @@ class Cart extends ActiveRecord
     }
 
     /**
+     * @return int
+     */
+    public function getDeliveryTerm()
+    {
+       return CartCalculator::getDeliveryTerm($this);
+    }
+
+    /**
      * Whether to allow to edit the cart
      * @return bool
      */

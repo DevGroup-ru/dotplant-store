@@ -4,13 +4,13 @@
 namespace DotPlant\Store\components\calculator;
 
 use DotPlant\Store\helpers\ExtendedPriceHelper;
+use DotPlant\Store\interfaces\DeliveryTermCalculatorInterface;
 use DotPlant\Store\interfaces\NoGoodsCalculatorInterface;
 use DotPlant\Store\models\order\Cart;
 use DotPlant\Store\Module;
 use yii\base\InvalidParamException;
 
-
-class CartCalculator implements NoGoodsCalculatorInterface
+class CartCalculator implements NoGoodsCalculatorInterface, DeliveryTermCalculatorInterface
 {
 
     /**
@@ -51,5 +51,25 @@ class CartCalculator implements NoGoodsCalculatorInterface
         $price['extendedPrice'] = $extPricesApplied['extendedPrice'];
 
         return $price;
+    }
+
+
+    /**
+     * @param Cart $object
+     * @return int
+     */
+    public static function getDeliveryTerm($object)
+    {
+        $itemsDeliveryTerm = [];
+        if (Module::getInstance()->deliveryFromWarehouse == false) {
+            foreach ($object->items as $item) {
+                if ($itemDeliveryTerm = $item->getDeliveryTerm()) {
+                    $itemsDeliveryTerm[] = $itemDeliveryTerm;
+                }
+            }
+        }
+        /** @todo get customer delivery term */
+        $customerDeliveryTerm = 0;
+        return (empty($itemsDeliveryTerm) === true ? 0 : max($itemsDeliveryTerm)) + $customerDeliveryTerm;
     }
 }

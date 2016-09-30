@@ -2,7 +2,7 @@
 
 namespace DotPlant\Store\models\price;
 
-use DotPlant\Store\components\calculator\BundleGoodsCalculator;
+use DotPlant\Store\components\calculator\BundleCalculator;
 
 /**
  * Class BundlePrice
@@ -10,5 +10,5 @@ use DotPlant\Store\components\calculator\BundleGoodsCalculator;
  */
 class BundlePrice extends Price
 {
-    protected $_calculatorClass = BundleGoodsCalculator::class;
+    protected $_calculatorClass = BundleCalculator::class;
 }

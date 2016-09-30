@@ -3,16 +3,16 @@
 namespace DotPlant\Store\models\warehouse;
 
 use arogachev\sortable\behaviors\numerical\ContinuousNumericalSortableBehavior;
+use DevGroup\DataStructure\behaviors\PackedJsonAttributes;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DevGroup\TagDependencyHelper\CacheableActiveRecord;
 use DevGroup\TagDependencyHelper\TagDependencyTrait;
 use DotPlant\Store\exceptions\WarehouseException;
 use DotPlant\Store\interfaces\WarehouseInterface;
-use Yii;
 use yii\data\ActiveDataProvider;
-use yii\db\ActiveQuery;
 use yii\db\Expression;
+use Yii;
 
 /**
  * This is the model class for table "{{%dotplant_store_warehouse}}".
@@ -22,6 +22,9 @@ use yii\db\Expression;
  * @property integer $id
  * @property integer $type
  * @property integer $priority
+ * @property string $handler_class
+ * @property string $packed_json_params
+ * @property array $params
  */
 class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
 {
@@ -47,6 +50,31 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
         return [
             self::TYPE_WAREHOUSE => Yii::t('dotplant.store', 'Warehouse'),
             self::TYPE_SELLER => Yii::t('dotplant.store', 'Seller'),
+        ];
+    }
+
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'PackedJsonAttributes' => [
+                'class' => PackedJsonAttributes::class,
+            ],
+            'multilingual' => [
+                'class' => MultilingualActiveRecord::class,
+                'translationModelClass' => WarehouseTranslation::class,
+                'translationPublishedAttribute' => false,
+            ],
+            'cacheable' => [
+                'class' => CacheableActiveRecord::class,
+            ],
+            'sortable' => [
+                'class' => ContinuousNumericalSortableBehavior::class,
+                'sortAttribute' => 'priority',
+            ],
         ];
     }
 
@@ -198,26 +226,6 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
      * =================================================================================================================
      */
 
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'multilingual' => [
-                'class' => MultilingualActiveRecord::class,
-                'translationModelClass' => WarehouseTranslation::class,
-                'translationPublishedAttribute' => false,
-            ],
-            'cacheable' => [
-                'class' => CacheableActiveRecord::class,
-            ],
-            'sortable' => [
-                'class' => ContinuousNumericalSortableBehavior::class,
-                'sortAttribute' => 'priority',
-            ],
-        ];
-    }
 
     /**
      * @inheritdoc
@@ -234,6 +242,8 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
     {
         return [
             [['priority', 'type'], 'integer'],
+            [['handler_class', 'priority', 'type'], 'required'],
+            ['packed_json_params', 'default', 'value' => '{}']
         ];
     }
 
