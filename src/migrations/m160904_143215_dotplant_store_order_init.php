@@ -205,7 +205,7 @@ class m160904_143215_dotplant_store_order_init extends Migration
                 'total_price_with_discount' => $this->decimal(10, 2),
                 'total_price_without_discount' => $this->decimal(10, 2),
                 'is_retail' => $this->boolean()->notNull()->defaultValue(true),
-                'manager_id' => $this->integer()->notNull()->defaultValue(0),
+                'manager_id' => $this->integer(),
                 'promocode_id' => $this->integer()->notNull()->defaultValue(0),
                 'promocode_discount' => $this->decimal(10, 2)->notNull()->defaultValue(0),
                 'promocode_name' => $this->string(255),
