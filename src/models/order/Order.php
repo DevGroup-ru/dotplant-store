@@ -5,11 +5,14 @@ namespace DotPlant\Store\models\order;
 use DevGroup\Entity\traits\BaseActionsInfoTrait;
 use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SoftDeleteTrait;
+use DotPlant\Store\components\RelationQueryByLanguage;
+use DotPlant\Store\components\SortByContextLanguageExpression;
 use DotPlant\Store\events\AfterOrderManagerChangeEvent;
 use DotPlant\Store\events\AfterOrderStatusChangeEvent;
 use DotPlant\Store\events\OrderEvent;
 use DotPlant\Store\Module;
 use Yii;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "{{%dotplant_store_order}}".
@@ -38,6 +41,9 @@ use Yii;
  * @property boolean $is_deleted
  *
  * @property OrderDeliveryInformation $deliveryInformation
+ * @property OrderStatus $status
+ * @property Delivery $delivery
+ * @property Payment $payment
  * @property OrderItem[] $items
  */
 class Order extends \yii\db\ActiveRecord
@@ -191,6 +197,30 @@ class Order extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getStatus()
+    {
+        return $this->createRelation(OrderStatus::class, ['id' => $this->status_id], ['id' => 'status_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDelivery()
+    {
+        return $this->createRelation(Delivery::class, ['id' => $this->delivery_id], ['id' => 'delivery_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPayment()
+    {
+        return $this->createRelation(Payment::class, ['id' => $this->payment_id], ['id' => 'payment_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getItems()
     {
         return $this->hasMany(OrderItem::class, ['order_id' => 'id']);
@@ -248,5 +278,26 @@ class Order extends \yii\db\ActiveRecord
                 )
             );
         }
+    }
+
+    /**
+     * Create a smart relation with translations
+     * @param string $className
+     * @param mixed $whereCondition
+     * @param mixed $relationCondition
+     * @return ActiveQuery
+     */
+    private function createRelation($className, $whereCondition, $relationCondition)
+    {
+//        if ($this->context_id != Yii::$app->multilingual->context_id) {
+            $query = (new ActiveQuery($className))
+                ->where($whereCondition)
+                ->joinWith(['translations'])
+                ->orderBy([new SortByContextLanguageExpression($this->context_id)]);
+            $query->multiple = false;
+            return $query;
+//        } else {
+//            return $this->hasOne($className, $relationCondition);
+//        }
     }
 }

@@ -11,6 +11,7 @@ use DotPlant\Store\events\AfterOrderStatusChangeEvent;
 use DotPlant\Store\helpers\BackendHelper;
 use DotPlant\Store\models\order\Order;
 use DotPlant\Store\models\order\OrderStatus;
+use DotPlant\Store\Module;
 
 class OrderHandler
 {
@@ -75,12 +76,13 @@ class OrderHandler
     {
         $statuses = OrderStatus::listData();
         $order = Order::findOne($event->orderId);
-        if (isset(
-            $statuses[$event->oldStatusId],
-            $statuses[$event->statusId],
-            $event->data['emailTemplateId'],
-            $order->deliveryInformation
-        )
+        if (
+            isset(
+                $statuses[$event->oldStatusId],
+                $statuses[$event->statusId],
+                $event->data['emailTemplateId']
+            )
+            && !empty($order->deliveryInformation)
         ) {
             EmailHelper::sendNewMessage(
                 $order->deliveryInformation->email,
@@ -96,8 +98,25 @@ class OrderHandler
         }
     }
 
-    public static function sendEmailToManager(AfterOrderStatusChangeEvent $event)
+    /**
+     * You should set `emailTemplateId` via params. It is a template id from Template model of `dotplant/email` extension
+     * @param AfterOrderStatusChangeEvent $event
+     */
+    public static function sendEmailToCustomerAboutNewOrder(AfterOrderStatusChangeEvent $event)
     {
-        //
+        $order = Order::findOne($event->orderId);
+        if (
+            $event->statusId == Store::getPaidOrderStatusId($order->context_id)
+            && isset($event->data['emailTemplateId'])
+            && !empty($order->deliveryInformation)
+        ) {
+            EmailHelper::sendNewMessage(
+                $order->deliveryInformation->email,
+                $event->data['emailTemplateId'],
+                [
+                    'orderId' => $event->orderId,
+                ]
+            );
+        }
     }
 }
