@@ -2,7 +2,6 @@
 
 namespace DotPlant\Store\helpers;
 
-
 use DotPlant\Store\models\order\Cart;
 use DotPlant\Store\models\order\Order;
 use DotPlant\Store\models\order\OrderItem;
@@ -13,7 +12,6 @@ use DotPlant\Store\models\order\OrderItem;
  */
 class OrderHelper
 {
-
     /**
      * @param Order $order
      * @return Order
@@ -62,7 +60,6 @@ class OrderHelper
         }
 
         if (empty($targetItems) === false) {
-
             $newOrder = clone $order;
             $newOrder->id = null;
             $newOrder->isNewRecord = true;
@@ -95,6 +92,4 @@ class OrderHelper
 
         return $result;
     }
-
-
 }

@@ -52,6 +52,25 @@ $this->params['breadcrumbs'] = [
                 ?>
             </div>
         </div>
+
+    </div>
+    <?php if ($hasAccess) : ?>
+        <div class="box-footer">
+            <div class="pull-right">
+                <?=
+                Html::submitButton(
+                    Yii::t('dotplant.store', $model->isNewRecord ? 'Create' : 'Update'),
+                    ['class' => 'btn btn-primary']
+                )
+                ?>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>
+<?php ActiveForm::end();
+?>
+<div class="box">
+    <div class="box-body">
         <div class="row">
             <div class="col-xs-12 col-md-8">
                 <?=
@@ -67,17 +86,4 @@ $this->params['breadcrumbs'] = [
             </div>
         </div>
     </div>
-    <?php if ($hasAccess) : ?>
-    <div class="box-footer">
-        <div class="pull-right">
-            <?=
-            Html::submitButton(
-                Yii::t('dotplant.store', $model->isNewRecord ? 'Create' : 'Update'),
-                ['class' => 'btn btn-primary']
-            )
-            ?>
-        </div>
-    </div>
-    <?php endif; ?>
 </div>
-<?php ActiveForm::end();

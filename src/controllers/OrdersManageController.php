@@ -4,6 +4,7 @@ namespace DotPlant\Store\controllers;
 
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\helpers\BackendHelper;
+use DotPlant\Store\helpers\OrderHelper;
 use DotPlant\Store\models\order\Order;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -28,7 +29,7 @@ class OrdersManageController extends Controller
                 'class' => AccessControl::class,
                 'rules' => [
                     [
-                        'actions' => ['index', 'edit'],
+                        'actions' => ['index', 'edit', 'edit-items'],
                         'allow' => true,
                         'roles' => ['dotplant-store-order-view'],
                     ],
@@ -121,6 +122,30 @@ class OrdersManageController extends Controller
         $model->delete();
         return $this->redirect(['index']);
     }
+
+
+    /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionEditItems($id)
+    {
+        $model = $this->findModel($id);
+        $itemsIds = Yii::$app->request->post('id', []);
+        $action = Yii::$app->request->post('action', false);
+
+        if (empty($model) == false && empty($itemsIds) === false && empty($action) === false) {
+            switch ($action) {
+                case 'move_to_new_order':
+                    OrderHelper::separate($model->id, $itemsIds);
+                    break;
+            }
+        }
+
+        return $this->redirect(['/store/orders-manage/edit', 'id' => $id]);
+    }
+
 
     /**
      * Finds the Order model based on its primary key value.
