@@ -38,10 +38,12 @@ class OrderHelper
     /**
      * @param $orderId
      * @param $itemsIds
+     * @return bool|int new Order ID
      */
     public static function separate($orderId, $itemsIds)
     {
 
+        $result = false;
         $order = Order::findOne($orderId);
         $order->scenario = 'order-creation';
 
@@ -84,11 +86,14 @@ class OrderHelper
                     $item->updateAttributes(['order_id' => $newOrder->id]);
                 }
                 static::reCalculate($newOrder);
+                $result = $newOrder->id;
             }
 
-            $order->scenario = 'order-creation';
             static::reCalculate($order);
         }
+
+
+        return $result;
     }
 
 
