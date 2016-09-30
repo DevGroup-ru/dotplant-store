@@ -55,6 +55,7 @@ class SingleStepOrderAction extends Action
                 Yii::$app->session->setFlash('error', Yii::t('dotplant.store', 'Cart is empty'));
                 return $this->controller->redirect($this->cartRoute);
             }
+            $order->context_id = $cart->context_id;
             if (!$cart->canEdit()) {
                 return $this->controller->redirect(
                     ArrayHelper::merge($this->actionRoute, ['hash' => $cart->items[0]->order->hash])
