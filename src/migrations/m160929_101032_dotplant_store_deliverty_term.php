@@ -1,6 +1,6 @@
 <?php
 
-use DotPlant\Store\handlers\warehouseDelivery\WarehouseFixedDeliveryHandler;
+use DotPlant\Store\handlers\warehouseDelivery\FixedWarehouseDeliveryHandler;
 use yii\db\Migration;
 
 class m160929_101032_dotplant_store_deliverty_term extends Migration
@@ -10,7 +10,7 @@ class m160929_101032_dotplant_store_deliverty_term extends Migration
         $this->addColumn(
             '{{%dotplant_store_warehouse%}}',
             'handler_class',
-            $this->string()->notNull()->defaultValue(addslashes(WarehouseFixedDeliveryHandler::class))
+            $this->string()->notNull()->defaultValue(addslashes(FixedWarehouseDeliveryHandler::class))
         );
 
         $this->addColumn(
