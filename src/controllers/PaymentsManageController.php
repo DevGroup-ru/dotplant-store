@@ -148,7 +148,7 @@ class PaymentsManageController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Payment::findOne($id)) !== null) {
+        if (($model = (new ActiveQuery(Payment::class))->where(['id' => $id])->one()) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

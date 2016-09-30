@@ -148,7 +148,7 @@ class DeliveriesManageController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Delivery::findOne($id)) !== null) {
+        if (($model = (new ActiveQuery(Delivery::class))->where(['id' => $id])->one()) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

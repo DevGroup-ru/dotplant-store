@@ -149,8 +149,7 @@ class OrderStatusesManageController extends Controller
      */
     protected function findModel($id)
     {
-        $query = (new ActiveQuery(OrderStatus::class))->where(['id' => $id]);
-        if (($model = $query->one()) !== null) {
+        if (($model = (new ActiveQuery(OrderStatus::class))->where(['id' => $id])->one()) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
