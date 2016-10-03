@@ -40,7 +40,6 @@ class OrderHelper
      */
     public static function separate($orderId, $itemsIds)
     {
-
         $result = false;
         $order = Order::findOne($orderId);
         $order->scenario = 'order-creation';
@@ -60,9 +59,15 @@ class OrderHelper
         }
 
         if (empty($targetItems) === false) {
+            /**@var $newOrder Order */
             $newOrder = clone $order;
             $newOrder->id = null;
+            $newOrder->created_by = \Yii::$app->user->id;
+            $newOrder->updated_by = $newOrder->created_by;
+            $newOrder->created_at = date("Y-m-d H:i:s");
+            $newOrder->updated_at = $newOrder->created_at;
             $newOrder->isNewRecord = true;
+
             if ($newOrder->save()) {
                 if ($deliveryItem !== null) {
                     $deliveryItem->id = null;
