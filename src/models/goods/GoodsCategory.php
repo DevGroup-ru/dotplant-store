@@ -8,6 +8,7 @@ use DevGroup\Entity\traits\SoftDeleteTrait;
 use devgroup\JsTreeWidget\helpers\ContextMenuHelper;
 use DotPlant\EntityStructure\actions\BaseEntityTreeAction;
 use DotPlant\EntityStructure\models\BaseStructure;
+use DotPlant\EntityStructure\models\Entity;
 use DotPlant\Monster\Universal\MonsterEntityTrait;
 use DotPlant\Store\actions\goods\GoodsAutocompleteAction;
 use DotPlant\Store\actions\goods\GoodsDeleteAction;
