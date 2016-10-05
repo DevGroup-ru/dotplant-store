@@ -74,6 +74,7 @@ class GoodsManageAction extends BaseAdminAction
         $child = [];
         /**@var GoodsWarehouse[] $prices */
         $prices = [];
+        $goods->autoSaveProperties = true;
         if (false === $goods->isNewRecord) {
             $goods->translations;
             if ($goods->getHasChild() === false) {
