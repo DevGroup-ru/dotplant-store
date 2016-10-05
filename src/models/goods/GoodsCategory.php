@@ -8,13 +8,14 @@ use DevGroup\Entity\traits\SoftDeleteTrait;
 use devgroup\JsTreeWidget\helpers\ContextMenuHelper;
 use DotPlant\EntityStructure\actions\BaseEntityTreeAction;
 use DotPlant\EntityStructure\models\BaseStructure;
-use DotPlant\EntityStructure\models\Entity;
+use DotPlant\Monster\Universal\MonsterEntityTrait;
 use DotPlant\Store\actions\goods\GoodsAutocompleteAction;
 use DotPlant\Store\actions\goods\GoodsDeleteAction;
 use DotPlant\Store\actions\goods\GoodsListAction;
 use DotPlant\Store\actions\goods\GoodsManageAction;
 use DotPlant\Store\actions\goods\GoodsRestoreAction;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class GoodsCategory
@@ -26,6 +27,7 @@ class GoodsCategory extends BaseStructure
     use EntityTrait;
     use BaseActionsInfoTrait;
     use SoftDeleteTrait;
+    use MonsterEntityTrait;
 
     const TRANSLATION_CATEGORY = 'dotplant.store';
 
@@ -35,6 +37,21 @@ class GoodsCategory extends BaseStructure
     {
         //todo place it to the Module
         return 15;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return ArrayHelper::merge(
+            parent::behaviors(),
+            [
+                'multilingual' => [
+                    'translationModelClass' => GoodsCategoryTranslation::class,
+                ],
+            ]
+        );
     }
 
     /**
@@ -115,5 +132,17 @@ class GoodsCategory extends BaseStructure
                 'label' => Yii::t('dotplant.store', 'Goods category management'),
             ],
         ];
+    }
+
+    /**
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function advancedTranslatableAttributes()
+    {
+        $result = array_keys(GoodsCategoryExtended::getTableSchema()->columns);
+        $result[] = 'content';
+        $result[] = 'providers';
+        return $result;
     }
 }
