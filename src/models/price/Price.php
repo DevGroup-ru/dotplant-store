@@ -61,18 +61,26 @@ abstract class Price implements PriceInterface
     }
 
 
-
     public static function convert($price, $to)
     {
 
-        $price['original_iso_code'] = $price['iso_code'];
-        $price['original_value'] = $price['value'];
-        $price['iso_code'] = $to;
+        $price['originalCurrencyIsoCode'] = $price['isoCode'];
+        $price['originalValue'] = $price['value'];
+        $price['isoCode'] = $to;
         $price['value'] = CurrencyHelper::convertCurrencies(
             $price['value'],
-            CurrencyHelper::findCurrencyByIso($price['original_iso_code']),
+            CurrencyHelper::findCurrencyByIso($price['originalCurrencyIsoCode']),
             CurrencyHelper::findCurrencyByIso($to)
         );
+
+        if (isset($price['valueWithoutDiscount'])) {
+            $price['valueWithoutDiscount'] = CurrencyHelper::convertCurrencies(
+                $price['valueWithoutDiscount'],
+                CurrencyHelper::findCurrencyByIso($price['originalCurrencyIsoCode']),
+                CurrencyHelper::findCurrencyByIso($to)
+            );
+        }
+
         return $price;
     }
 
@@ -87,10 +95,30 @@ abstract class Price implements PriceInterface
      * @param string $priceType
      * @param bool|true $withDiscount
      * @param bool|false $convertIsoCode
-     * @return mixed
+     * @return array
+     *  [
+     *      'isoCode' => 'USD',
+     *      'value' => 864.07,
+     *      'valueWithoutDiscount' => 1080.08,
+     *      'originalCurrencyIsoCode' => 'RUB',
+     *      'originalValue' => 54294.40,
+     *      'discountReasons' => [
+     *              [
+     *                  'extended_price_id' => '1',
+     *                  'name' => 'Name',
+     *                  'target_class' => 'goods',
+     *                  'value' => -13573.59,
+     *              ]
+     *
+     *          ]
+     *   ]
      */
-    public function getPrice($warehouseId, $priceType = PriceInterface::TYPE_RETAIL, $withDiscount = true, $convertIsoCode = false)
-    {
+    public function getPrice(
+        $warehouseId,
+        $priceType = PriceInterface::TYPE_RETAIL,
+        $withDiscount = true,
+        $convertIsoCode = false
+    ) {
 
         $priceKey = implode(':', [
             $warehouseId,
@@ -111,7 +139,7 @@ abstract class Price implements PriceInterface
             $price = $calculatorClass::calculate($this);
 
             if (empty($price) === false && $this->getConvertIsoCode()) {
-                if ($this->getConvertIsoCode() !== $price['iso_code']) {
+                if ($this->getConvertIsoCode() !== $price['isoCode']) {
                     $price = $this->convert($price, $this->getConvertIsoCode());
                 }
             }

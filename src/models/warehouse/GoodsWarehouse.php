@@ -96,7 +96,7 @@ class GoodsWarehouse extends \yii\db\ActiveRecord implements WarehousePriceInter
             throw new WarehouseException(Yii::t('dotplant.store', 'Unknown price type'));
         }
         return [
-            'iso_code' => $this->currency_iso_code,
+            'isoCode' => $this->currency_iso_code,
             'value' => $this->{self::$_pricesMap[$priceType]}
         ];
     }

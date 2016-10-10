@@ -29,12 +29,12 @@ abstract class GoodsCalculator implements GoodsCalculatorInterface
         $resultPrice = ExtendedPriceHelper::applyExtendedPrices(
             $extendedPrices,
             $priceArray['value'],
-            $priceArray['iso_code']
+            $priceArray['isoCode']
         );
 
-        $priceArray['original_value'] = $priceArray['value'];
+        $priceArray['valueWithoutDiscount'] = $priceArray['value'];
         $priceArray['value'] = $resultPrice['priceAfter'];
-        $priceArray['reason'] = ArrayHelper::merge(
+        $priceArray['discountReasons'] = ArrayHelper::merge(
             ArrayHelper::getValue($priceArray, 'reason', []),
             $resultPrice['extendedPrice']
         );
