@@ -72,7 +72,7 @@ class EntityExtendedPriceEdit extends Widget
                 $allRules,
                 function ($carry, ExtendedPriceRule $item) {
                     if ($this->singleRule === false) {
-                        $ids = ArrayHelper::getValue($item->params, $this->_findField, []);
+                        $ids = (array) ArrayHelper::getValue($item->params, $this->_findField, []);
                         if (array_search($this->entity->id, $ids) !== false) {
                             $carry[] = $item;
                         }

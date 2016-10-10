@@ -24,6 +24,7 @@ class ExtendedPriceAjaxFormAction extends Action
         $json = Json::decode(ArrayHelper::getValue($post, ['extendedPriceRule']));
         $extendedPriceRule = ExtendedPriceRule::loadModel(ArrayHelper::getValue($json, ['id']), true);
         $extendedPriceRule->load(['extendedPriceRule' => $json], 'extendedPriceRule');
+        $extendedPriceRule->unpackAttributes();
 
         $extendedPrice = ExtendedPrice::loadModel($extendedPriceRule->extended_price_id, true);
         $extendedPrice->load($post);
