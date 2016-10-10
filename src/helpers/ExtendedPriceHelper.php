@@ -231,9 +231,9 @@ class ExtendedPriceHelper
                 }
 
                 $price['extendedPrice'][] = [
-                    'extended_price_id' => $extendedPrice['id'],
+                    'extendedPriceId' => $extendedPrice['id'],
                     'name' => $extendedPrice['name'],
-                    'target_class' => $extendedPrice['target_class'],
+                    'targetClass' => $extendedPrice['target_class'],
                     'value' => $price['priceAfter'] - $currentPrice,
                 ];
             }

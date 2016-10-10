@@ -104,9 +104,9 @@ abstract class Price implements PriceInterface
      *      'originalValue' => 54294.40,
      *      'discountReasons' => [
      *              [
-     *                  'extended_price_id' => '1',
+     *                  'extendedPriceId' => '1',
      *                  'name' => 'Name',
-     *                  'target_class' => 'goods',
+     *                  'targetClass' => 'goods',
      *                  'value' => -13573.59,
      *              ]
      *
