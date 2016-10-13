@@ -6,6 +6,8 @@ use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SeoTrait;
 use yii\db\ActiveRecord;
 use Yii;
+use yii\helpers\ArrayHelper;
+use yii2tech\ar\role\RoleBehavior;
 
 /**
  * This is the model class for table "{{%dotplant_goods_translation}}".
@@ -59,5 +61,40 @@ class GoodsTranslation extends ActiveRecord
             'announce' => Yii::t('dotplant.store', 'Announce'),
             'content' => Yii::t('dotplant.store', 'Content'),
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return ArrayHelper::merge(
+            parent::behaviors(),
+            [
+                'roleBehavior' => [
+                    'class' => RoleBehavior::className(),
+                    'roleRelation' => 'extended',
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Modifies base query to include extended relation to reduce total queries count
+     * @return \yii\db\ActiveQuery
+     */
+    public static function find()
+    {
+        $query = parent::find();
+        $query->joinWith('extended');
+        return $query;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getExtended()
+    {
+        return $this->hasOne(GoodsExtended::className(), ['model_id' => 'model_id', 'language_id' => 'language_id']);
     }
 }

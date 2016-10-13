@@ -13,6 +13,7 @@ use DevGroup\Multilingual\traits\MultilingualTrait;
 use DevGroup\TagDependencyHelper\CacheableActiveRecord;
 use DevGroup\TagDependencyHelper\TagDependencyTrait;
 use DotPlant\EntityStructure\models\BaseStructure;
+use DotPlant\Monster\Universal\MonsterEntityTrait;
 use DotPlant\Store\exceptions\GoodsException;
 use DotPlant\Store\interfaces\GoodsInterface;
 use DotPlant\Store\interfaces\GoodsTypesInterface;
@@ -56,6 +57,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
     use EntityTrait;
     use SoftDeleteTrait;
     use SeoTrait;
+    use MonsterEntityTrait;
 
     /**
      *
@@ -595,5 +597,17 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
         $query->andFilterWhere(['like', GoodsTranslation::tableName() . '.slug', $this->slug]);
         $query->andFilterWhere([GoodsTranslation::tableName() . '.is_active' => $this->is_active]);
         return $dataProvider;
+    }
+
+    /**
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function advancedTranslatableAttributes()
+    {
+        $result = array_keys(GoodsExtended::getTableSchema()->columns);
+        $result[] = 'content';
+        $result[] = 'providers';
+        return $result;
     }
 }
