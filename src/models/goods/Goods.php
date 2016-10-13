@@ -12,7 +12,9 @@ use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DevGroup\TagDependencyHelper\CacheableActiveRecord;
 use DevGroup\TagDependencyHelper\TagDependencyTrait;
+use DotPlant\EntityStructure\interfaces\MainEntitySeoInterface;
 use DotPlant\EntityStructure\models\BaseStructure;
+use DotPlant\EntityStructure\traits\MainEntitySeoTrait;
 use DotPlant\Monster\Universal\MonsterEntityTrait;
 use DotPlant\Store\exceptions\GoodsException;
 use DotPlant\Store\interfaces\GoodsInterface;
@@ -48,7 +50,7 @@ use yii\helpers\ArrayHelper;
  * @property BaseStructure[] $categories
  * @property BaseStructure $mainCategory
  */
-class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
+class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface, MainEntitySeoInterface
 {
     use MultilingualTrait;
     use TagDependencyTrait;
@@ -58,6 +60,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface
     use SoftDeleteTrait;
     use SeoTrait;
     use MonsterEntityTrait;
+    use MainEntitySeoTrait;
 
     /**
      *
