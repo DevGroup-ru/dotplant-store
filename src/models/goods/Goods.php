@@ -27,6 +27,7 @@ use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 /**
  * This is the model class for table "{{%dotplant_goods}}".
@@ -49,6 +50,7 @@ use yii\helpers\ArrayHelper;
  * @property Goods[] $parents
  * @property BaseStructure[] $categories
  * @property BaseStructure $mainCategory
+ * @property GoodsTranslation $defaultTranslation
  */
 class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface, MainEntitySeoInterface
 {
@@ -612,5 +614,18 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
         $result[] = 'content';
         $result[] = 'providers';
         return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSeoBreadcrumbs()
+    {
+        $model = BaseStructure::findOne($this->main_structure_id);
+        $breadcrumbs = $model->getSeoBreadcrumbs();
+        $breadcrumbs[] = [
+            'label' => $this->defaultTranslation->breadcrumbs_label,
+        ];
+        return $breadcrumbs;
     }
 }
