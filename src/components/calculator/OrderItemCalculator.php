@@ -35,16 +35,16 @@ class OrderItemCalculator implements NoGoodsCalculatorInterface, DeliveryTermCal
         $goodsPrice = $goods->getPrice($orderItem->warehouse_id, $priceType);
         $price['totalPriceWithDiscount'] = CurrencyHelper::convertCurrencies(
             $goodsPrice['value'],
-            CurrencyHelper::findCurrencyByIso($goodsPrice['iso_code']),
+            CurrencyHelper::findCurrencyByIso($goodsPrice['isoCode']),
             CurrencyHelper::findCurrencyByIso($orderItem->cart->currency_iso_code)
         ) * $orderItem->quantity;
         $price['totalPriceWithoutDiscount'] = CurrencyHelper::convertCurrencies(
-            isset($goodsPrice['original_value']) ? $goodsPrice['original_value'] : $goodsPrice['value'],
-            CurrencyHelper::findCurrencyByIso($goodsPrice['iso_code']),
+            isset($goodsPrice['valueWithoutDiscount']) ? $goodsPrice['valueWithoutDiscount'] : $goodsPrice['value'],
+            CurrencyHelper::findCurrencyByIso($goodsPrice['isoCode']),
             CurrencyHelper::findCurrencyByIso($orderItem->cart->currency_iso_code)
         ) * $orderItem->quantity;
         $price['items'] = $orderItem->quantity;
-        $price['extendedPrice'] = $goodsPrice['reason'];
+        $price['discountReasons'] = $goodsPrice['discountReasons'];
 
         return $price;
     }
