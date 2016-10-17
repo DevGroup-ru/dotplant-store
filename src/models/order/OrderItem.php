@@ -164,7 +164,10 @@ class OrderItem extends \yii\db\ActiveRecord
                 if (!isset($warehouses[$this->warehouse_id])) {
                     throw new OrderException(Yii::t('dotplant.store', 'The warehouse is not available'));
                 }
-                if ($warehouses[$this->warehouse_id]['available_count'] < $this->quantity) {
+                if (
+                    $warehouses[$this->warehouse_id]['available_count'] < $this->quantity
+                    && $warehouses[$this->warehouse_id]['is_unlimited'] == 0
+                ) {
                     throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
                 }
             } else {
@@ -174,7 +177,7 @@ class OrderItem extends \yii\db\ActiveRecord
                  */
                 $hasEnough = false;
                 foreach ($warehouses as $warehouseId => $warehouse) {
-                    if ($warehouse['available_count'] >= $this->quantity) {
+                    if ($warehouse['available_count'] >= $this->quantity || $warehouse['is_unlimited'] === 1) {
                         $hasEnough = true;
                         break;
                     }

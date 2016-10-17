@@ -114,7 +114,7 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
     public static function getOptimalWarehouse($goodsId, $quantity)
     {
         foreach (static::getWarehouses($goodsId, false) as $warehouse) {
-            if ($warehouse->getCount() >= $quantity) {
+            if ($warehouse->getCount() >= $quantity || $warehouse->is_unlimited == 1) {
                 return $warehouse;
             }
         }
