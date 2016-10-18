@@ -108,8 +108,12 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
      * This method returns an optimal warehouse
      * @todo: Move this method to interface and implement different types
      * Now it is implemented by priority
+     *
      * @param integer $goodsId
      * @param double $quantity
+     *
+     * @return GoodsWarehouse|\yii\db\ActiveRecord
+     * @throws WarehouseException
      */
     public static function getOptimalWarehouse($goodsId, $quantity)
     {
@@ -205,21 +209,6 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
         return $row['is_unlimited'] == 0 || $row['available_count'] > 0
             ? self::STATUS_IN_STOCK
             : self::STATUS_BY_REQUEST;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getMinPrice($goodsId, $isRetailPrice = true)
-    {
-        $priceField = $isRetailPrice ? 'retail_price' : 'wholesale_price';
-        return GoodsWarehouse::find()
-            ->select(new Expression('currency_iso_code AS `iso_code`, MIN(`' . $priceField . '`) AS `value`'))
-            ->where(['goods_id' => $goodsId, 'is_allowed' => 1])
-            ->groupBy('currency_iso_code')
-            ->orderBy([$priceField => SORT_ASC])
-            ->asArray(true)
-            ->all();
     }
 
     /**

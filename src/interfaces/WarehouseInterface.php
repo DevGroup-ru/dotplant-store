@@ -34,12 +34,4 @@ interface WarehouseInterface
      */
     public static function getStatusCode($goodsId);
 
-    /**
-     * Get minimum prices of goods
-     * If you have different currencies for one goods you should convert and compare it.
-     * @param integer $goodsId
-     * @param bool $isRetailPrice
-     * @return array of minimum prices for each currency
-     */
-    public static function getMinPrice($goodsId, $isRetailPrice = true);
 }

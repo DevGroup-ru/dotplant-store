@@ -26,6 +26,8 @@ interface PriceInterface
 
     public function getPrice($warehouseId, $priceType, $withDiscount, $convertIsoCode);
 
+    public function getMinPrice($priceType, $withDiscount, $convertIsoCode);
+
     public function setPrice($price);
 
     public static function convert($price, $to);

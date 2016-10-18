@@ -6,7 +6,9 @@ use DotPlant\Currencies\helpers\CurrencyHelper;
 use DotPlant\Store\exceptions\PriceException;
 use DotPlant\Store\interfaces\PriceInterface;
 use DotPlant\Store\models\goods\Goods;
+use DotPlant\Store\models\warehouse\Warehouse;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 abstract class Price implements PriceInterface
 {
@@ -110,7 +112,8 @@ abstract class Price implements PriceInterface
      *                  'value' => -13573.59,
      *              ]
      *
-     *          ]
+     *          ],
+     *      'warehouseId' => 1,
      *   ]
      */
     public function getPrice(
@@ -138,14 +141,65 @@ abstract class Price implements PriceInterface
             $calculatorClass = $this->_calculatorClass;
             $price = $calculatorClass::calculate($this);
 
-            if (empty($price) === false && $this->getConvertIsoCode()) {
-                if ($this->getConvertIsoCode() !== $price['isoCode']) {
-                    $price = $this->convert($price, $this->getConvertIsoCode());
+            if (empty($price) === false) {
+                $isoCode = $this->getConvertIsoCode();
+                if ($isoCode && $isoCode !== $price['isoCode']) {
+                    $price = $this->convert($price, $isoCode);
                 }
+                $price = ArrayHelper::merge($price, ['warehouseId' => $warehouseId]);
             }
             $this->_price[$priceKey] = $price;
         }
 
+        return $this->_price[$priceKey];
+    }
+
+    /**
+     * @param string $priceType
+     * @param bool $withDiscount
+     * @param bool $convertIsoCode
+     *
+     * @return array
+     *  [
+     *      'isoCode' => 'USD',
+     *      'value' => 864.07,
+     *      'valueWithoutDiscount' => 1080.08,
+     *      'originalCurrencyIsoCode' => 'RUB',
+     *      'originalValue' => 54294.40,
+     *      'discountReasons' => [
+     *              [
+     *                  'extendedPriceId' => '1',
+     *                  'name' => 'Name',
+     *                  'targetClass' => 'goods',
+     *                  'value' => -13573.59,
+     *              ]
+     *
+     *          ],
+     *      'warehouseId' => 1,
+     *   ]
+     */
+    public function getMinPrice($priceType = PriceInterface::TYPE_RETAIL, $withDiscount = true, $convertIsoCode = false)
+    {
+        $priceKey = implode(':', [
+            'MinPrice',
+            $priceType,
+            $this->getGoods()->id,
+            $convertIsoCode,
+            $withDiscount
+        ]);
+        if (empty($this->_price[$priceKey]) === true) {
+            $warehouses = Warehouse::getWarehouses($this->getGoods()->id);
+            $this->_price[$priceKey] = array_reduce(
+                $warehouses,
+                function ($minPrice, $warehouse) use ($priceType, $withDiscount, $convertIsoCode) {
+                    $warehousePrice = $this->getPrice($warehouse['warehouse_id'], $priceType, $convertIsoCode);
+                    if (is_null($minPrice)) {
+                        $minPrice = $warehousePrice;
+                    }
+                    return $minPrice['value'] > $warehousePrice['value'] ? $warehousePrice : $minPrice;
+                }
+            );
+        }
         return $this->_price[$priceKey];
     }
 
