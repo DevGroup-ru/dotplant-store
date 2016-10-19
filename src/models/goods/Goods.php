@@ -328,6 +328,20 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
     }
 
     /**
+     * @param string $priceType
+     * @param bool|true $withDiscount
+     * @param bool|false $convertIsoCode
+     * @return mixed
+     */
+    public function getMinPrice(
+        $priceType = PriceInterface::TYPE_RETAIL,
+        $withDiscount = true,
+        $convertIsoCode = false
+    ) {
+        return $this->price->getMinPrice($priceType, $withDiscount, $convertIsoCode);
+    }
+
+    /**
      * @inheritdoc
      */
     public static function tableName()
