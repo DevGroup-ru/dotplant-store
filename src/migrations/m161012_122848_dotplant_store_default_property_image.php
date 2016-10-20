@@ -12,11 +12,19 @@ use DevGroup\MediaStorage\properties\MediaStorage;
 use DotPlant\Store\models\goods\Goods;
 use yii\db\ActiveQuery;
 use yii\db\Migration;
+use yii\db\Query;
 
-class m161005_122848_dotplant_store_default_property_image extends Migration
+class m161012_122848_dotplant_store_default_property_image extends Migration
 {
     public function up()
     {
+        $count = (new Query)
+            ->from(Yii::$app->controller->migrationTable)
+            ->where(['version' => 'm161005_122848_dotplant_store_default_property_image'])
+            ->count('*', $this->db);
+        if ($count > 0) {
+            return true;
+        }
         (new MediaTableGenerator())->generate(Goods::class);
         $propertyGroup = new PropertyGroup(Goods::class);
         $propertyGroup->internal_name = 'Goods images';
@@ -25,8 +33,6 @@ class m161005_122848_dotplant_store_default_property_image extends Migration
             $propertyGroup->translate($id)->name = 'Goods images';
         }
         $propertyGroup->save();
-
-
         $property = new Property();
         $property->key = 'goods_images';
         foreach (Yii::$app->multilingual->getAllLanguages() as $id => $name) {
@@ -36,15 +42,15 @@ class m161005_122848_dotplant_store_default_property_image extends Migration
         $property->allow_multiple_values = 1;
         $property->storage_id = PropertyStorage::find()->where(['class_name' => MediaStorage::class])->scalar();
         $property->property_handler_id = PropertyHandlerHelper::getInstance()->handlerIdByClassName(MediaHandler::class);
-        $saved = $property->save();
-
-        $this->insert(
-            PropertyPropertyGroup::tableName(),
-            [
-                'property_group_id' => $propertyGroup->id,
-                'property_id' => $property->id
-            ]
-        );
+        if ($property->save()) {
+            $this->insert(
+                PropertyPropertyGroup::tableName(),
+                [
+                    'property_group_id' => $propertyGroup->id,
+                    'property_id' => $property->id
+                ]
+            );
+        }
     }
 
     public function down()
@@ -55,18 +61,12 @@ class m161005_122848_dotplant_store_default_property_image extends Migration
             'internal_name' => 'Goods images',
             'is_auto_added' => 1
         ])->one();
-
         $propertyGroup->hardDelete();
-
         /** @var Property $property * */
         $property = (new ActiveQuery(Property::class))->where([
             'key' => 'goods_images',
         ])->one();
-
         $property->hardDelete();
-
-
         $this->dropTable((new MediaTableGenerator())->getMediaTableName(Goods::class));
     }
-
 }
