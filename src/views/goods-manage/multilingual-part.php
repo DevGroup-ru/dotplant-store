@@ -13,6 +13,7 @@ use kartik\switchinput\SwitchInput;
 <?= $form->field($model, $attributePrefix . 'name') ?>
 <?= $form->field($model, $attributePrefix . 'title') ?>
 <?= $form->field($model, $attributePrefix . 'h1') ?>
+<?= $form->field($model, $attributePrefix . 'breadcrumbs_label') ?>
 <?= $form->field($model, $attributePrefix . 'slug') ?>
 <?= $form->field($model, $attributePrefix . 'meta_description') ?>
 <?= $form->field($model, $attributePrefix . 'announce')->textarea(['rows' => 5]) ?>
