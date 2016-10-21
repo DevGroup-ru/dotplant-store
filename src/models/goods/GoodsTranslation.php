@@ -22,8 +22,7 @@ use yii2tech\ar\role\RoleBehavior;
  * @property string $slug
  * @property string $url
  * @property integer $is_active
- * @property string $announce
- * @property string $content
+ * @property string $description
  */
 class GoodsTranslation extends ActiveRecord
 {
@@ -43,7 +42,7 @@ class GoodsTranslation extends ActiveRecord
         return [
             [['name', 'slug', 'name'], 'required'],
             [['is_active'], 'integer'],
-            [['announce', 'content'], 'string'],
+            [['announce', 'description'], 'string'],
             [['name'], 'string', 'max' => 255],
             [['url'], 'string', 'max' => 800],
         ];
@@ -59,7 +58,7 @@ class GoodsTranslation extends ActiveRecord
             'url' => Yii::t('dotplant.store', 'Url'),
             'is_active' => Yii::t('dotplant.store', 'Is active'),
             'announce' => Yii::t('dotplant.store', 'Announce'),
-            'content' => Yii::t('dotplant.store', 'Content'),
+            'description' => Yii::t('dotplant.store', 'Description'),
         ];
     }
 
