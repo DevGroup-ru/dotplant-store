@@ -68,6 +68,7 @@ class Store
         if ($model === null && $createIfNotExists) {
             $model = static::createCart();
         }
+
         return $model;
     }
 
