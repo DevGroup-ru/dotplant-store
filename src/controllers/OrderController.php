@@ -17,6 +17,8 @@ use DotPlant\Store\components\OrderSingleStepProvider;
 use DotPlant\Store\components\PaymentByHashProvider;
 use DotPlant\Store\components\UserOrdersProvider;
 use DotPlant\Store\components\Store;
+use DotPlant\Store\models\order\OrderDeliveryInformation;
+use DotPlant\Store\models\order\Payment;
 use yii\base\Exception;
 
 class OrderController extends FrontendController
@@ -29,7 +31,7 @@ class OrderController extends FrontendController
                 'actions' => [
                     [
                         'class' => ServiceMonsterAction::class,
-                        'serviceTemplateKey' => 'order',
+                        'serviceTemplateKey' => 'orderError',
                     ],
                 ],
             ],
@@ -51,7 +53,7 @@ class OrderController extends FrontendController
                     ['class' => HashCheckAction::class],
                     [
                         'class' => ServiceMonsterAction::class,
-                        'serviceTemplateKey' => 'order',
+                        'serviceTemplateKey' => 'orderShow',
                         'serviceEntityCallback' => function (ServiceEntity $entity) {
                             $entity->providers[] = OrderByHashProvider::class;
                             $entity->providers[] = OrderDeliveryInformationByHashProvider::class;
@@ -66,7 +68,7 @@ class OrderController extends FrontendController
                     ['class' => HashCheckAction::class],
                     [
                         'class' => ServiceMonsterAction::class,
-                        'serviceTemplateKey' => 'order',
+                        'serviceTemplateKey' => 'orderRefund',
                         'serviceEntityCallback' => function (ServiceEntity $entity) {
                             $entity->providers[] = OrderByHashProvider::class;
                             $entity->providers[] = PaymentByHashProvider::class;
@@ -92,7 +94,6 @@ class OrderController extends FrontendController
             'old-create' => [
                 'class' => SingleStepOrderAction::class,
             ],
-
         ];
     }
 
@@ -105,6 +106,14 @@ class OrderController extends FrontendController
             $order->status_id = Store::getCanceledOrderStatusId($order->context_id);
             \Yii::$app->session->setFlash('success', \Yii::t('dotplant.store', 'Order successfully canceled'));
         }
+    }
+
+    public function actionOldShow($hash)
+    {
+        $order = Store::getOrder($hash);
+        $orderDeliveryInformation = OrderDeliveryInformation::findOne(['order_id' => $order->id]);
+        $payment = Payment::findOne($order->id);
+        return $this->render('show', ['order' => $order, 'orderDeliveryInformation' => $orderDeliveryInformation]);
     }
 
 }
