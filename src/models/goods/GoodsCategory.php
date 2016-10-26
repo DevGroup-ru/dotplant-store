@@ -141,9 +141,13 @@ class GoodsCategory extends BaseStructure
      */
     public function advancedTranslatableAttributes()
     {
-        $result = array_keys(GoodsCategoryExtended::getTableSchema()->columns);
-        $result[] = 'content';
-        $result[] = 'providers';
+        $result = Yii::$app->cache->get(__CLASS__.':'.__FUNCTION__);
+        if ($result === false) {
+            $result = array_keys(GoodsCategoryExtended::getTableSchema()->columns);
+            $result[] = 'content';
+            $result[] = 'providers';
+            Yii::$app->cache->set(__CLASS__.':'.__FUNCTION__, $result, 86400);
+        }
         return $result;
     }
 }
