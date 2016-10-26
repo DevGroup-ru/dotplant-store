@@ -1,7 +1,7 @@
 <?php
 
 use DevGroup\DataStructure\models\PropertyHandlers;
-use DotPlant\Store\propertyHandler\RelatedProducts;
+use DotPlant\Store\propertyHandler\RelatedGoods;
 use yii\db\Migration;
 
 class m161025_103010_dotplant_store_properties_related_products extends Migration
@@ -17,8 +17,8 @@ class m161025_103010_dotplant_store_properties_related_products extends Migratio
         $this->insert(
             PropertyHandlers::tableName(),
             [
-                'name' => 'Related Products',
-                'class_name' => RelatedProducts::class,
+                'name' => 'Related Goods',
+                'class_name' => RelatedGoods::class,
                 'sort_order' => ($lastSortOrder + 1),
                 'packed_json_default_config' => '[]',
             ]
@@ -30,7 +30,7 @@ class m161025_103010_dotplant_store_properties_related_products extends Migratio
         $this->delete(
             PropertyHandlers::tableName(),
             [
-                'class_name' => RelatedProducts::class,
+                'class_name' => RelatedGoods::class,
             ]
         );
     }
