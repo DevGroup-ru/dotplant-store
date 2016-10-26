@@ -2,6 +2,11 @@
 
 namespace DotPlant\Store\controllers;
 
+use DevGroup\Frontend\controllers\FrontendController;
+use DevGroup\Frontend\Universal\SuperAction;
+use DotPlant\Monster\models\ServiceEntity;
+use DotPlant\Monster\Universal\ServiceMonsterAction;
+use DotPlant\Store\components\CartProvider;
 use DotPlant\Store\components\Store;
 use Yii;
 use yii\web\BadRequestHttpException;
@@ -12,8 +17,27 @@ use yii\web\Response;
  *
  * @package DotPlant\Store\controllers
  */
-class CartController extends \yii\web\Controller
+class CartController extends FrontendController
 {
+
+    public function actions()
+    {
+        return [
+            'index' => [
+                'class' => SuperAction::class,
+                'actions' => [
+                    [
+                        'class' => ServiceMonsterAction::class,
+                        'serviceTemplateKey' => 'cart',
+                        'serviceEntityCallback' => function (ServiceEntity $entity) {
+                            $entity->providers[] = CartProvider::class;
+                        },
+                    ],
+                ],
+            ],
+        ];
+    }
+
     private function result($data)
     {
         if (Yii::$app->request->isAjax) {
@@ -71,12 +95,6 @@ class CartController extends \yii\web\Controller
         }
         Yii::$app->session->setFlash('success', Yii::t('dotplant.store', 'Cart has been cleared'));
         return $this->redirect(Yii::$app->request->referrer);
-    }
-
-    public function actionIndex()
-    {
-        $model = Store::getCart(false);
-        return $this->render('index', ['model' => $model]);
     }
 
     public function actionRemove()

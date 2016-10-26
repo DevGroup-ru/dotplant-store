@@ -2,51 +2,98 @@
 
 namespace DotPlant\Store\controllers;
 
+use DevGroup\Frontend\controllers\FrontendController;
+use DevGroup\Frontend\Universal\SuperAction;
+use DotPlant\Monster\models\ServiceEntity;
+use DotPlant\Monster\Universal\ServiceMonsterAction;
+use DotPlant\Store\actions\HashCheckAction;
 use DotPlant\Store\actions\order\PaymentCheckAction;
 use DotPlant\Store\actions\order\PaymentPayAction;
 use DotPlant\Store\actions\order\PaymentSuccessAction;
 use DotPlant\Store\actions\order\SingleStepOrderAction;
-use DotPlant\Store\models\order\Payment;
+use DotPlant\Store\components\OrderByHashProvider;
+use DotPlant\Store\components\OrderDeliveryInformationByHashProvider;
+use DotPlant\Store\components\OrderSingleStepProvider;
+use DotPlant\Store\components\PaymentByHashProvider;
+use DotPlant\Store\components\UserOrdersProvider;
 use DotPlant\Store\components\Store;
-use DotPlant\Store\models\order\OrderDeliveryInformation;
 use yii\base\Exception;
 
-class OrderController extends \yii\web\Controller
+class OrderController extends FrontendController
 {
     public function actions()
     {
         return [
+            'error' => [
+                'class' => SuperAction::class,
+                'actions' => [
+                    [
+                        'class' => ServiceMonsterAction::class,
+                        'serviceTemplateKey' => 'order',
+                    ],
+                ],
+            ],
+            'list' => [
+                'class' => SuperAction::class,
+                'actions' => [
+                    [
+                        'class' => ServiceMonsterAction::class,
+                        'serviceTemplateKey' => 'orderList',
+                        'serviceEntityCallback' => function (ServiceEntity $entity) {
+                            $entity->providers[] = UserOrdersProvider::class;
+                        },
+                    ],
+                ],
+            ],
+            'show' => [
+                'class' => SuperAction::class,
+                'actions' => [
+                    ['class' => HashCheckAction::class],
+                    [
+                        'class' => ServiceMonsterAction::class,
+                        'serviceTemplateKey' => 'order',
+                        'serviceEntityCallback' => function (ServiceEntity $entity) {
+                            $entity->providers[] = OrderByHashProvider::class;
+                            $entity->providers[] = OrderDeliveryInformationByHashProvider::class;
+                            $entity->providers[] = PaymentByHashProvider::class;
+                        },
+                    ],
+                ],
+            ],
+            'refund' => [
+                'class' => SuperAction::class,
+                'actions' => [
+                    ['class' => HashCheckAction::class],
+                    [
+                        'class' => ServiceMonsterAction::class,
+                        'serviceTemplateKey' => 'order',
+                        'serviceEntityCallback' => function (ServiceEntity $entity) {
+                            $entity->providers[] = OrderByHashProvider::class;
+                            $entity->providers[] = PaymentByHashProvider::class;
+                        },
+                    ],
+                ],
+            ],
             'create' => [
-                'class' => SingleStepOrderAction::class,
+                'class' => SuperAction::class,
+                'actions' => [
+                    [
+                        'class' => ServiceMonsterAction::class,
+                        'serviceTemplateKey' => 'order',
+                        'serviceEntityCallback' => function (ServiceEntity $entity) {
+                            $entity->providers[] = OrderSingleStepProvider::class;
+                        },
+                    ],
+                ],
             ],
             'payment' => PaymentPayAction::class,
             'check' => PaymentCheckAction::class,
             'success' => PaymentSuccessAction::class,
+            'old-create' => [
+                'class' => SingleStepOrderAction::class,
+            ],
+
         ];
-    }
-
-    public function actionError($hash)
-    {
-        return $this->render('error');
-    }
-
-    public function actionList()
-    {
-        $orders = Store::getOrders(\Yii::$app->user->id);
-        return $this->render('list', ['orders' => $orders]);
-    }
-
-    public function actionShow($hash)
-    {
-        $order = Store::getOrder($hash);
-        $orderDeliveryInformation = OrderDeliveryInformation::findOne(['order_id' => $order->id]);
-        $payment = Payment::findOne($order->id);
-        return $this->render('show', ['order' => $order, 'orderDeliveryInformation' => $orderDeliveryInformation]);
-    }
-
-    public function actionRefund($hash)
-    {
-        return $this->render('refund');
     }
 
     public function actionCancel($hash)
@@ -59,4 +106,5 @@ class OrderController extends \yii\web\Controller
             \Yii::$app->session->setFlash('success', \Yii::t('dotplant.store', 'Order successfully canceled'));
         }
     }
+
 }
