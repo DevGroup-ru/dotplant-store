@@ -7,7 +7,7 @@ use DevGroup\DataStructure\propertyHandler\AbstractPropertyHandler;
 use DevGroup\DataStructure\propertyStorage\EAV;
 use DotPlant\Store\models\goods\Goods;
 
-class RelatedProducts extends AbstractPropertyHandler
+class RelatedGoods extends AbstractPropertyHandler
 {
     /** @inheritdoc */
     public static $multipleMode = Property::MODE_ALLOW_MULTIPLE;
