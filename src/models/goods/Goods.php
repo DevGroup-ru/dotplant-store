@@ -517,29 +517,23 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
         return $goods;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public static function get($id)
+    public static function instantiate($row)
     {
-        $goods = null;
-        //! @todo add cache?
-        $record = self::find()->where(['id' => $id])->asArray(true)->one();
-        if (null !== $record) {
-            $type = empty($record['role']) ? $record['type'] : $record['role'];
-            if (false === isset(self::$_goodsMap[$type])) {
-                throw new GoodsException(
-                    Yii::t('dotplant.store', 'Attempting to create unknown type of goods')
-                );
-            }
-            $productClass = self::$_goodsMap[$type];
-            /** @var self $model */
-            $goods = new $productClass;
-            self::populateRecord($goods, $record);
-            self::injectPriceObject($goods);
+        $type = empty($row['role']) ? $row['type'] : $row['role'];
+        if (false === isset(self::$_goodsMap[$type])) {
+            throw new GoodsException(
+                Yii::t('dotplant.store', 'Attempting to create unknown type of goods')
+            );
         }
+        $productClass = self::$_goodsMap[$type];
+        /** @var self $model */
+        $goods = new $productClass;
+        self::populateRecord($goods, $row);
+        self::injectPriceObject($goods);
         return $goods;
     }
+
+
 
     /**
      * Injects according Price object into Goods model for further calculations
@@ -642,5 +636,17 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
             'label' => $this->defaultTranslation->breadcrumbs_label,
         ];
         return $breadcrumbs;
+    }
+    /**
+     * Returns properly instantiated Goods model if found
+     *
+     * @param int $id
+     *
+     * @return Goods
+     * @throws GoodsException
+     */
+    public static function get($id)
+    {
+        return static::loadModel($id);
     }
 }
