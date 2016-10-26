@@ -10,6 +10,7 @@ use DotPlant\Store\actions\HashCheckAction;
 use DotPlant\Store\actions\order\PaymentCheckAction;
 use DotPlant\Store\actions\order\PaymentPayAction;
 use DotPlant\Store\actions\order\PaymentSuccessAction;
+use DotPlant\Store\actions\order\SingleStepOrderAction;
 use DotPlant\Store\components\OrderByHashProvider;
 use DotPlant\Store\components\OrderDeliveryInformationByHashProvider;
 use DotPlant\Store\components\OrderSingleStepProvider;
@@ -88,6 +89,10 @@ class OrderController extends FrontendController
             'payment' => PaymentPayAction::class,
             'check' => PaymentCheckAction::class,
             'success' => PaymentSuccessAction::class,
+            'old-create' => [
+                'class' => SingleStepOrderAction::class,
+            ],
+
         ];
     }
 
@@ -101,4 +106,5 @@ class OrderController extends FrontendController
             \Yii::$app->session->setFlash('success', \Yii::t('dotplant.store', 'Order successfully canceled'));
         }
     }
+
 }

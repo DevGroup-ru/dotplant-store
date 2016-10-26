@@ -40,7 +40,7 @@ class PaymentByHashProvider extends DataEntityProvider
         $hash = Yii::$app->request->get('hash');
         $orderDeliveryInformation = Payment::find()->leftJoin(
             Order::tableName(),
-            ['order_id' => Order::tableName() . '.id']
+            [Order::tableName() .'.payment_id' => Payment::tableName() . '.id']
         )->where(['hash' => $hash])->one();
         return [
             $this->regionKey => [

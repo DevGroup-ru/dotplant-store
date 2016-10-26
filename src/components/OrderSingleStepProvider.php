@@ -22,12 +22,12 @@ class OrderSingleStepProvider extends DataEntityProvider
     /**
      * @var string the region key
      */
-    public $regionKey = 'orderDeliveryInformationRegion';
+    public $regionKey = 'orderSingleStepRegion';
 
     /**
      * @var string the material key
      */
-    public $materialKey = 'orderDeliveryInformationMaterial';
+    public $materialKey = 'orderSingleStepMaterial';
 
     /**
      * @var string the current action route
@@ -75,13 +75,15 @@ class OrderSingleStepProvider extends DataEntityProvider
             $cart = Store::getCart(false);
             if ($cart === null || $cart->items_count == 0) {
                 Yii::$app->session->setFlash('error', Yii::t('dotplant.store', 'Cart is empty'));
-                return $this->controller->redirect($this->cartRoute);
+                $actionData->controller->redirect($this->cartRoute);
+                Yii::$app->end();
             }
             $order->context_id = $cart->context_id;
             if (!$cart->canEdit()) {
-                return $this->controller->redirect(
+                $actionData->controller->redirect(
                     ArrayHelper::merge($this->actionRoute, ['hash' => $cart->items[0]->order->hash])
                 );
+                Yii::$app->end();
             }
             $orderDeliveryInformation = new OrderDeliveryInformation();
             $orderDeliveryInformation->loadDefaultValues();
@@ -95,8 +97,9 @@ class OrderSingleStepProvider extends DataEntityProvider
         }
         $order->scenario = 'single-step-order';
         $orderDeliveryInformation->context_id = Yii::$app->multilingual->context_id;
-        $orderDeliveryInformationIsValid = $orderDeliveryInformation->load(Yii::$app->request->post())
-            && $orderDeliveryInformation->validate();
+        $orderDeliveryInformationIsValid = $orderDeliveryInformation->load(
+                Yii::$app->request->post()
+            ) && $orderDeliveryInformation->validate();
         $orderIsValid = $order->load(Yii::$app->request->post()) && $order->validate();
         $userId = null;
         if ($orderDeliveryInformationIsValid && $orderIsValid) {
@@ -135,7 +138,9 @@ class OrderSingleStepProvider extends DataEntityProvider
                     }
                 }
 
-                $cart->addDelivery(ArrayHelper::getValue(Yii::$app->request->post(),$order->formName() . '.delivery_id'));
+                $cart->addDelivery(
+                    ArrayHelper::getValue(Yii::$app->request->post(), $order->formName() . '.delivery_id')
+                );
 
                 /** @var Cart $cart */
                 $order = Store::createOrder($cart);
@@ -149,12 +154,14 @@ class OrderSingleStepProvider extends DataEntityProvider
             $orderDeliveryInformation->order_id = $order->id;
             $orderDeliveryInformation->user_id = $userId;
             if ($order->save(false) && $orderDeliveryInformation->save()) {
-                return $this->controller->redirect(
+                $actionData->controller->redirect(
                     ArrayHelper::merge($this->paymentRoute, ['hash' => $order->hash, 'paymentId' => $order->payment_id])
                 );
+                Yii::$app->end();
             }
             Yii::$app->session->setFlash('error', Yii::t('dotplant.store', 'Can not save delivery information'));
-            return $this->controller->redirect(ArrayHelper::merge($this->actionRoute, ['hash' => $order->hash]));
+            $actionData->controller->redirect(ArrayHelper::merge($this->actionRoute, ['hash' => $order->hash]));
+            Yii::$app->end();
         }
         return [
             $this->regionKey => [
