@@ -13,11 +13,13 @@ use DevGroup\TagDependencyHelper\CacheableActiveRecord;
 use DevGroup\TagDependencyHelper\NamingHelper;
 use DevGroup\TagDependencyHelper\TagDependencyTrait;
 use Yii;
+use yii\behaviors\SluggableBehavior;
 use yii\caching\TagDependency;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Inflector;
 
 /**
  * This is the model class for table "{{%dotplant_store_vendor}}".
@@ -40,6 +42,8 @@ class Vendor extends ActiveRecord
     use SeoTrait;
     use SoftDeleteTrait;
     use BaseActionsInfoTrait;
+
+    public static $listCache;
 
     /**
      * @inheritdoc
@@ -179,11 +183,15 @@ class Vendor extends ActiveRecord
     /**
      * @return array|mixed
      */
-    public static function getArrayList()
+    public static function getArrayList($force = false)
     {
+        if ($force === false && static::$listCache !== null) {
+            return static::$listCache;
+        }
+
         $cacheKey = 'VendorDropDownLis';
         $list = Yii::$app->cache->get($cacheKey);
-        if (false === $list) {
+        if (false === $list || $force === true) {
             $list = self::find()->select('name')->indexBy('id')->column();
             if (false === empty($list)) {
                 Yii::$app->cache->set(
@@ -194,8 +202,37 @@ class Vendor extends ActiveRecord
                         NamingHelper::getCommonTag(self::class),
                     ]])
                 );
+                static::$listCache = $list;
             }
         }
         return (false === $list) ? [] : $list;
+    }
+
+    public static function getOrCreate($name)
+    {
+        $allVendors = static::getArrayList();
+        if (in_array($name, $allVendors, true)) {
+            return (int) array_search($name, $allVendors, true);
+        }
+        $vendor = new Vendor();
+        $vendor->name = $name;
+        $vendor->slug =  Inflector::slug($name);;
+        if ($vendor->save()===false) {
+            var_dump($vendor->errors);
+        }
+        foreach (Yii::$app->multilingual->getAllLanguages() as $lang) {
+            /** @var VendorTranslation $translation */
+            $translation = $vendor->translate($lang->id);
+            $translation->model_id = $vendor->id;
+            $translation->title =
+                $translation->h1 =
+                $translation->breadcrumbs_label =
+                $translation->meta_description =
+                $name;
+            $translation->slug = Inflector::slug($name);
+            $translation->save();
+        }
+        static::getArrayList(true);
+        return $vendor->id;
     }
 }

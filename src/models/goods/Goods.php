@@ -523,6 +523,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
     public static function get($id)
     {
         $goods = null;
+        //! @todo add cache?
         $record = self::find()->where(['id' => $id])->asArray(true)->one();
         if (null !== $record) {
             $type = empty($record['role']) ? $record['type'] : $record['role'];
