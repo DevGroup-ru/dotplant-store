@@ -273,7 +273,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
             self::TYPE_BUNDLE => Yii::t('dotplant.store', 'Bundle'),
           //  self::TYPE_SET => Yii::t('dotplant.store', 'Set'),
           //  self::TYPE_PART => Yii::t('dotplant.store', 'Part'),
-          //  self::TYPE_OPTION => Yii::t('dotplant.store', 'Option'),
+            self::TYPE_OPTION => Yii::t('dotplant.store', 'Option'),
           //  self::TYPE_SERVICE => Yii::t('dotplant.store', 'Service'),
           //  self::TYPE_FILE => Yii::t('dotplant.store', 'File'),
         ];
