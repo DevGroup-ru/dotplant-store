@@ -2,7 +2,7 @@
 
 namespace DotPlant\Store\models\price;
 
-use DotPlant\Store\components\calculator\OptionGoodsCalculator;
+use DotPlant\Store\components\calculator\OptionCalculator;
 
 /**
  * Class OptionPrice
@@ -11,5 +11,5 @@ use DotPlant\Store\components\calculator\OptionGoodsCalculator;
  */
 class OptionPrice extends Price
 {
-    protected $_calculatorClass = OptionGoodsCalculator::class;
+    protected $_calculatorClass = OptionCalculator::class;
 }
