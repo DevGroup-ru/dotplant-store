@@ -32,17 +32,18 @@ class OrderItemCalculator implements NoGoodsCalculatorInterface, DeliveryTermCal
         $goodsId = $orderItem->goods_id;
 
         $goods = Goods::get($goodsId);
-        $goodsPrice = $goods->getPrice($orderItem->warehouse_id, $priceType);
-        $price['totalPriceWithDiscount'] = CurrencyHelper::convertCurrencies(
-            $goodsPrice['value'],
-            CurrencyHelper::findCurrencyByIso($goodsPrice['isoCode']),
-            CurrencyHelper::findCurrencyByIso($orderItem->cart->currency_iso_code)
-        ) * $orderItem->quantity;
-        $price['totalPriceWithoutDiscount'] = CurrencyHelper::convertCurrencies(
-            isset($goodsPrice['valueWithoutDiscount']) ? $goodsPrice['valueWithoutDiscount'] : $goodsPrice['value'],
-            CurrencyHelper::findCurrencyByIso($goodsPrice['isoCode']),
-            CurrencyHelper::findCurrencyByIso($orderItem->cart->currency_iso_code)
-        ) * $orderItem->quantity;
+        $goodsPrice = $goods->getPrice(
+            $orderItem->warehouse_id,
+            $priceType,
+            true,
+            $orderItem->cart->currency_iso_code
+        );
+        $price['totalPriceWithDiscount'] = $goodsPrice['value'] * $orderItem->quantity;
+        $price['totalPriceWithoutDiscount'] = (
+            isset($goodsPrice['valueWithoutDiscount']) ?
+                $goodsPrice['valueWithoutDiscount'] :
+                $goodsPrice['value']
+            ) * $orderItem->quantity;
         $price['items'] = $orderItem->quantity;
         $price['discountReasons'] = $goodsPrice['discountReasons'];
 

@@ -3,7 +3,9 @@
 namespace DotPlant\Store\handlers;
 
 use DevGroup\Users\models\User;
+use DotPlant\Currencies\events\AfterUserCurrencyChangeEvent;
 use DotPlant\Emails\helpers\EmailHelper;
+use DotPlant\Store\components\Store;
 use DotPlant\Store\events\AfterUserRegisteredEvent;
 use DotPlant\Store\events\RetailCheckEvent;
 use DotPlant\Store\handlers\extendedPrice\ProductRule;
@@ -52,6 +54,17 @@ class StoreHandler
                     'userId' => $event->userId,
                 ]
             );
+        }
+    }
+
+    /**
+     * @param AfterUserCurrencyChangeEvent $event
+     */
+    public static function afterUserChangeCurrencySetCart(AfterUserCurrencyChangeEvent $event)
+    {
+        $cart = Store::getCart(false);
+        if ($cart) {
+            $cart->changeCurrency($event->newUserCurrency->iso_code);
         }
     }
 }

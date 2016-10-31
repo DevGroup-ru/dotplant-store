@@ -192,7 +192,7 @@ abstract class Price implements PriceInterface
             $this->_price[$priceKey] = array_reduce(
                 $warehouses,
                 function ($minPrice, $warehouse) use ($priceType, $withDiscount, $convertIsoCode) {
-                    $warehousePrice = $this->getPrice($warehouse['warehouse_id'], $priceType, $convertIsoCode);
+                    $warehousePrice = $this->getPrice($warehouse['warehouse_id'], $priceType, true, $convertIsoCode);
                     if (is_null($minPrice)) {
                         $minPrice = $warehousePrice;
                     }

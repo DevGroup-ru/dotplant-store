@@ -278,4 +278,20 @@ class Cart extends ActiveRecord
         }
         return $model;
     }
+
+    /**
+     * @param $isoCode
+     * @throws OrderException
+     */
+    public function changeCurrency($isoCode)
+    {
+        $this->currency_iso_code = $isoCode;
+        $this->save();
+        foreach ($this->items as $item) {
+            $item->calculate();
+            $item->save();
+        }
+        $this->calculate();
+        $this->save();
+    }
 }
