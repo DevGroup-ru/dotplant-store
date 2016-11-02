@@ -61,12 +61,30 @@ class CartController extends FrontendController
     public function actionAdd()
     {
         $goodsId = $this->getRequiredPostParam('goodsId');
-        $result = [];
+        $result = [
+            'isSuccess' => false,
+        ];
         $quantity = Yii::$app->request->post('quantity', 1);
         $warehouseId = Yii::$app->request->post('warehouseId'); // This parameter is not required.
         try {
             $model = Store::getCart();
             $model->addItem($goodsId, $quantity, $warehouseId);
+            $item = null;
+            foreach ($model->items as $singleItem) {
+                if ($singleItem->goods_id == $goodsId) {
+                    $item = $singleItem;
+                    break;
+                }
+            }
+            $result = [
+                'isSuccess' => true,
+                'itemsCount' => $model->items_count,
+                'totalPrice' => $model->total_price_with_discount,
+                'totalPriceWithoutDiscount' => $model->total_price_without_discount,
+                'quantity' => $item->quantity,
+                'itemPrice' => $item->total_price_with_discount,
+                'itemPriceWithoutDiscount' => $item->total_price_without_discount,
+            ];
         } catch (\Exception $e) {
             $result['errorMessage'] = $e->getMessage();
         }
@@ -77,11 +95,24 @@ class CartController extends FrontendController
     {
         $itemId = $this->getRequiredPostParam('id');
         $quantity = $this->getRequiredPostParam('quantity');
-        $result = [];
+        $result = [
+            'isSuccess' => false,
+        ];
         try {
             $model = Store::getCart();
             $model->changeItemQuantity($itemId, $quantity);
+            $item = $model->items[$itemId];
+            $result = [
+                'isSuccess' => true,
+                'itemsCount' => $model->items_count,
+                'totalPrice' => $model->total_price_with_discount,
+                'totalPriceWithoutDiscount' => $model->total_price_without_discount,
+                'quantity' => $item->quantity,
+                'itemPrice' => $item->total_price_with_discount,
+                'itemPriceWithoutDiscount' => $item->total_price_without_discount,
+            ];
         } catch (\Exception $e) {
+            $result['isSuccess'] = false;
             $result['errorMessage'] = $e->getMessage();
         }
         return $this->result($result);
@@ -100,11 +131,19 @@ class CartController extends FrontendController
     public function actionRemove()
     {
         $itemId = $this->getRequiredPostParam('id');
-        $result = [];
+        $result = [
+            'isSuccess' => false,
+        ];
         try {
             $model = Store::getCart();
             $model->removeItem($itemId);
-            $result['successMessage'] = Yii::t('dotplant.store', 'Item has been removed');
+            $result = [
+                'isSuccess' => true,
+                'itemsCount' => $model->items_count,
+                'totalPrice' => $model->total_price_with_discount,
+                'totalPriceWithoutDiscount' => $model->total_price_without_discount,
+                'successMessage' => Yii::t('dotplant.store', 'Item has been removed'),
+            ];
         } catch (\Exception $e) {
             $result['errorMessage'] = $e->getMessage();
         }

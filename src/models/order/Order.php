@@ -223,7 +223,7 @@ class Order extends \yii\db\ActiveRecord
      */
     public function getItems()
     {
-        return $this->hasMany(OrderItem::class, ['order_id' => 'id']);
+        return $this->hasMany(OrderItem::class, ['order_id' => 'id'])->indexBy('id');
     }
 
     /**
