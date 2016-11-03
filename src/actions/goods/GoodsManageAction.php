@@ -13,6 +13,7 @@ use DotPlant\Store\models\goods\CategoryGoods;
 use DotPlant\Store\models\goods\Goods;
 use DotPlant\Store\models\goods\GoodsParent;
 use DotPlant\Store\models\goods\GoodsTranslation;
+use DotPlant\Store\models\goods\Option;
 use DotPlant\Store\models\warehouse\GoodsWarehouse;
 use DotPlant\Store\models\warehouse\Warehouse;
 use yii\base\Model;
@@ -66,8 +67,22 @@ class GoodsManageAction extends BaseAdminAction
                     )
                 );
             }
+            $optionsDataProvider = (new Option)
+                ->search(
+                    Yii::$app->request->get(),
+                    null,
+                    Option::find()
+                        ->innerJoin(GoodsParent::tableName(), 'id = goods_id')
+                        ->where(
+                            [
+                                'goods_parent_id' => $product_id,
+                                'type' => Goods::TYPE_OPTION,
+                            ]
+                        )
+                );
         } else {
             $goods = Goods::create($type);
+            $optionsDataProvider = null;
         }
         $canSave = true; //Yii::$app->user->can('');
         /**@var Goods[] $child */
@@ -205,6 +220,7 @@ class GoodsManageAction extends BaseAdminAction
                 'canSave' => true,
                 'undefinedType' => $goods->isNewRecord,
                 'startCategory' => $id,
+                'optionsDataProvider' => $optionsDataProvider,
             ]
         );
     }

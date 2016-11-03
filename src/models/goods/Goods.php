@@ -561,12 +561,14 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
      * @param $params
      * @return ActiveDataProvider
      */
-    public function search($params, $categoryId = null)
+    public function search($params, $categoryId = null, $query = null)
     {
         /* @var $query ActiveQuery */
-
+        if ($query === null) {
+            $query = static::find();
+        }
         $dataProvider = new ActiveDataProvider([
-            'query' => $query = static::find(),
+            'query' => $query,
             'pagination' => [
                 //TODO configure it
                 'pageSize' => 15
