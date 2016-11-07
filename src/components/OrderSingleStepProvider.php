@@ -14,6 +14,7 @@ use DotPlant\Store\Module;
 use DevGroup\Users\helpers\ModelMapHelper;
 use Yii;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 use yii\web\BadRequestHttpException;
 
 class OrderSingleStepProvider extends DataEntityProvider
@@ -169,6 +170,11 @@ class OrderSingleStepProvider extends DataEntityProvider
                 $this->materialKey => [
                     'order' => $order,
                     'orderDeliveryInformation' => $orderDeliveryInformation,
+                    'actionRoute' => Url::toRoute(
+                        $order->isNewRecord
+                            ? $this->actionRoute
+                            : array_merge($this->actionRoute, ['hash' => $order->hash])
+                    ),
                 ],
             ],
         ];
