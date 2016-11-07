@@ -83,7 +83,9 @@ class OrderSingleStepProvider extends DataEntityProvider
             if (!$cart->canEdit()) {
                 $items = $cart->items;
                 $actionData->controller->redirect(
-                    ArrayHelper::merge($this->actionRoute, ['hash' => reset($items)->order->hash])
+                    ArrayHelper::merge($this->actionRoute,
+                        ['hash' => $cart->order !== null ? $cart->order->hash : null]
+                    )
                 );
                 Yii::$app->end();
             }

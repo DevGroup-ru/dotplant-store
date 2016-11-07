@@ -44,7 +44,7 @@ $this->registerJs($js);
     <?php if ($model->canEdit()) : ?>
         <a href="<?= \yii\helpers\Url::toRoute(['/store/order/create']) ?>" class="btn btn-primary">Create an order</a>
     <?php else : ?>
-        <a href="<?= \yii\helpers\Url::toRoute(['/store/order/create', 'hash' => $model->items[0]->order->hash]) ?>"
+        <a href="<?= \yii\helpers\Url::toRoute(['/store/order/create', 'hash' => $model->order !== null ? $model->order->hash : null]) ?>"
            class="btn btn-primary">Edit an order</a>
     <?php endif; ?>
 <?php else : ?>
