@@ -3,9 +3,7 @@
 
 namespace DotPlant\Store\components;
 
-
 use DevGroup\Frontend\Universal\ActionData;
-use DevGroup\Users\helpers\ModelMapHelper;
 use DotPlant\Monster\DataEntity\DataEntityProvider;
 use DotPlant\Store\events\AfterUserRegisteredEvent;
 use DotPlant\Store\exceptions\OrderException;
@@ -13,6 +11,7 @@ use DotPlant\Store\models\order\Cart;
 use DotPlant\Store\models\order\Order;
 use DotPlant\Store\models\order\OrderDeliveryInformation;
 use DotPlant\Store\Module;
+use DevGroup\Users\helpers\ModelMapHelper;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
@@ -66,6 +65,7 @@ class OrderSingleStepProvider extends DataEntityProvider
      */
     public function getEntities(&$actionData)
     {
+        $hash = Yii::$app->request->get('hash');
         $order = !empty($hash) ? Store::getOrder($hash) : new Order();
         if ($order === null) {
             throw new BadRequestHttpException();
@@ -80,8 +80,9 @@ class OrderSingleStepProvider extends DataEntityProvider
             }
             $order->context_id = $cart->context_id;
             if (!$cart->canEdit()) {
+                $items = $cart->items;
                 $actionData->controller->redirect(
-                    ArrayHelper::merge($this->actionRoute, ['hash' => $cart->items[0]->order->hash])
+                    ArrayHelper::merge($this->actionRoute, ['hash' => reset($items)->order->hash])
                 );
                 Yii::$app->end();
             }
