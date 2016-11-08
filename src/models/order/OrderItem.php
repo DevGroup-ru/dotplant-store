@@ -58,7 +58,7 @@ class OrderItem extends \yii\db\ActiveRecord
     {
         return [
             [['cart_id', 'order_id', 'goods_id', 'warehouse_id'], 'integer'],
-            [['quantity', 'total_price_with_discount', 'total_price_without_discount', 'seller_price'], 'number'],
+            [['quantity', 'original_quantity', 'total_price_with_discount', 'total_price_without_discount', 'seller_price'], 'number'],
             [
                 ['warehouse_id'],
                 'exist',
@@ -117,6 +117,7 @@ class OrderItem extends \yii\db\ActiveRecord
             'goods_id' => Yii::t('dotplant.store', 'Goods'),
             'warehouse_id' => Yii::t('dotplant.store', 'Warehouse'),
             'quantity' => Yii::t('dotplant.store', 'Quantity'),
+            'original_quantity' => Yii::t('dotplant.store', 'Original quantity'),
             'total_price_with_discount' => Yii::t('dotplant.store', 'Total price with discount'),
             'total_price_without_discount' => Yii::t('dotplant.store', 'Total price without discount'),
             'seller_price' => Yii::t('dotplant.store', 'Seller price'),
