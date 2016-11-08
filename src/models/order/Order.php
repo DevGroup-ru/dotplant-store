@@ -45,12 +45,15 @@ use yii\db\ActiveQuery;
  * @property Delivery $delivery
  * @property Payment $payment
  * @property OrderItem[] $items
+ * @property Cart $cart
  */
 class Order extends \yii\db\ActiveRecord
 {
     use EntityTrait;
     use BaseActionsInfoTrait;
     use SoftDeleteTrait;
+
+    private $_cart = false;
 
     /**
      * @inheritdoc
@@ -278,6 +281,20 @@ class Order extends \yii\db\ActiveRecord
                 )
             );
         }
+    }
+
+    /**
+     * Get cart via OrderItem
+     * @return Cart|null
+     */
+    public function getCart()
+    {
+        if ($this->_cart === false) {
+            $items = $this->items;
+            $first = reset($items);
+            $this->_cart = $first !== null ? $first->cart : null;
+        }
+        return $this->_cart;
     }
 
     /**

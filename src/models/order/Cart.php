@@ -32,6 +32,7 @@ use yii\helpers\ArrayHelper;
  * @property string $packed_json_params
  *
  * @property OrderItem[] $items
+ * @property Order $order
  */
 class Cart extends ActiveRecord
 {
@@ -39,6 +40,7 @@ class Cart extends ActiveRecord
     use BaseActionsInfoTrait;
 
     private $_delivery = null;
+    private $_order = false;
 
     protected $blameableAttributes = [
         ActiveRecord::EVENT_BEFORE_INSERT => ['created_by'],
@@ -296,6 +298,12 @@ class Cart extends ActiveRecord
         $this->save();
     }
 
+
+    /**
+     * @param $id
+     * @param $quantity
+     * @throws OrderException
+     */
     public function changeItemOriginalQuantity($id, $quantity)
     {
         $this->checkLock();
@@ -306,5 +314,19 @@ class Cart extends ActiveRecord
                 throw new OrderException(Yii::t('dotplant.store', 'Can not change a goods quantity'));
             }
         }
+    }
+
+    /**
+     * Get order via OrderItem
+     * @return Order|null
+     */
+    public function getOrder()
+    {
+        if ($this->_order === false) {
+            $items = $this->items;
+            $first = reset($items);
+            $this->_order = $first !== null ? $first->order : null;
+        }
+        return $this->_order;
     }
 }

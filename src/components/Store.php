@@ -177,21 +177,20 @@ class Store
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            if (!isset($order->items[0]->cart)) {
+            if ($order->cart === null) {
                 throw new OrderException(Yii::t('dotplant.store', 'Cart not found'));
             }
-            $cart = $order->items[0]->cart;
             // check status @todo: think about it
             // remove cart_id from items
             if (OrderItem::updateAll(['cart_id' => null], ['order_id' => $order->id]) != count($order->items)) {
                 throw new OrderException(Yii::t('dotplant.store', 'Can not update one or more order items'));
             }
             // unlock cart
-            $cart->is_locked = 0;
-            $cart->total_price_with_discount = 0;
-            $cart->total_price_without_discount = 0;
-            $cart->items_count = 0;
-            if (!$cart->save()) {
+            $order->cart->is_locked = 0;
+            $order->cart->total_price_with_discount = 0;
+            $order->cart->total_price_without_discount = 0;
+            $order->cart->items_count = 0;
+            if (!$order->cart->save()) {
                 throw new OrderException(Yii::t('dotplant.store', 'Can not unlock the cart'));
             }
             // change order status
@@ -203,6 +202,7 @@ class Store
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
+
             return false;
         }
         return true;

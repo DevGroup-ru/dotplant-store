@@ -58,7 +58,10 @@ class SingleStepOrderAction extends Action
             $order->context_id = $cart->context_id;
             if (!$cart->canEdit()) {
                 return $this->controller->redirect(
-                    ArrayHelper::merge($this->actionRoute, ['hash' => $cart->items[0]->order->hash])
+                    ArrayHelper::merge(
+                        $this->actionRoute,
+                        ['hash' => $cart->order !== null ? $cart->order->hash : null]
+                    )
                 );
             }
             $orderDeliveryInformation = new OrderDeliveryInformation;
