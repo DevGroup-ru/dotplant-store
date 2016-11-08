@@ -16,6 +16,7 @@ use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\web\BadRequestHttpException;
+use DotPlant\Store\events\AfterOrderStatusChangeEvent;
 
 class OrderSingleStepProvider extends DataEntityProvider
 {
@@ -158,6 +159,15 @@ class OrderSingleStepProvider extends DataEntityProvider
             $orderDeliveryInformation->order_id = $order->id;
             $orderDeliveryInformation->user_id = $userId;
             if ($order->save(false) && $orderDeliveryInformation->save()) {
+                Module::module()->trigger(
+                    Module::EVENT_AFTER_ORDER_STATUS_CHANGE,
+                    new AfterOrderStatusChangeEvent(
+                        [
+                            'orderId' => $order->id,
+                            'statusId' => $order->status_id
+                        ]
+                    )
+                );
                 $actionData->controller->redirect(
                     ArrayHelper::merge($this->paymentRoute, ['hash' => $order->hash, 'paymentId' => $order->payment_id])
                 );

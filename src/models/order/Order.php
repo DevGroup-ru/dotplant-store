@@ -237,6 +237,15 @@ class Order extends \yii\db\ActiveRecord
     {
         $this->manager_id = $userId;
         $this->scenario = 'attach-manager';
+        Module::module()->trigger(
+            Module::EVENT_AFTER_ORDER_MANAGER_CHANGE,
+            new AfterOrderManagerChangeEvent(
+                [
+                    'orderId' => $this->id,
+                    'managerId' => $this->manager_id
+                ]
+            )
+        );
         return $this->save();
     }
 
