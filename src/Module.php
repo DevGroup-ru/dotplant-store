@@ -26,12 +26,16 @@ class Module extends \yii\base\Module
     public $singlePriceForWarehouses = 0;
     public $registerGuestInCart = 1;
     public $deliveryFromWarehouse = 0;
+    public $allowOrderOutOfStock = 0;
 
     // order statuses
     public $newOrderStatusId = [];
     public $paidOrderStatusId = [];
     public $doneOrderStatusId = [];
     public $canceledOrderStatusId = [];
+
+
+
 
     /**
      * @return self Module instance in application

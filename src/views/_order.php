@@ -35,6 +35,7 @@ foreach ($contexts as $context) {
                 <?= $form->field($model, 'singlePriceForWarehouses')->widget(SwitchInput::class) ?>
                 <?= $form->field($model, 'registerGuestInCart')->widget(SwitchInput::class) ?>
                 <?= $form->field($model, 'deliveryFromWarehouse')->widget(SwitchInput::class) ?>
+                <?= $form->field($model, 'allowOrderOutOfStock')->widget(SwitchInput::class) ?>
             </div>
         </div>
     </div>

@@ -83,7 +83,8 @@ class OrderSingleStepProvider extends DataEntityProvider
             if (!$cart->canEdit()) {
                 $items = $cart->items;
                 $actionData->controller->redirect(
-                    ArrayHelper::merge($this->actionRoute,
+                    ArrayHelper::merge(
+                        $this->actionRoute,
                         ['hash' => $cart->order !== null ? $cart->order->hash : null]
                     )
                 );
@@ -102,8 +103,8 @@ class OrderSingleStepProvider extends DataEntityProvider
         $order->scenario = 'single-step-order';
         $orderDeliveryInformation->context_id = Yii::$app->multilingual->context_id;
         $orderDeliveryInformationIsValid = $orderDeliveryInformation->load(
-                Yii::$app->request->post()
-            ) && $orderDeliveryInformation->validate();
+            Yii::$app->request->post()
+        ) && $orderDeliveryInformation->validate();
         $orderIsValid = $order->load(Yii::$app->request->post()) && $order->validate();
         $userId = null;
         if ($orderDeliveryInformationIsValid && $orderIsValid) {
@@ -149,7 +150,14 @@ class OrderSingleStepProvider extends DataEntityProvider
                 /** @var Cart $cart */
                 $order = Store::createOrder($cart);
                 if ($order === null) {
-                    throw new OrderException(Yii::t('dotplant.store', 'Something went wrong'));
+                    Yii::$app->session->setFlash(
+                        'error',
+                        Store::getLastError() !== null ?
+                            Store::getLastError() :
+                            Yii::t('dotplant.store', 'Something went wrong')
+                    );
+                    $actionData->controller->redirect(['/store/order/create']);
+                    Yii::$app->end();
                 }
                 $order->scenario = 'single-step-order';
             }
