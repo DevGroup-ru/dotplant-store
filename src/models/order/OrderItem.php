@@ -169,7 +169,7 @@ class OrderItem extends \yii\db\ActiveRecord
                     $warehouses[$this->warehouse_id]['available_count'] < $this->quantity
                     && $warehouses[$this->warehouse_id]['is_unlimited'] == 0
                 ) {
-                    //throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
+                    throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
                 }
             } else {
                 /**
@@ -184,7 +184,7 @@ class OrderItem extends \yii\db\ActiveRecord
                     }
                 }
                 if (!$hasEnough) {
-                    //throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
+                    throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
                 }
             }
             // @todo: Add a check warehouse count
