@@ -128,9 +128,9 @@ class Store
         try {
             // check items quantity and set warehouses
             $cart->prepare();
+            $cart->calculate();
             // reserve items
             $cart->reserve();
-            $cart->calculate();
             // lock cart
             $cart->is_locked = 1;
             $cart->save(true);
