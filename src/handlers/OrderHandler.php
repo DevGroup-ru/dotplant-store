@@ -110,6 +110,7 @@ class OrderHandler
             && isset($event->data['emailTemplateId'])
             && !empty($order->deliveryInformation)
         ) {
+            sleep(5);
             EmailHelper::sendNewMessage(
                 $order->deliveryInformation->email,
                 $event->data['emailTemplateId'],
