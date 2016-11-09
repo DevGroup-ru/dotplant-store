@@ -130,7 +130,7 @@ class Store
             $cart->prepare();
             // reserve items
             $cart->reserve();
-            $cart->calculate();
+            $cart->recalculateWithOriginalQuantity();
             // lock cart
             $cart->is_locked = 1;
             $cart->save(true);

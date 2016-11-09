@@ -304,16 +304,20 @@ class Cart extends ActiveRecord
      * @param $quantity
      * @throws OrderException
      */
-    public function changeItemOriginalQuantity($id, $quantity)
+    public function recalculateWithOriginalQuantity()
     {
         $this->checkLock();
-        $item = $this->findItem(['id' => $id, 'cart_id' => $this->id]);
-        if (!empty($item)) {
-            $item->original_quantity = $quantity;
-            if (!$item->save()) {
-                throw new OrderException(Yii::t('dotplant.store', 'Can not change a goods quantity'));
+        foreach ($this->items as $item) {
+            if (!empty($item)) {
+                $item->getAvailableCount();
+                $item->calculate();
+                if (!$item->save()) {
+                    throw new OrderException(Yii::t('dotplant.store', 'Can not change a goods quantity'));
+                }
             }
         }
+        $this->calculate();
+        $this->save();
     }
 
     /**

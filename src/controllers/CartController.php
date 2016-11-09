@@ -100,7 +100,6 @@ class CartController extends FrontendController
         ];
         try {
             $model = Store::getCart();
-            $model->changeItemOriginalQuantity($itemId, $quantity);
             $model->changeItemQuantity($itemId, $quantity);
             $item = $model->items[$itemId];
             $result = [

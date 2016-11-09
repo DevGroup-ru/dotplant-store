@@ -169,7 +169,7 @@ class OrderItem extends \yii\db\ActiveRecord
                     $warehouses[$this->warehouse_id]['available_count'] < $this->quantity
                     && $warehouses[$this->warehouse_id]['is_unlimited'] == 0
                 ) {
-                    throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
+                    //throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
                 }
             } else {
                 /**
@@ -184,7 +184,7 @@ class OrderItem extends \yii\db\ActiveRecord
                     }
                 }
                 if (!$hasEnough) {
-                    throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
+                    //throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
                 }
             }
             // @todo: Add a check warehouse count
@@ -196,6 +196,55 @@ class OrderItem extends \yii\db\ActiveRecord
         $this->total_price_with_discount = $price['totalPriceWithDiscount'];
         $this->quantity = $price['items'];
         $this->params = ArrayHelper::merge($this->params, ['extendedPrice' => $price['extendedPrice']]);
+    }
+
+
+    public function getAvailableCount()
+    {
+        $this->original_quantity = $this->quantity;
+        $available_count = 0;
+        if ($this->isDelivery()) {
+            return $this->quantity;
+        } else {
+            $warehouses = Warehouse::getWarehouses($this->goods_id);
+            if (!empty($this->warehouse_id)) {
+                if (!isset($warehouses[$this->warehouse_id])) {
+                    throw new OrderException(Yii::t('dotplant.store', 'The warehouse is not available'));
+                }
+                $reserved_count = $warehouses[$this->warehouse_id]['reserved_count'] - $this->quantity;
+                $available_count = $warehouses[$this->warehouse_id]['available_count'] - $reserved_count;
+                if ($available_count < 0) {
+                    $available_count = 0;
+                }
+
+                if (
+                    $available_count >= $this->quantity
+                    || $warehouses[$this->warehouse_id]['is_unlimited'] === 1
+                ) {
+                    $available_count = $this->quantity;
+                }
+            } else {
+                /**
+                 * @todo: There will be a autoselecting of warehouse by priority or another logic
+                 * Now we just check that one of warehouses has enough items
+                 */
+
+                $available_count = 0;
+                foreach ($warehouses as $warehouseId => $warehouse) {
+                    $sub = $warehouse['available_count'] - ($warehouse['reserved_count'] - $this->quantity);
+                    if ($sub < 0) {
+                        $sub = 0;
+                    }
+                    if ($sub >= $this->quantity || $warehouse['is_unlimited'] === 1) {
+                        $available_count = $this->quantity;
+                        break;
+                    } else if ($available_count < $sub) {
+                        $available_count = $sub;
+                    }
+                }
+            }
+        }
+        $this->quantity = ($available_count >= 0 ? $available_count : 0);
     }
 
 
