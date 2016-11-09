@@ -63,7 +63,7 @@ class StoreConfiguration extends BaseConfigurationModel
                 ],
             ],
             [
-                ['allowToAddSameGoods', 'countUniqueItemsOnly', 'singlePriceForWarehouses', 'registerGuestInCart', 'deliveryFromWarehouse'],
+                ['allowToAddSameGoods', 'countUniqueItemsOnly', 'singlePriceForWarehouses', 'registerGuestInCart', 'deliveryFromWarehouse', 'allowOrderOutOfStock'],
                 'boolean',
             ],
         ];
@@ -83,6 +83,7 @@ class StoreConfiguration extends BaseConfigurationModel
             'singlePriceForWarehouses' => \Yii::t('dotplant.store', 'Use a single price for warehouses'),
             'registerGuestInCart' => \Yii::t('dotplant.store', 'Register guest in cart'),
             'deliveryFromWarehouse' => \Yii::t('dotplant.store', 'Possibility delivery from the warehouse'),
+            'allowOrderOutOfStock' => \Yii::t('dotplant.store', 'Allow order out of stock'),
         ];
     }
     /**
@@ -124,6 +125,7 @@ class StoreConfiguration extends BaseConfigurationModel
                     'singlePriceForWarehouses' => $this->singlePriceForWarehouses,
                     'registerGuestInCart' => $this->registerGuestInCart,
                     'deliveryFromWarehouse' => $this->deliveryFromWarehouse,
+                    'allowOrderOutOfStock' => $this->allowOrderOutOfStock,
                     'newOrderStatusId' => $this->newOrderStatusId,
                     'paidOrderStatusId' => $this->paidOrderStatusId,
                     'doneOrderStatusId' => $this->doneOrderStatusId,

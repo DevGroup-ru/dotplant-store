@@ -23,6 +23,12 @@ class Store
     const CART_SESSION_KEY = 'DotPlant:Store:CartId';
     const ORDER_HASHES_SESSION_KEY = 'DotPlant:Store:OrderHashes';
 
+    /**
+     * last error
+     * @var null|string
+     */
+    protected static $lastError = null;
+
     protected static function createCart()
     {
         $model = new Cart;
@@ -31,7 +37,7 @@ class Store
         $model->created_by = Yii::$app->user->id;
         $model->user_id = Yii::$app->user->id;
         $model->currency_iso_code = CurrencyHelper::getUserCurrency()->iso_code;
-        $model->is_retail = (int) static::isRetail();
+        $model->is_retail = (int)static::isRetail();
         if (!$model->save()) {
             throw new OrderException(Yii::t('dotplant.store', 'Can not create a new cart'));
         }
@@ -158,6 +164,7 @@ class Store
             }
             $transaction->commit();
         } catch (\Exception $e) {
+            self::$lastError = $e->getMessage();
             $transaction->rollBack();
             return null;
         }
@@ -218,13 +225,13 @@ class Store
         $transactions = OrderTransaction::findAll(['order_id' => $order->id]);
         foreach ($transactions as $transaction) {
             if (CurrencyHelper::convertCurrencies(
-                    $transaction->sum,
-                    CurrencyHelper::findCurrencyByIso($transaction->currency_iso_code),
-                    CurrencyHelper::findCurrencyByIso($order->currency_iso_code)
-                ) >= $order->total_price_with_discount && ArrayHelper::getValue(
-                    $transaction->result,
-                    'status'
-                ) == $paidStatusId
+                $transaction->sum,
+                CurrencyHelper::findCurrencyByIso($transaction->currency_iso_code),
+                CurrencyHelper::findCurrencyByIso($order->currency_iso_code)
+            ) >= $order->total_price_with_discount && ArrayHelper::getValue(
+                $transaction->result,
+                'status'
+            ) == $paidStatusId
             ) {
                 return true;
             }
@@ -286,5 +293,14 @@ class Store
         }
         $statusesList = Module::module()->$type;
         return isset($statusesList[$contextId]) ? $statusesList[$contextId] : null;
+    }
+
+    /**
+     * return last error on create order/cart
+     * @return null|string
+     */
+    public static function getLastError()
+    {
+        return self::$lastError;
     }
 }

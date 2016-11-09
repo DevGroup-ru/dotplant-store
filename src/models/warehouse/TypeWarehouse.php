@@ -12,8 +12,9 @@ class TypeWarehouse extends GoodsWarehouse implements WarehouseTypeInterface
      */
     public function reserve($quantity)
     {
+
         $this->lockForUpdate();
-        if ($quantity > $this->getCount()) {
+        if ($quantity > $this->getCount() && \Yii::$app->getModule('store')->allowOrderOutOfStock == false) {
             throw new OrderException(\Yii::t('dotplant.store', 'The warehouse has no enough goods'));
         }
         $this->reserved_count += $quantity;
