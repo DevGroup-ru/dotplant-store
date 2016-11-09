@@ -309,7 +309,7 @@ class Cart extends ActiveRecord
         $this->checkLock();
         foreach ($this->items as $item) {
             if (!empty($item)) {
-                $item->getAvailableCount();
+                $item->setAvailableCount();
                 $item->calculate();
                 if (!$item->save()) {
                     throw new OrderException(Yii::t('dotplant.store', 'Can not change a goods quantity'));

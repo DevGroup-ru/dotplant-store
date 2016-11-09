@@ -199,7 +199,7 @@ class OrderItem extends \yii\db\ActiveRecord
     }
 
 
-    public function getAvailableCount()
+    public function setAvailableCount()
     {
         $this->original_quantity = $this->quantity;
         $available_count = 0;
