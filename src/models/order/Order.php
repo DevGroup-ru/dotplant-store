@@ -269,7 +269,10 @@ class Order extends \yii\db\ActiveRecord
                 )
             );
         }
-        if (isset($changedAttributes['manager_id']) && $changedAttributes['manager_id'] != $this->manager_id) {
+        if (
+            array_key_exists('manager_id', $changedAttributes) &&
+            ($changedAttributes['manager_id'] != $this->manager_id)
+        ) {
             Module::module()->trigger(
                 Module::EVENT_AFTER_ORDER_MANAGER_CHANGE,
                 new AfterOrderManagerChangeEvent(
