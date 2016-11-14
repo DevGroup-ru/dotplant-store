@@ -4,6 +4,7 @@ namespace DotPlant\Store\models\warehouse;
 
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\interfaces\WarehouseTypeInterface;
+use yii\helpers\ArrayHelper;
 
 class TypeWarehouse extends GoodsWarehouse implements WarehouseTypeInterface
 {
@@ -14,7 +15,7 @@ class TypeWarehouse extends GoodsWarehouse implements WarehouseTypeInterface
     {
 
         $this->lockForUpdate();
-        if ($quantity > $this->getCount() && \Yii::$app->getModule('store')->allowOrderOutOfStock == false) {
+        if (Warehouse::hasEnoughQuantity($this->goods_id, $quantity, $this->warehouse_id) == false) {
             throw new OrderException(\Yii::t('dotplant.store', 'The warehouse has no enough goods'));
         }
         $this->reserved_count += $quantity;

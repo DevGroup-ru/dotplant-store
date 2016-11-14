@@ -45,6 +45,7 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
         self::TYPE_SELLER => TypeSeller::class,
     ];
 
+
     public static function getTypes()
     {
         return [
@@ -118,7 +119,7 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
     public static function getOptimalWarehouse($goodsId, $quantity)
     {
         foreach (static::getWarehouses($goodsId, false) as $warehouse) {
-            if ($warehouse->getCount() >= $quantity || $warehouse->is_unlimited == 1) {
+            if (static::hasEnoughQuantity($goodsId, $quantity, $warehouse->warehouse_id) === true) {
                 return $warehouse;
             }
         }
@@ -259,4 +260,37 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
         );
         return $dataProvider;
     }
+
+    /**
+     * @param $goodsId
+     * @param $quantity
+     * @param int|null $warehouseId
+     * @return bool
+     */
+    public static function hasEnoughQuantity($goodsId, $quantity, $warehouseId = null)
+    {
+        if ((bool)\Yii::$app->getModule('store')->allowOrderOutOfStock === true) {
+            $result = true;
+        } else {
+            /** @todo verify with concept */
+            $query = GoodsWarehouse::find()
+                ->where(
+                    [
+                        'AND',
+                        ['goods_id' => $goodsId],
+                        [
+                            'OR',
+                            ['>=', new Expression('(available_count - reserved_count)'), $quantity],
+                            ['is_unlimited' => true]
+                        ]
+                    ]
+                );
+            if (empty($warehouseId) === false) {
+                $query->andWhere(['warehouse_id' => $warehouseId]);
+            }
+            $result = $query->exists();
+        }
+        return $result;
+    }
+
 }

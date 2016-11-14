@@ -158,34 +158,13 @@ class OrderItem extends \yii\db\ActiveRecord
         if ($this->isDelivery()) {
             $price = OrderItemDeliveryCalculator::getPrice($this);
         } else {
-            $goods = $this->findGoods($this->goods_id);
-            $warehouses = Warehouse::getWarehouses($this->goods_id);
-
-            if (!empty($this->warehouse_id)) {
-                if (!isset($warehouses[$this->warehouse_id])) {
-                    throw new OrderException(Yii::t('dotplant.store', 'The warehouse is not available'));
-                }
-                if (
-                    $warehouses[$this->warehouse_id]['available_count'] < $this->quantity
-                    && $warehouses[$this->warehouse_id]['is_unlimited'] == 0
-                ) {
-                    throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
-                }
-            } else {
-                /**
-                 * @todo: There will be a autoselecting of warehouse by priority or another logic
-                 * Now we just check that one of warehouses has enough items
-                 */
-                $hasEnough = false;
-                foreach ($warehouses as $warehouseId => $warehouse) {
-                    if ($warehouse['available_count'] >= $this->quantity || $warehouse['is_unlimited'] === 1) {
-                        $hasEnough = true;
-                        break;
-                    }
-                }
-                if (!$hasEnough) {
-                    throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
-                }
+            if (Warehouse::hasEnoughQuantity(
+                $this->goods_id,
+                $this->quantity,
+                $this->warehouse_id
+            ) === false
+            ) {
+                throw new OrderException(Yii::t('dotplant.store', 'The warehouse has no enough goods'));
             }
             // @todo: Add a check warehouse count
 

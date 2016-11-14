@@ -128,6 +128,7 @@ class Store
         try {
             // check items quantity and set warehouses
             $cart->prepare();
+            $cart->calculate();
             // reserve items
             $cart->reserve();
             $cart->recalculateWithOriginalQuantity();
