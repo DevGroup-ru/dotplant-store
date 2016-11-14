@@ -27,6 +27,7 @@ class Module extends \yii\base\Module
     public $registerGuestInCart = 1;
     public $deliveryFromWarehouse = 0;
     public $allowOrderOutOfStock = 0;
+    public $recalculateCartWithOriginalQuantity = 0;
 
     // order statuses
     public $newOrderStatusId = [];

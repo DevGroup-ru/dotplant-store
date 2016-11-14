@@ -131,7 +131,9 @@ class Store
             $cart->calculate();
             // reserve items
             $cart->reserve();
-            $cart->recalculateWithOriginalQuantity();
+            if ((bool)\Yii::$app->getModule('store')->recalculateCartWithOriginalQuantity === true) {
+                $cart->recalculateWithOriginalQuantity();
+            }
             // lock cart
             $cart->is_locked = 1;
             $cart->save(true);
