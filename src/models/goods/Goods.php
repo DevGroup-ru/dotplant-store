@@ -402,6 +402,9 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
                     'targetClass' => BaseStructure::class,
                     'targetAttribute' => ['main_structure_id' => 'id']
                 ],
+                [['asin',], 'string', 'max' => 10],
+                [['isbn',], 'string', 'max' => 18],
+                [['ean', 'upc', 'jan'], 'string', 'max' => 13],
             ],
             $this->propertiesRules()
         );
@@ -426,6 +429,25 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
             'created_by' => Yii::t('dotplant.store', 'Created by'),
             'updated_at' => Yii::t('dotplant.store', 'Updated at'),
             'updated_by' => Yii::t('dotplant.store', 'Updated by'),
+            'asin' => Yii::t('dotplant.store', 'ASIN'),
+            'isbn' => Yii::t('dotplant.store', 'ISBN'),
+            'ean' => Yii::t('dotplant.store', 'EAN'),
+            'upc' => Yii::t('dotplant.store', 'UPC'),
+            'jan' => Yii::t('dotplant.store', 'JAN'),
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getAttributeHints()
+    {
+        return [
+            'asin' => Yii::t('dotplant.store', 'Amazon Standard Identification Number'),
+            'isbn' => Yii::t('dotplant.store', 'International Standard Book Number'),
+            'ean' => Yii::t('dotplant.store', 'European Article Number'),
+            'upc' => Yii::t('dotplant.store', 'Universal Product Code'),
+            'jan' => Yii::t('dotplant.store', 'Japanese Article Number'),
         ];
     }
 
@@ -454,7 +476,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
     /**
      * Override Multilingual find method to include unpublished records
      *
-     * @return object
+     * @return ActiveQuery
      * @throws \yii\base\InvalidConfigException
      */
     public static function find()
@@ -633,6 +655,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
     public function getSeoBreadcrumbs()
     {
         $model = BaseStructure::findOne($this->main_structure_id);
+        /** @var array $breadcrumbs */
         $breadcrumbs = $model->getSeoBreadcrumbs();
         $breadcrumbs[] = [
             'label' => $this->defaultTranslation->breadcrumbs_label,
