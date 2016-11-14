@@ -4,6 +4,7 @@ namespace DotPlant\Store\controllers;
 
 use DevGroup\Frontend\controllers\FrontendController;
 use DevGroup\Frontend\Universal\SuperAction;
+use DotPlant\Currencies\helpers\CurrencyHelper;
 use DotPlant\Monster\models\ServiceEntity;
 use DotPlant\Monster\Universal\ServiceMonsterAction;
 use DotPlant\Store\components\CartProvider;
@@ -76,6 +77,7 @@ class CartController extends FrontendController
                     break;
                 }
             }
+            $currency = CurrencyHelper::findCurrencyByIso($model->currency_iso_code);
             $result = [
                 'isSuccess' => true,
                 'itemsCount' => $model->items_count,
@@ -84,6 +86,22 @@ class CartController extends FrontendController
                 'quantity' => $item->quantity,
                 'itemPrice' => $item->total_price_with_discount,
                 'itemPriceWithoutDiscount' => $item->total_price_without_discount,
+                'formatted' => [
+                    'itemsCount' => Yii::$app->formatter->asInteger($model->items_count),
+                    'totalPrice' => CurrencyHelper::format(
+                        $model->total_price_with_discount,
+                        $currency
+                    ),
+                    'totalPriceWithoutDiscount' => CurrencyHelper::format(
+                        $model->total_price_without_discount,
+                        $currency
+                    ),
+                    'quantity' => Yii::$app->formatter->asInteger($item->quantity),
+                    'itemPrice' => CurrencyHelper::format(
+                        $item->total_price_with_discount,
+                        $currency
+                    ),
+                ],
             ];
         } catch (\Exception $e) {
             $result['errorMessage'] = $e->getMessage();
@@ -101,6 +119,7 @@ class CartController extends FrontendController
         try {
             $model = Store::getCart();
             $model->changeItemQuantity($itemId, $quantity);
+            $currency = CurrencyHelper::findCurrencyByIso($model->currency_iso_code);
             $item = $model->items[$itemId];
             $result = [
                 'isSuccess' => true,
@@ -110,6 +129,22 @@ class CartController extends FrontendController
                 'quantity' => $item->quantity,
                 'itemPrice' => $item->total_price_with_discount,
                 'itemPriceWithoutDiscount' => $item->total_price_without_discount,
+                'formatted' => [
+                    'itemsCount' => Yii::$app->formatter->asInteger($model->items_count),
+                    'totalPrice' => CurrencyHelper::format(
+                        $model->total_price_with_discount,
+                        $currency
+                    ),
+                    'totalPriceWithoutDiscount' => CurrencyHelper::format(
+                        $model->total_price_without_discount,
+                        $currency
+                    ),
+                    'quantity' => Yii::$app->formatter->asInteger($item->quantity),
+                    'itemPrice' => CurrencyHelper::format(
+                        $item->total_price_with_discount,
+                        $currency
+                    ),
+                ],
             ];
         } catch (\Exception $e) {
             $result['isSuccess'] = false;
@@ -136,12 +171,24 @@ class CartController extends FrontendController
         ];
         try {
             $model = Store::getCart();
+            $currency = CurrencyHelper::findCurrencyByIso($model->currency_iso_code);
             $model->removeItem($itemId);
             $result = [
                 'isSuccess' => true,
                 'itemsCount' => $model->items_count,
                 'totalPrice' => $model->total_price_with_discount,
                 'totalPriceWithoutDiscount' => $model->total_price_without_discount,
+                'formatted' => [
+                    'itemsCount' => Yii::$app->formatter->asInteger($model->items_count),
+                    'totalPrice' => CurrencyHelper::format(
+                        $model->total_price_with_discount,
+                        $currency
+                    ),
+                    'totalPriceWithoutDiscount' => CurrencyHelper::format(
+                        $model->total_price_without_discount,
+                        $currency
+                    )
+                ],
                 'successMessage' => Yii::t('dotplant.store', 'Item has been removed'),
             ];
         } catch (\Exception $e) {
