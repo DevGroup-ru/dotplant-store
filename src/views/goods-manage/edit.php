@@ -133,6 +133,11 @@ $event = new ModelEditForm($form, $goods);
                             'disabled' => 'disabled',
                         ]
                     ) ?>
+                    <?= $form->field($goods, 'asin') ?>
+                    <?= $form->field($goods, 'isbn') ?>
+                    <?= $form->field($goods, 'upc') ?>
+                    <?= $form->field($goods, 'ean') ?>
+                    <?= $form->field($goods, 'jan') ?>
                 </div>
                 <div class="col-sm-12 col-md-6">
                     <?= TreeWidget::widget(
