@@ -15,9 +15,12 @@ class m161108_093450_add_column_original_quantity_in_order_items extends Migrati
 
     public function down()
     {
-        echo "m161103_104301_add_column_original_quantity_in_order_items cannot be reverted.\n";
+        $this->dropColumn(
+            \DotPlant\Store\models\order\OrderItem::tableName(),
+            "original_quantity"
+        );
 
-        return false;
+        return true;
     }
 
     /*

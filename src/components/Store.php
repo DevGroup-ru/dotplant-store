@@ -131,7 +131,7 @@ class Store
             $cart->calculate();
             // reserve items
             $cart->reserve();
-            if ((bool)\Yii::$app->getModule('store')->recalculateCartWithOriginalQuantity === true) {
+            if ((bool)Module::module()->recalculateCartWithOriginalQuantity === true) {
                 $cart->recalculateWithOriginalQuantity();
             }
             // lock cart
@@ -157,7 +157,7 @@ class Store
             );
             $order->status_id = static::getNewOrderStatusId($cart->context_id);
             $order->rate_to_main_currency = ($orderCurrency->convert_rate * $orderCurrency->convert_nominal)
-                / ($mainCurrency->convert_rate * $mainCurrency->convert_nominal);
+                    / ($mainCurrency->convert_rate * $mainCurrency->convert_nominal);
             if (!$order->save()) {
                 throw new OrderException(Yii::t('dotplant.store', 'Can not save a new order'));
             }
