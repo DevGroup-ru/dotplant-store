@@ -67,7 +67,7 @@ class ExtendedPriceHelper
      */
     private static function getAllForGoods()
     {
-        if (is_null(self::$_allGoodsExtendedPrices)) {
+        if (self::$_allGoodsExtendedPrices === null) {
             self::$_allGoodsExtendedPrices = self::getExtendedPriceQuery()->andWhere(
                 ['calculator_type' => 'goods',]
             )->asArray()->all();
