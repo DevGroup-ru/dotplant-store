@@ -220,6 +220,7 @@ class GoodsManageAction extends BaseAdminAction
                 'canSave' => true,
                 'undefinedType' => $goods->isNewRecord,
                 'startCategory' => $id,
+                'showOptions' => !$goods->isNewRecord && $goods->getHasOptions() && $optionsDataProvider !== null,
                 'optionsDataProvider' => $optionsDataProvider,
             ]
         );

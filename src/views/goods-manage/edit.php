@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var \DotPlant\Store\models\goods\Goods $goods
  * @var $this \yii\web\View
@@ -6,31 +7,33 @@
  * @var bool $undefinedType
  * @var [] $startCategory
  * @var GoodsWarehouse[] $prices
+ * @var bool $showOptions
+ * @var \yii\data\ActiveDataProvider $optionsDataProvider
  */
 
 use DevGroup\AdminUtils\events\ModelEditForm;
 use DevGroup\AdminUtils\FrontendHelper;
-use dmstr\widgets\Alert;
 use DevGroup\DataStructure\widgets\PropertiesForm;
+use devgroup\JsTreeWidget\widgets\TreeWidget;
 use DevGroup\Multilingual\widgets\MultilingualFormTabs;
+use dmstr\widgets\Alert;
 use DotPlant\Currencies\models\Currency;
+use DotPlant\EntityStructure\models\Entity;
 use DotPlant\Store\actions\goods\GoodsManageAction;
+use DotPlant\Store\assets\StoreAsset;
+use DotPlant\Store\models\goods\CategoryGoods;
+use DotPlant\Store\models\goods\GoodsCategory;
+use DotPlant\Store\models\vendor\Vendor;
 use DotPlant\Store\models\warehouse\GoodsWarehouse;
 use DotPlant\Store\Module;
+use kartik\select2\Select2;
 use kartik\switchinput\SwitchInput;
+use yii\bootstrap\ActiveForm;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\JsExpression;
-use kartik\select2\Select2;
-use devgroup\JsTreeWidget\widgets\TreeWidget;
-use DotPlant\Store\assets\StoreAsset;
-use DotPlant\Store\models\goods\GoodsCategory;
-use DotPlant\EntityStructure\models\Entity;
 use yii\web\View;
-use DotPlant\Store\models\vendor\Vendor;
-use yii\bootstrap\ActiveForm;
-use DotPlant\Store\models\goods\CategoryGoods;
 
 $goodsTypes = $goods->getTypes();
 $goodsType = $goodsTypes[$goods->getType()];
@@ -102,7 +105,7 @@ $event = new ModelEditForm($form, $goods);
                 </a>
             </li>
         <?php endif; ?>
-        <?php if (!$goods->isNewRecord && $goods->getHasOptions()) : ?>
+        <?php if ($showOptions) : ?>
             <li class="">
                 <a href="#options" data-toggle="tab" aria-expanded="false">
                     <?= Yii::t('dotplant.store', 'Options') ?>
@@ -312,7 +315,7 @@ $event = new ModelEditForm($form, $goods);
                     ]
                 ) ?>
         </div>
-        <?php if (!$goods->isNewRecord && $goods->getHasOptions()) : ?>
+        <?php if ($showOptions) : ?>
             <div class="tab-pane" id="options">
                 <?=
                 \yii\grid\GridView::widget(
