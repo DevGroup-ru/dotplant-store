@@ -20,7 +20,7 @@ class ExtendedPriceHelper
     /**
      * @var array
      */
-    private static $_allGoodsExtendedPrices = [];
+    private static $_allGoodsExtendedPrices;
 
     /**
      * @var array
@@ -67,7 +67,7 @@ class ExtendedPriceHelper
      */
     private static function getAllForGoods()
     {
-        if (self::$_allGoodsExtendedPrices === []) {
+        if (is_null(self::$_allGoodsExtendedPrices)) {
             self::$_allGoodsExtendedPrices = self::getExtendedPriceQuery()->andWhere(
                 ['calculator_type' => 'goods',]
             )->asArray()->all();
