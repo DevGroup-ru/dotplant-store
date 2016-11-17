@@ -107,13 +107,11 @@ class GoodsManageAction extends BaseAdminAction
         } else {
             $goods->loadDefaultValues();
         }
-        if ($goods->getHasChild() === false) {
-            foreach (Warehouse::find()->asArray()->all() as $warehouse) {
-                if (!isset($prices[$warehouse['id']])) {
-                    $price = new GoodsWarehouse(['warehouse_id' => $warehouse['id']]);
-                    $price->loadDefaultValues();
-                    $prices[$warehouse['id']] = $price;
-                }
+        foreach (Warehouse::find()->asArray()->all() as $warehouse) {
+            if (!isset($prices[$warehouse['id']])) {
+                $price = new GoodsWarehouse(['warehouse_id' => $warehouse['id']]);
+                $price->loadDefaultValues();
+                $prices[$warehouse['id']] = $price;
             }
         }
 
