@@ -10,7 +10,7 @@ use DotPlant\Store\models\warehouse\Warehouse;
  *
  * @package DotPlant\Store\components\calculator
  */
-class SetGoodsCalculator extends GoodsCalculator
+class SetCalculator extends GoodsCalculator
 {
     public static function calculate(PriceInterface $price)
     {

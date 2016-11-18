@@ -2,8 +2,6 @@
 
 namespace DotPlant\Store\models\goods;
 
-use DevGroup\Entity\traits\EntityTrait;
-use DevGroup\Entity\traits\SeoTrait;
 use DotPlant\Store\models\price\SetPrice;
 
 /**
