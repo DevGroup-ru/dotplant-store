@@ -32,7 +32,7 @@ abstract class Price implements PriceInterface
     private static $_priceMap = [];
 
 
-    private $_price = [];
+    protected static $_price = [];
 
     /**
      * @inheritdoc
@@ -132,7 +132,7 @@ abstract class Price implements PriceInterface
             $withDiscount
         ]);
 
-        if (empty($this->_price[$priceKey]) === true) {
+        if (empty(self::$_price[$priceKey]) === true) {
             $this->_warehouseId = $warehouseId;
             $this->_priceType = $priceType;
             $this->_withDiscount = $withDiscount;
@@ -148,10 +148,10 @@ abstract class Price implements PriceInterface
                 }
                 $price = ArrayHelper::merge($price, ['warehouseId' => $warehouseId]);
             }
-            $this->_price[$priceKey] = $price;
+            self::$_price[$priceKey] = $price;
         }
 
-        return $this->_price[$priceKey];
+        return self::$_price[$priceKey];
     }
 
     /**
@@ -187,9 +187,9 @@ abstract class Price implements PriceInterface
             $convertIsoCode,
             $withDiscount
         ]);
-        if (empty($this->_price[$priceKey]) === true) {
+        if (empty(self::$_price[$priceKey]) === true) {
             $warehouses = Warehouse::getWarehouses($this->getGoods()->id);
-            $this->_price[$priceKey] = array_reduce(
+            self::$_price[$priceKey] = array_reduce(
                 $warehouses,
                 function ($minPrice, $warehouse) use ($priceType, $withDiscount, $convertIsoCode) {
                     $warehousePrice = $this->getPrice($warehouse['warehouse_id'], $priceType, true, $convertIsoCode);
@@ -200,7 +200,7 @@ abstract class Price implements PriceInterface
                 }
             );
         }
-        return $this->_price[$priceKey];
+        return self::$_price[$priceKey];
     }
 
     /**
