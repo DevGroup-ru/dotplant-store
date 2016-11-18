@@ -17,6 +17,7 @@ use DotPlant\Store\models\goods\Option;
 use DotPlant\Store\models\warehouse\GoodsWarehouse;
 use DotPlant\Store\models\warehouse\Warehouse;
 use yii\base\Model;
+use yii\db\Expression;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use Yii;
@@ -67,22 +68,30 @@ class GoodsManageAction extends BaseAdminAction
                     )
                 );
             }
-            $optionsDataProvider = (new Option)
+            $allowedTypes = array_merge(
+                $goods->getChildTypes(),
+                $goods->getHasOptions() ? [Goods::TYPE_OPTION] : []
+            );
+            $childrenDataProvider = (new Option)
                 ->search(
                     Yii::$app->request->get(),
                     null,
-                    Option::find()
+                    Goods::find()
                         ->innerJoin(GoodsParent::tableName(), 'id = goods_id')
                         ->where(
                             [
                                 'goods_parent_id' => $product_id,
-                                'type' => Goods::TYPE_OPTION,
+                                'type' => $allowedTypes,
                             ]
                         )
                 );
         } else {
             $goods = Goods::create($type);
-            $optionsDataProvider = null;
+            $allowedTypes = array_merge(
+                $goods->getChildTypes(),
+                $goods->getHasOptions() ? [Goods::TYPE_OPTION] : []
+            );
+            $childrenDataProvider = null;
         }
         $canSave = true; //Yii::$app->user->can('');
         /**@var Goods[] $child */
@@ -97,13 +106,13 @@ class GoodsManageAction extends BaseAdminAction
                     ->indexBy('warehouse_id')
                     ->where(['goods_id' => $goods->id])
                     ->all();
-            } else {
-                $child = $goods->getChildren()
-                    ->select([GoodsTranslation::tableName() . '.name', Goods::tableName() . '.id'])
-                    ->indexBy('id')
-                    ->asArray()
-                    ->column();
             }
+            $child = $goods->getChildren()
+//                ->select([GoodsTranslation::tableName() . '.name', Goods::tableName() . '.id'])
+                ->select(new Expression("CONCAT (name, ' (', sku, ')'), id"))
+                ->indexBy('id')
+                ->asArray()
+                ->column();
         } else {
             $goods->loadDefaultValues();
         }
@@ -218,8 +227,9 @@ class GoodsManageAction extends BaseAdminAction
                 'canSave' => true,
                 'undefinedType' => $goods->isNewRecord,
                 'startCategory' => $id,
-                'showOptions' => !$goods->isNewRecord && $goods->getHasOptions() && $optionsDataProvider !== null,
-                'optionsDataProvider' => $optionsDataProvider,
+                'showChildren' => !$goods->isNewRecord && ($goods->getHasOptions() || $goods->getHasChild()) && $childrenDataProvider !== null,
+                'childrenDataProvider' => $childrenDataProvider,
+                'allowedTypes' => $allowedTypes,
             ]
         );
     }

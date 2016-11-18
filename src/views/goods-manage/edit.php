@@ -7,7 +7,7 @@
  * @var bool $undefinedType
  * @var [] $startCategory
  * @var GoodsWarehouse[] $prices
- * @var bool $showOptions
+ * @var bool $showChildren
  * @var \yii\data\ActiveDataProvider $optionsDataProvider
  */
 
@@ -26,13 +26,11 @@ use DotPlant\Store\models\goods\GoodsCategory;
 use DotPlant\Store\models\vendor\Vendor;
 use DotPlant\Store\models\warehouse\GoodsWarehouse;
 use DotPlant\Store\Module;
-use kartik\select2\Select2;
 use kartik\switchinput\SwitchInput;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
-use yii\web\JsExpression;
 use yii\web\View;
 
 $goodsTypes = $goods->getTypes();
@@ -61,13 +59,6 @@ if (empty($goods->mainCategory) === false) {
 }
 
 $this->params['breadcrumbs'][] = $this->title;
-$url = Url::to(
-    [
-        '/structure/entity-manage/goods-autocomplete',
-        'excludedIds' => $goods->id,
-        'allowedTypes' => $goods->getChildTypes()
-    ]
-);
 $categoryEntityId = Entity::getEntityIdForClass(GoodsCategory::class);
 $missingParamText = Yii::t('dotplant.store', 'Missing param');
 $mainStructureId = Html::getInputId($goods, 'main_structure_id');
@@ -111,10 +102,10 @@ $event = new ModelEditForm($form, $goods);
                 </a>
             </li>
         <?php endif; ?>
-        <?php if ($showOptions) : ?>
+        <?php if ($showChildren) : ?>
             <li class="">
-                <a href="#options" data-toggle="tab" aria-expanded="false">
-                    <?= Yii::t('dotplant.store', 'Options') ?>
+                <a href="#children" data-toggle="tab" aria-expanded="false">
+                    <?= Yii::t('dotplant.store', 'Options / Children') ?>
                 </a>
             </li>
         <?php endif; ?>
@@ -170,41 +161,7 @@ $event = new ModelEditForm($form, $goods);
                     <?= $form->field($goods, 'main_structure_id')->dropDownList(
                         ArrayHelper::map($goods->categories, 'id', 'name')
                     ) ?>
-
-
                     <div class="clearfix"></div>
-                    <?php if ($goods->getHasChild() === true) : ?>
-                        <label><?= Yii::t('dotplant.store', 'Child'); ?></label>
-                        <?=
-                        Select2::widget(
-                            [
-                                'name' => 'childGoods',
-                                'data' => $child,
-                                'value' => array_keys($child),
-                                'options' => [
-                                    'placeholder' => Yii::t('dotplant.store', 'Search for a child ...'),
-                                    'multiple' => true
-                                ],
-                                'pluginOptions' => [
-                                    'allowClear' => true,
-                                    'minimumInputLength' => 3,
-                                    'ajax' => [
-                                        'url' => $url,
-                                        'dataType' => 'json',
-                                        'data' => new JsExpression('function(params) { return {q:params.term}; }'),
-                                        'delay' => '700',
-                                        'error' => new JsExpression('function(error) {alert(error.responseText);}'),
-                                    ],
-                                    'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
-                                    'templateResult' => new JsExpression('function(parent) { return parent.text; }'),
-                                    'templateSelection' => new JsExpression('function (parent) { return parent.text; }'),
-                                ]
-                            ]
-                        );
-                        ?>
-                    <?php endif; ?>
-
-
                 </div>
             </div>
             <div class="row">
@@ -318,81 +275,21 @@ $event = new ModelEditForm($form, $goods);
         <div class="tab-pane" id="goods-properties">
             <?= PropertiesForm::widget(
                     [
-                    'model' => $goods,
-                    'form' => $form,
+                        'model' => $goods,
+                        'form' => $form,
                     ]
                 ) ?>
         </div>
-        <?php if ($showOptions) : ?>
-            <div class="tab-pane" id="options">
+        <?php if ($showChildren) : ?>
+            <div class="tab-pane" id="children">
                 <?=
-                \yii\grid\GridView::widget(
+                $this->render(
+                    'tabChildren',
                     [
-                        'dataProvider' => $optionsDataProvider,
-                        'columns' => [
-                            [
-                                'attribute' => 'name',
-                                'options' => [
-                                    'width' => '80%',
-                                ],
-                            ],
-                            'is_active:boolean',
-                            [
-                                'attribute' => 'is_deleted',
-                                'label' => Yii::t('dotplant.store', 'Show deleted?'),
-                                'value' => function ($model) {
-                                    return $model->isDeleted() === true ? Yii::t(
-                                        'dotplant.store',
-                                        'Deleted'
-                                    ) : Yii::t('dotplant.store', 'Active');
-                                },
-                                'filter' => [
-                                    Yii::t('dotplant.store', 'Show only active'),
-                                    Yii::t('dotplant.store', 'Show only deleted')
-                                ],
-                                'filterInputOptions' => [
-                                    'class' => 'form-control',
-                                    'id' => null,
-                                    'prompt' => Yii::t('dotplant.store', 'Show all')
-                                ]
-                            ],
-                            [
-                                'class' => \DevGroup\AdminUtils\columns\ActionColumn::class,
-                                'buttons' => function ($model, $key, $index, $column) {
-
-                                    $result = [
-                                        'edit' => [
-                                            'url' => '/structure/entity-manage/goods-manage',
-                                            'icon' => 'pencil',
-                                            'class' => 'btn-info',
-                                            'label' => Yii::t('dotplant.store', 'Edit'),
-                                            'keyParam' => 'product_id',
-                                        ]
-                                    ];
-
-                                    if ($model->isDeleted() === false) {
-                                        $result['soft-delete'] = [
-                                            'url' => '/structure/entity-manage/goods-delete',
-                                            'icon' => 'trash-o',
-                                            'class' => 'btn-danger',
-                                            'label' => Yii::t('dotplant.store', 'Delete'),
-                                            'keyParam' => 'product_id',
-                                        ];
-                                    } else {
-                                        $result['restore'] = [
-                                            'url' => '/structure/entity-manage/goods-restore',
-                                            'icon' => 'undo',
-                                            'class' => 'btn-info',
-                                            'label' => Yii::t('dotplant.store', 'Restore'),
-                                            'keyParam' => 'product_id',
-                                        ];
-                                    }
-
-
-                                    return $result;
-                                }
-                            ]
-                        ],
+                        'childrenDataProvider' => $childrenDataProvider,
+                        'goods' => $goods,
+                        'child' => $child,
+                        'allowedTypes' => $allowedTypes,
                     ]
                 )
                 ?>
