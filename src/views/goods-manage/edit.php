@@ -61,7 +61,13 @@ if (empty($goods->mainCategory) === false) {
 }
 
 $this->params['breadcrumbs'][] = $this->title;
-$url = Url::to(['/structure/entity-manage/goods-autocomplete', 'product_id' => $goods->id]);
+$url = Url::to(
+    [
+        '/structure/entity-manage/goods-autocomplete',
+        'excludedIds' => $goods->id,
+        'allowedTypes' => $goods->getChildTypes()
+    ]
+);
 $categoryEntityId = Entity::getEntityIdForClass(GoodsCategory::class);
 $missingParamText = Yii::t('dotplant.store', 'Missing param');
 $mainStructureId = Html::getInputId($goods, 'main_structure_id');
@@ -169,30 +175,32 @@ $event = new ModelEditForm($form, $goods);
                     <div class="clearfix"></div>
                     <?php if ($goods->getHasChild() === true) : ?>
                         <label><?= Yii::t('dotplant.store', 'Child'); ?></label>
-
-                        <?= Select2::widget([
-                            'name' => 'childGoods',
-                            'data' => $child,
-                            'value' => array_keys($child),
-                            'options' => [
-                                'placeholder' => Yii::t('dotplant.store', 'Search for a child ...'),
-                                'multiple' => true
-                            ],
-                            'pluginOptions' => [
-                                'allowClear' => true,
-                                'minimumInputLength' => 3,
-                                'ajax' => [
-                                    'url' => $url,
-                                    'dataType' => 'json',
-                                    'data' => new JsExpression('function(params) { return {q:params.term}; }'),
-                                    'delay' => '400',
-                                    'error' => new JsExpression('function(error) {alert(error.responseText);}'),
+                        <?=
+                        Select2::widget(
+                            [
+                                'name' => 'childGoods',
+                                'data' => $child,
+                                'value' => array_keys($child),
+                                'options' => [
+                                    'placeholder' => Yii::t('dotplant.store', 'Search for a child ...'),
+                                    'multiple' => true
                                 ],
-                                'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
-                                'templateResult' => new JsExpression('function(parent) { return parent.text; }'),
-                                'templateSelection' => new JsExpression('function (parent) { return parent.text; }'),
+                                'pluginOptions' => [
+                                    'allowClear' => true,
+                                    'minimumInputLength' => 3,
+                                    'ajax' => [
+                                        'url' => $url,
+                                        'dataType' => 'json',
+                                        'data' => new JsExpression('function(params) { return {q:params.term}; }'),
+                                        'delay' => '700',
+                                        'error' => new JsExpression('function(error) {alert(error.responseText);}'),
+                                    ],
+                                    'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
+                                    'templateResult' => new JsExpression('function(parent) { return parent.text; }'),
+                                    'templateSelection' => new JsExpression('function (parent) { return parent.text; }'),
+                                ]
                             ]
-                        ]);
+                        );
                         ?>
                     <?php endif; ?>
 

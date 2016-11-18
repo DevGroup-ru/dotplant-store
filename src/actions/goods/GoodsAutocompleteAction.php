@@ -6,6 +6,7 @@ use DevGroup\AdminUtils\actions\BaseAdminAction;
 use DotPlant\Store\models\goods\Goods;
 use DotPlant\Store\models\goods\GoodsTranslation;
 use yii\base\InvalidConfigException;
+use yii\db\Expression;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -27,7 +28,7 @@ class GoodsAutocompleteAction extends BaseAdminAction
     /**
      * @var array default search fields
      */
-    private $defaultFields = ['title', 'name', 'sku'];
+    private $defaultFields = ['title', 'name', 'sku', 'inner_sku'];
 
     /**
      * @inheritdoc
@@ -63,28 +64,27 @@ class GoodsAutocompleteAction extends BaseAdminAction
     /**
      * @inheritdoc
      */
-    public function run($q = null, $product_id = null, $id = null)
+    public function run($q = null, $excludedIds = null, $id = null, $allowedTypes = null)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $out = ['results' => ['id' => '', 'text' => '']];
         if (null !== $q) {
             $query = new Query;
-            $query->select('id, name AS text')->from(Goods::tableName())->innerJoin(
-                GoodsTranslation::tableName(),
-                'id = model_id'
-            )->where($this->prepareCondition($q))->andWhere(
-                [
-                    'language_id' => Yii::$app->multilingual->language_id,
-                ]
-            )->limit(20);
-
-            if ($product_id !== null) {
-                $goods = Goods::get($product_id);
-                $query->andWhere(['!=', 'id', $goods->id]);
-                $query->andWhere(['type' => $goods->getChildTypes()]);
+            if ($excludedIds !== null) {
+                $query->where(['not in', 'id', (array) $excludedIds]);
             }
-
-
+            if ($allowedTypes !== null) {
+                $query->andWhere(['type' => (array) $allowedTypes]);
+            }
+            $query
+                ->select(new Expression("id, CONCAT(name, ' (', sku, ')') AS text"))
+                ->from(Goods::tableName())
+                ->innerJoin(GoodsTranslation::tableName(), 'id = model_id')
+                ->andWhere(
+                    ['language_id' => Yii::$app->multilingual->language_id]
+                )
+                ->andWhere($this->prepareCondition($q))
+                ->limit(20);
             $command = $query->createCommand();
             $data = $command->queryAll();
             $out['results'] = array_values($data);
