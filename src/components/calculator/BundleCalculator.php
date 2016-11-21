@@ -12,26 +12,11 @@ use DotPlant\Store\models\warehouse\Warehouse;
  */
 class BundleCalculator extends GoodsCalculator
 {
-
     public static function calculate(PriceInterface $price)
     {
-        $result = [];
-
-        $tempPrice = [];
-        foreach ($price->getGoods()->getChildren()->select('id')->column() as $goodId) {
-            $warehouse = Warehouse::getWarehouse(
-                $goodId,
-                $price->getWarehouseId(),
-                false
-            );
-            if(!$warehouse) {
-                return $result;
-            }
-
-        }
-
-
-        return $result;
+        $priceArray = $price->getLastPrice();
+        return $priceArray !== false
+            ? self::applyExtendedPrice($price->getGoods(), $priceArray)
+            : false;
     }
-
 }
