@@ -20,6 +20,7 @@ use Yii;
  * @property integer $goods_id
  * @property integer $warehouse_id
  * @property double $quantity
+ * @property double $original_quantity
  * @property double $total_price_with_discount
  * @property double $total_price_without_discount
  * @property double $seller_price
