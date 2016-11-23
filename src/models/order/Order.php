@@ -134,29 +134,35 @@ class Order extends \yii\db\ActiveRecord
     public function scenarios()
     {
         $baseActionsInfoAttributes = ['created_by', 'created_at', 'updated_by', 'updated_at', 'user_id'];
-        return [
+        $notBaseAttributes = [
             'order-creation' => [
-                'context_id',
-                'currency_iso_code',
-                'status_id',
-                'is_retail',
-                'items_count',
-                'total_price_with_discount',
-                'total_price_without_discount',
-                'rate_to_main_currency',
-            ] + $baseActionsInfoAttributes,
-            'single-step-order' => ['payment_id', 'delivery_id'] + $baseActionsInfoAttributes,
-            'status-changing' => ['status_id'] + $baseActionsInfoAttributes,
+                    'context_id',
+                    'currency_iso_code',
+                    'status_id',
+                    'is_retail',
+                    'items_count',
+                    'total_price_with_discount',
+                    'total_price_without_discount',
+                    'rate_to_main_currency',
+                ],
+            'single-step-order' => ['payment_id', 'delivery_id'],
+            'status-changing' => ['status_id'],
             // backend
             'backend-order-updating' => [
-                'status_id',
-                'delivery_id',
-                'payment_id',
-                'manager_id',
-            ] + $baseActionsInfoAttributes,
-            'backend-order-soft-deleting' => ['is_deleted'] + $baseActionsInfoAttributes,
-            'attach-manager' => ['manager_id'] + $baseActionsInfoAttributes,
+                    'status_id',
+                    'delivery_id',
+                    'payment_id',
+                    'manager_id',
+                ],
+            'backend-order-soft-deleting' => ['is_deleted'],
+            'attach-manager' => ['manager_id'],
         ];
+        return array_map(
+            function ($item) use ($baseActionsInfoAttributes) {
+                return array_merge($item, $baseActionsInfoAttributes);
+            },
+            $notBaseAttributes
+        );
     }
 
     /**
