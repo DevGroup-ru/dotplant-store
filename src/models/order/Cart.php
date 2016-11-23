@@ -7,6 +7,7 @@ use DevGroup\Entity\traits\BaseActionsInfoTrait;
 use DevGroup\Entity\traits\EntityTrait;
 use DotPlant\Store\components\calculator\CartCalculator;
 use DotPlant\Store\exceptions\OrderException;
+use DotPlant\Store\models\warehouse\GoodsWarehouse;
 use DotPlant\Store\models\warehouse\Warehouse;
 use DotPlant\Store\Module;
 use Yii;
@@ -292,6 +293,28 @@ class Cart extends ActiveRecord
         foreach ($this->items as $item) {
             $item->calculate();
             $item->save();
+        }
+        $this->calculate();
+        $this->save();
+    }
+
+
+    /**
+     * @param $id
+     * @param $quantity
+     * @throws OrderException
+     */
+    public function recalculateWithOriginalQuantity()
+    {
+        $this->checkLock();
+        foreach ($this->items as $item) {
+            if (!empty($item)) {
+                $item->setAvailableCount();
+                $item->calculate();
+                if (!$item->save()) {
+                    throw new OrderException(Yii::t('dotplant.store', 'Can not change a goods quantity'));
+                }
+            }
         }
         $this->calculate();
         $this->save();
