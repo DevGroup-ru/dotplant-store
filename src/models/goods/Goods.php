@@ -4,6 +4,7 @@ namespace DotPlant\Store\models\goods;
 
 use DevGroup\AdminUtils\traits\FetchModels;
 use DevGroup\DataStructure\behaviors\HasProperties;
+use DevGroup\DataStructure\search\base\SearchableEntity;
 use DevGroup\DataStructure\traits\PropertiesTrait;
 use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SeoTrait;
@@ -52,7 +53,7 @@ use yii\helpers\Url;
  * @property BaseStructure $mainCategory
  * @property GoodsTranslation $defaultTranslation
  */
-class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface, MainEntitySeoInterface
+class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface, MainEntitySeoInterface, SearchableEntity
 {
     use MultilingualTrait;
     use TagDependencyTrait;
@@ -63,6 +64,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
     use SeoTrait;
     use MonsterEntityTrait;
     use MainEntitySeoTrait;
+
 
     /**
      *
@@ -365,7 +367,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
             ],
             'properties' => [
                 'class' => HasProperties::class,
-                'autoFetchProperties' => true,
+//                'autoFetchProperties' => true,
             ],
         ];
     }
@@ -672,6 +674,32 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
      */
     public static function get($id)
     {
-        return static::loadModel($id);
+        return static::loadModel($id, false, true, 86400, false, true);
+    }
+
+    public function afterFind()
+    {
+        parent::afterFind();
+        static::$identityMap[$this->id] = &$this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function defaultAttributesScope()
+    {
+        return [
+            'is_deleted' => 0,
+            self::getTranslationTableName() . '.is_active' => 1,
+        ];
+    }
+
+    public static function defaultWith()
+    {
+        return [
+            'mainCategory',
+            'mainCategory.defaultTranslation',
+            'defaultTranslation.extended',
+        ];
     }
 }

@@ -7,6 +7,7 @@ use DevGroup\DataStructure\behaviors\PackedJsonAttributes;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DevGroup\TagDependencyHelper\CacheableActiveRecord;
+use DevGroup\TagDependencyHelper\LazyCache;
 use DevGroup\TagDependencyHelper\TagDependencyTrait;
 use DotPlant\Store\exceptions\WarehouseException;
 use DotPlant\Store\interfaces\WarehouseInterface;
@@ -86,10 +87,18 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
     private static function fillMap()
     {
         if (empty(static::$_identityMap)) {
-            static::$_identityMap = static::find()
-                ->indexBy('id')
-                ->orderBy(['priority' => SORT_ASC])
-                ->all();
+            /** @var LazyCache $cache */
+            $cache = Yii::$app->cache;
+            static::$_identityMap = $cache->lazy(
+                function() {
+                    return static::find()
+                        ->indexBy('id')
+                        ->orderBy(['priority' => SORT_ASC])
+                        ->all();
+                },
+                86400,
+                static::commonTag()
+            );
         }
     }
 
