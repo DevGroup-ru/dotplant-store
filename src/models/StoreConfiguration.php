@@ -6,6 +6,8 @@ use DevGroup\ExtensionsManager\models\BaseConfigurationModel;
 use DotPlant\Store\models\order\OrderStatus;
 use DotPlant\Store\models\order\OrderStatusTranslation;
 use DotPlant\Store\Module;
+use DotPlant\Store\repository\GoodsMainCategoryRepositoryInterface;
+use DotPlant\Store\repository\Yii2DbGoodsMainCategory;
 
 class StoreConfiguration extends BaseConfigurationModel
 {
@@ -132,6 +134,11 @@ class StoreConfiguration extends BaseConfigurationModel
                     'canceledOrderStatusId' => $this->canceledOrderStatusId,
                 ],
             ],
+            'container' => [
+                'definitions' => [
+                    GoodsMainCategoryRepositoryInterface::class => Yii2DbGoodsMainCategory::class,
+                ]
+            ]
         ];
     }
     /**

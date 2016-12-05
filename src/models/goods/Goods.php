@@ -23,6 +23,7 @@ use DotPlant\Store\interfaces\GoodsTypesInterface;
 use DotPlant\Store\interfaces\PriceInterface;
 use DotPlant\Store\models\price\Price;
 use DotPlant\Store\models\vendor\Vendor;
+use DotPlant\Store\repository\GoodsMainCategoryRepositoryInterface;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
@@ -53,7 +54,8 @@ use yii\helpers\Url;
  * @property BaseStructure $mainCategory
  * @property GoodsTranslation $defaultTranslation
  */
-class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface, MainEntitySeoInterface, SearchableEntity
+class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface, MainEntitySeoInterface,
+    SearchableEntity
 {
     use MultilingualTrait;
     use TagDependencyTrait;
@@ -139,6 +141,12 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
      * @inheritdoc
      */
     protected static $tablePrefix = 'dotplant_store_goods';
+
+    /**
+     * @var GoodsMainCategoryRepositoryInterface
+     */
+    protected $mainCategoryRepository;
+
 
     /**
      * Type to class associations
@@ -274,10 +282,10 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
             self::TYPE_PRODUCT => Yii::t('dotplant.store', 'Product'),
             self::TYPE_BUNDLE => Yii::t('dotplant.store', 'Bundle'),
             self::TYPE_SET => Yii::t('dotplant.store', 'Set'),
-          //  self::TYPE_PART => Yii::t('dotplant.store', 'Part'),
+            //  self::TYPE_PART => Yii::t('dotplant.store', 'Part'),
             self::TYPE_OPTION => Yii::t('dotplant.store', 'Option'),
-          //  self::TYPE_SERVICE => Yii::t('dotplant.store', 'Service'),
-          //  self::TYPE_FILE => Yii::t('dotplant.store', 'File'),
+            //  self::TYPE_SERVICE => Yii::t('dotplant.store', 'Service'),
+            //  self::TYPE_FILE => Yii::t('dotplant.store', 'File'),
         ];
     }
 
@@ -318,6 +326,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
      * @param string $priceType
      * @param bool|true $withDiscount
      * @param bool|false $convertIsoCode
+     *
      * @return mixed
      */
     public function getPrice(
@@ -333,6 +342,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
      * @param string $priceType
      * @param bool|true $withDiscount
      * @param bool|false $convertIsoCode
+     *
      * @return mixed
      */
     public function getMinPrice(
@@ -360,14 +370,14 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
             'multilingual' => [
                 'class' => MultilingualActiveRecord::class,
                 'translationModelClass' => GoodsTranslation::class,
-                'translationPublishedAttribute' => 'is_active'
+                'translationPublishedAttribute' => 'is_active',
             ],
             'CacheableActiveRecord' => [
                 'class' => CacheableActiveRecord::class,
             ],
             'properties' => [
                 'class' => HasProperties::class,
-//                'autoFetchProperties' => true,
+                //                'autoFetchProperties' => true,
             ],
         ];
     }
@@ -386,7 +396,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
                         'type',
                         'role',
                     ],
-                    'integer'
+                    'integer',
                 ],
                 [['sku', 'main_structure_id'], 'required'],
                 [['sku', 'inner_sku'], 'string', 'max' => 255],
@@ -395,14 +405,14 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
                     'exist',
                     'skipOnError' => true,
                     'targetClass' => Vendor::class,
-                    'targetAttribute' => ['vendor_id' => 'id']
+                    'targetAttribute' => ['vendor_id' => 'id'],
                 ],
                 [
                     ['main_structure_id'],
                     'exist',
                     'skipOnError' => true,
                     'targetClass' => BaseStructure::class,
-                    'targetAttribute' => ['main_structure_id' => 'id']
+                    'targetAttribute' => ['main_structure_id' => 'id'],
                 ],
                 [['asin',], 'string', 'max' => 10],
                 [['isbn',], 'string', 'max' => 18],
@@ -468,6 +478,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
      * Override for filtering in grid
      *
      * @param string $attribute
+     *
      * @return bool
      */
     public function isAttributeActive($attribute)
@@ -493,8 +504,10 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
      */
     public function getParents()
     {
-        return $this->hasMany(static::class, ['id' => 'goods_parent_id'])
-            ->viaTable(GoodsParent::tableName(), ['goods_id' => 'id']);
+        return $this->hasMany(static::class, ['id' => 'goods_parent_id'])->viaTable(
+                GoodsParent::tableName(),
+                ['goods_id' => 'id']
+            );
     }
 
     /**
@@ -502,8 +515,10 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
      */
     public function getChildren()
     {
-        return $this->hasMany(static::class, ['id' => 'goods_id'])
-            ->viaTable(GoodsParent::tableName(), ['goods_parent_id' => 'id']);
+        return $this->hasMany(static::class, ['id' => 'goods_id'])->viaTable(
+                GoodsParent::tableName(),
+                ['goods_parent_id' => 'id']
+            );
     }
 
     /**
@@ -511,8 +526,10 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
      */
     public function getCategories()
     {
-        return $this->hasMany(BaseStructure::class, ['id' => 'structure_id'])
-            ->viaTable(CategoryGoods::tableName(), ['goods_id' => 'id']);
+        return $this->hasMany(BaseStructure::class, ['id' => 'structure_id'])->viaTable(
+                CategoryGoods::tableName(),
+                ['goods_id' => 'id']
+            );
     }
 
     /**
@@ -558,11 +575,11 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
     }
 
 
-
     /**
      * Injects according Price object into Goods model for further calculations
      *
      * @param $goods
+     *
      * @throws GoodsException
      * @throws \DotPlant\Store\exceptions\PriceException
      */
@@ -583,6 +600,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
      * Finds models
      *
      * @param $params
+     *
      * @return ActiveDataProvider
      */
     public function search($params, $categoryId = null, $query = null)
@@ -591,13 +609,15 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
         if ($query === null) {
             $query = static::find();
         }
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-            'pagination' => [
-                //TODO configure it
-                'pageSize' => 15
-            ],
-        ]);
+        $dataProvider = new ActiveDataProvider(
+            [
+                'query' => $query,
+                'pagination' => [
+                    //TODO configure it
+                    'pageSize' => 15,
+                ],
+            ]
+        );
         if (null !== $categoryId) {
             $query->innerJoin(
                 CategoryGoods::tableName(),
@@ -664,6 +684,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
         ];
         return $breadcrumbs;
     }
+
     /**
      * Returns properly instantiated Goods model if found
      *
@@ -701,5 +722,26 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
             'mainCategory.defaultTranslation',
             'defaultTranslation.extended',
         ];
+    }
+
+    public function getMainStructure($contextId)
+    {
+        return $this->getMainStructureRepository()->loadGoodsMainCategory($contextId);
+    }
+
+    public function setMainStructure(BaseStructure $structure, $contextId)
+    {
+        $this->getMainStructureRepository()->setMainCategory($structure, $contextId);
+    }
+
+    protected function getMainStructureRepository()
+    {
+        if ($this->mainCategoryRepository === null) {
+            $this->mainCategoryRepository = Yii::$container->get(
+                GoodsMainCategoryRepositoryInterface::class,
+                [$this->id]
+            );
+        }
+        return $this->mainCategoryRepository;
     }
 }
