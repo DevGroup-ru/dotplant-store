@@ -60,12 +60,13 @@ class m161205_091237_main_structure extends Migration
             ['goods_id', 'main_structure_id', 'context_id'],
             $rows
         );
-        $this->dropColumn(Goods::tableName(), 'main_category_id');
+        $this->dropIndex('idx-dotplant_store_goods-main_structure_id', Goods::tableName());
+        $this->dropColumn(Goods::tableName(), 'main_structure_id');
     }
 
     public function down()
     {
-        $this->addColumn(Goods::tableName(), 'main_category_id', $this->integer());
+        $this->addColumn(Goods::tableName(), 'main_structure_id', $this->integer());
         $this->dropTable(Yii2DbGoodsMainCategory::TABLE_NAME);
     }
 }
