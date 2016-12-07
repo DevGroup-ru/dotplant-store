@@ -60,13 +60,13 @@ if (empty($goods->mainCategory) === false) {
 $this->params['breadcrumbs'][] = $this->title;
 $categoryEntityId = Entity::getEntityIdForClass(GoodsCategory::class);
 $missingParamText = Yii::t('dotplant.store', 'Missing param');
-$mainStructureId = Html::getInputId($goods, 'main_structure_id');
+
 $formName = $goods->formName();
 $js = <<<JS
     window.DotPlantStore = {
         categoryEntityId : $categoryEntityId,
         missingParamText : '$missingParamText',
-        mainCategorySelector : '#$mainStructureId',
+        mainCategorySelector : [],
         goodsFormName : '$formName'
     };
 JS;

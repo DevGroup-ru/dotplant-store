@@ -38,7 +38,6 @@ use yii\helpers\Url;
  * @property integer $id
  * @property integer $seller_id
  * @property integer $vendor_id
- * @property integer $main_structure_id
  * @property integer $type
  * @property integer $role
  * @property string $sku
@@ -393,13 +392,12 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
                 [
                     [
                         'vendor_id',
-                        'main_structure_id',
                         'type',
                         'role',
                     ],
                     'integer',
                 ],
-                [['sku', 'main_structure_id'], 'required'],
+                [['sku',], 'required'],
                 [['sku', 'inner_sku'], 'string', 'max' => 255],
                 [
                     ['vendor_id'],
@@ -407,13 +405,6 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
                     'skipOnError' => true,
                     'targetClass' => Vendor::class,
                     'targetAttribute' => ['vendor_id' => 'id'],
-                ],
-                [
-                    ['main_structure_id'],
-                    'exist',
-                    'skipOnError' => true,
-                    'targetClass' => BaseStructure::class,
-                    'targetAttribute' => ['main_structure_id' => 'id'],
                 ],
                 [['asin',], 'string', 'max' => 10],
                 [['isbn',], 'string', 'max' => 18],
@@ -432,7 +423,6 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
             'id' => Yii::t('dotplant.store', 'ID'),
             'seller_id' => Yii::t('dotplant.store', 'Seller'),
             'vendor_id' => Yii::t('dotplant.store', 'Vendor'),
-            'main_structure_id' => Yii::t('dotplant.store', 'Main structure ID'),
             'type' => Yii::t('dotplant.store', 'Type'),
             'role' => Yii::t('dotplant.store', 'Role'),
             'sku' => Yii::t('dotplant.store', 'Sku'),
@@ -538,7 +528,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
      */
     public function getMainCategory()
     {
-        return $this->hasOne(BaseStructure::class, ['id' => 'main_structure_id']);
+        return $this->getMainStructure(Yii::$app->multilingual->context_id);
     }
 
     /**
@@ -677,7 +667,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
      */
     public function getSeoBreadcrumbs()
     {
-        $model = BaseStructure::findOne($this->main_structure_id);
+        $model = $this->getMainStructure(Yii::$app->multilingual->context_id);
         /** @var array $breadcrumbs */
         $breadcrumbs = $model->getSeoBreadcrumbs();
         $breadcrumbs[] = [

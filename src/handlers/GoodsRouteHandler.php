@@ -5,6 +5,7 @@ namespace DotPlant\Store\handlers;
 use DotPlant\EntityStructure\interfaces\AdditionalRouteHandlerInterface;
 use DotPlant\EntityStructure\models\BaseStructure;
 use DotPlant\Store\models\goods\Goods;
+use DotPlant\Store\repository\Yii2DbGoodsMainCategory;
 use Yii;
 use yii\base\Object;
 use yii\caching\TagDependency;
@@ -21,39 +22,45 @@ class GoodsRouteHandler extends Object implements AdditionalRouteHandlerInterfac
         if ($result) {
             return $result;
         }
-        $modelId = Goods::find()
-            ->select(['id'])
-            ->where(
+        $modelId = Goods::find()->select(['id'])->where(
                 [
                     // @todo: Use SQL index
-                    'main_structure_id' => $structureId,
+                    Yii2DbGoodsMainCategory::TABLE_NAME . '.main_structure_id' => $structureId,
+                    Yii2DbGoodsMainCategory::TABLE_NAME . '.context_id' => Yii::$app->multilingual->context_id,
                     'slug' => $slugs[0],
                     'is_active' => 1,
                     'is_deleted' => 0,
                 ]
-            )
-            ->scalar();
-        $result = $modelId !== false && count($slugs) === 1
-            ? [
-                'isHandled' => true,
-                'preventNextHandler' => true,
-                'route' => 'store/goods/show',
-                'routeParams' => [
-                    'entities' => [
-                        Goods::class => [
-                            $modelId,
-                        ],
+            )->leftJoin(
+                Yii2DbGoodsMainCategory::TABLE_NAME,
+                Yii2DbGoodsMainCategory::TABLE_NAME . '.goods_id=' . Goods::tableName() . '.id'
+            )->scalar();
+        $result = $modelId !== false && count($slugs) === 1 ? [
+            'isHandled' => true,
+            'preventNextHandler' => true,
+            'route' => 'store/goods/show',
+            'routeParams' => [
+                'entities' => [
+                    Goods::class => [
+                        $modelId,
                     ],
                 ],
-                'slugs' => [],
+            ],
+            'slugs' => [],
 
-            ]
-            : ['isHandled' => false];
-        Yii::$app->cache->set($key, $result, 86400, new TagDependency([
-            'tags' => [
-                BaseStructure::commonTag()
-            ]
-        ]));
+        ] : ['isHandled' => false];
+        Yii::$app->cache->set(
+            $key,
+            $result,
+            86400,
+            new TagDependency(
+                [
+                    'tags' => [
+                        BaseStructure::commonTag(),
+                    ],
+                ]
+            )
+        );
         return $result;
     }
 

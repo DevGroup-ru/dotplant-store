@@ -20,7 +20,8 @@ var DotPlantStore = window.DotPlantStore || {
     //jstree categories select behavior
     $('[id^=goodsTreeWidget]')
         .on('changed.jstree', function (e, data) {
-            $('input[data-type="goods_categories"]').remove();
+            var contextId = e.target.id.replace('goodsTreeWidget', '');
+            $('input[data-type="goods_categories' + contextId + '"]').remove();
             var i, j, r = [];
             for (i = 0, j = data.selected.length; i < j; i++) {
                 var $node = data.instance.get_node(data.selected[i]);
@@ -29,21 +30,21 @@ var DotPlantStore = window.DotPlantStore || {
                 } else {
                     optionData.value = $node.id;
                     optionData.text = $node.text;
-                    changeOptions(optionData);
+                    changeOptions(optionData, contextId);
                 }
             }
         });
 
     //manipulating options set in the main goods category select
-    function changeOptions(optionData) {
-        var $select = $(DotPlantStore.mainCategorySelector);
+    function changeOptions(optionData, contextId) {
+        var $select = $(DotPlantStore.mainCategorySelector[contextId]);
 
         var $option = $('<option></option>');
         if (0 === $('option[value=' + optionData.value + ']', $select).length) {
             var $appendOption = $option.clone().val(optionData.value).text(optionData.text);
             $select.append($appendOption);
         }
-        var $input = $('<input type="hidden" data-type="goods_categories">');
+        var $input = $('<input type="hidden" data-type="goods_categories' + contextId + '">');
         var $appendInput = $input
             .clone()
             .attr('name', DotPlantStore.goodsFormName + '[categories][]')
