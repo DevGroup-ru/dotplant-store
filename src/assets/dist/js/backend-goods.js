@@ -18,7 +18,7 @@ var DotPlantStore = window.DotPlantStore || {
     var optionData = {};
 
     //jstree categories select behavior
-    $('#goodsTreeWidget')
+    $('[id^=goodsTreeWidget]')
         .on('changed.jstree', function (e, data) {
             $('input[data-type="goods_categories"]').remove();
             var i, j, r = [];

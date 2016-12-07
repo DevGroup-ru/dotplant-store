@@ -10,6 +10,7 @@ use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SeoTrait;
 use DevGroup\Entity\traits\SoftDeleteTrait;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
+use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 use DevGroup\TagDependencyHelper\CacheableActiveRecord;
 use DevGroup\TagDependencyHelper\TagDependencyTrait;
@@ -722,6 +723,26 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
             'mainCategory.defaultTranslation',
             'defaultTranslation.extended',
         ];
+    }
+
+    public function getMainStructures()
+    {
+        $result = [];
+        foreach (Context::getListData() as $key => $item) {
+            $structureId = $key === '' ? null : $key;
+            $result[intval($structureId)] = $this->getMainStructure($structureId);
+        }
+        return $result;
+    }
+
+    public function setMainStructures($structures = [])
+    {
+        foreach ($structures as $key => $structureId) {
+            $contextId = $key == 0 ? null : intval($key);
+            if (!empty($structureId)) {
+                $this->setMainStructure(BaseStructure::findOne($structureId), $contextId);
+            }
+        }
     }
 
     public function getMainStructure($contextId)

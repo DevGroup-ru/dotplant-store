@@ -172,6 +172,7 @@ class GoodsManageAction extends BaseAdminAction
                         $categories = isset($post[$goodsFormName]['categories']) ? $post[$goodsFormName]['categories'] : [];
                         $categories = array_unique($categories);
                         CategoryGoods::saveBindings($goods->id, $categories);
+                        $goods->setMainStructures($post[$goodsFormName]['mainStructures']);
                         if ($goods->getHasChild() === true) {
                             $childGoods = isset($post['childGoods']) ? $post['childGoods'] : [];
                             GoodsParent::deleteAll([

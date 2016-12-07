@@ -115,28 +115,40 @@ class CategoryGoods extends ActiveRecord
 
     /**
      * @param int $goodsId
+     * @param null $contextId
+     *
      * @return array
      */
-    public static function getBindings($goodsId)
+    public static function getBindings($goodsId, $contextId = null)
     {
-        $cacheKey = 'GoodsCategoriesBindings';
+        $cacheKey = implode(':', ['GoodsCategoriesBindings', $goodsId, intval($contextId)]);
         $list = Yii::$app->cache->get($cacheKey);
         if (false === $list) {
-            $list = self::find()
-                ->select('structure_id')
-                ->where(['goods_id' => $goodsId])
-                ->orderBy(['sort_order' => SORT_DESC])
-                ->column();
+            $listQuery = self::find()->select('structure_id')->where(['goods_id' => $goodsId])->orderBy(
+                [self::tableName() . '.sort_order' => SORT_DESC]
+            );
+            if ($contextId !== null) {
+                $listQuery->leftJoin(
+                    BaseStructure::tableName(),
+                    self::tableName() . '.structure_id=' . BaseStructure::tableName() . '.id'
+                )->andWhere(
+                    [BaseStructure::tableName() . '.context_id' => $contextId]
+                );
+            }
+            $listQuery->createCommand()->getRawSql();
+            $list = $listQuery->column();
             if (false === empty($list)) {
                 Yii::$app->cache->set(
                     $cacheKey,
                     $list,
                     86400,
-                    new TagDependency([
-                        'tags' => [
-                            NamingHelper::getCommonTag(self::class),
+                    new TagDependency(
+                        [
+                            'tags' => [
+                                NamingHelper::getCommonTag(self::class),
+                            ],
                         ]
-                    ])
+                    )
                 );
             }
         }

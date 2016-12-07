@@ -5,7 +5,7 @@
  * @var $this \yii\web\View
  * @var bool $canSave
  * @var bool $undefinedType
- * @var [] $startCategory
+ * @var null|array $startCategory
  * @var GoodsWarehouse[] $prices
  * @var bool $showChildren
  * @var \yii\data\ActiveDataProvider $optionsDataProvider
@@ -14,14 +14,14 @@
 use DevGroup\AdminUtils\events\ModelEditForm;
 use DevGroup\AdminUtils\FrontendHelper;
 use DevGroup\DataStructure\widgets\PropertiesForm;
-use devgroup\JsTreeWidget\widgets\TreeWidget;
+use DevGroup\Multilingual\widgets\ContextTabsWidget;
 use DevGroup\Multilingual\widgets\MultilingualFormTabs;
 use dmstr\widgets\Alert;
 use DotPlant\Currencies\models\Currency;
 use DotPlant\EntityStructure\models\Entity;
 use DotPlant\Store\actions\goods\GoodsManageAction;
 use DotPlant\Store\assets\StoreAsset;
-use DotPlant\Store\models\goods\CategoryGoods;
+use DotPlant\Store\helpers\GoodsEditTreeTabHelper;
 use DotPlant\Store\models\goods\GoodsCategory;
 use DotPlant\Store\models\vendor\Vendor;
 use DotPlant\Store\models\warehouse\GoodsWarehouse;
@@ -30,7 +30,6 @@ use kartik\switchinput\SwitchInput;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
-use yii\helpers\Url;
 use yii\web\View;
 
 $goodsTypes = $goods->getTypes();
@@ -72,8 +71,6 @@ $js = <<<JS
     };
 JS;
 $this->registerJs($js, View::POS_HEAD);
-$checked = empty($startCategory) ? [] : is_array($startCategory) ? $startCategory : [$startCategory];
-$checked = array_merge($checked, CategoryGoods::getBindings($goods->id));
 StoreAsset::register($this);
 
 Module::module()->trigger(GoodsManageAction::EVENT_BEFORE_FORM);
@@ -140,27 +137,13 @@ $event = new ModelEditForm($form, $goods);
                     <?= $form->field($goods, 'jan') ?>
                 </div>
                 <div class="col-sm-12 col-md-6">
-                    <?= TreeWidget::widget(
+                    <?= ContextTabsWidget::widget(
                         [
-                            'id' => 'goodsTreeWidget',
-                            'treeDataRoute' => [
-                                '/structure/entity-manage/category-tree',
-                                'checked' => implode(',', $checked),
-                            ],
-                            'treeType' => TreeWidget::TREE_TYPE_ADJACENCY,
-                            'plugins' => ['checkbox', 'types'],
-                            'multiSelect' => true,
-                            'contextMenuItems' => [],
-                            'options' => [
-                                'checkbox' => [
-                                    'three_state' => false,
-                                ],
-                            ],
+                            'tabViewFile' => '@DotPlant/Store/views/goods-manage/context-tree-tab',
+                            'handlers' => [new GoodsEditTreeTabHelper($goods, $startCategory, $form)],
                         ]
                     ) ?>
-                    <?= $form->field($goods, 'main_structure_id')->dropDownList(
-                        ArrayHelper::map($goods->categories, 'id', 'name')
-                    ) ?>
+
                     <div class="clearfix"></div>
                 </div>
             </div>

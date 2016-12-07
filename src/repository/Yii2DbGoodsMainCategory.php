@@ -58,7 +58,7 @@ class Yii2DbGoodsMainCategory implements GoodsMainCategoryRepositoryInterface
         )->execute();
         \Yii::$app->db->createCommand()->insert(
             self::TABLE_NAME,
-            ['context_id' => $contextId, 'goods_id' => $this->goodsId, 'main_category_id' => $mainCategory->id]
+            ['context_id' => $contextId, 'goods_id' => $this->goodsId, 'main_structure_id' => $mainCategory->id]
         )->execute();
         $this->loadGoodsMainCategory($contextId, true);
     }
