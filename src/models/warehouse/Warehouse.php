@@ -23,6 +23,7 @@ use Yii;
  * @property integer $id
  * @property integer $type
  * @property integer $priority
+ * @property integer $context_id
  * @property string $handler_class
  * @property string $packed_json_params
  * @property array $params
@@ -46,7 +47,6 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
         self::TYPE_SELLER => TypeSeller::class,
     ];
 
-
     public static function getTypes()
     {
         return [
@@ -54,7 +54,6 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
             self::TYPE_SELLER => Yii::t('dotplant.store', 'Seller'),
         ];
     }
-
 
     /**
      * @return array
@@ -125,9 +124,9 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
      * @return GoodsWarehouse|\yii\db\ActiveRecord
      * @throws WarehouseException
      */
-    public static function getOptimalWarehouse($goodsId, $quantity)
+    public static function getOptimalWarehouse($goodsId, $quantity, $contextId = null)
     {
-        foreach (static::getWarehouses($goodsId, false) as $warehouse) {
+        foreach (static::getWarehouses($goodsId, false, true, $contextId) as $warehouse) {
             if (static::hasEnoughQuantity($goodsId, $quantity, $warehouse->warehouse_id) === true) {
                 return $warehouse;
             }
@@ -166,10 +165,18 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
     /**
      * @inheritdoc
      */
-    public static function getWarehouses($goodsId, $asArray = true, $allowedOnly = true)
+    public static function getWarehouses($goodsId, $asArray = true, $allowedOnly = true, $contextId = null)
     {
         $warehouses = static::getMap();
+        if ($contextId !== null) {
+            $warehouses = array_filter($warehouses, function ($item) use ($contextId) {
+                return in_array($item->context_id, [$contextId, null]);
+            });
+        }
         $warehouseIds = array_keys($warehouses);
+        if (count($warehouseIds) == 0) {
+            $warehouseIds = [0];
+        }
         $condition = ['goods_id' => $goodsId, 'warehouse_id' => $warehouseIds];
         if ($allowedOnly) {
             $condition['is_allowed'] = 1;
@@ -242,7 +249,12 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
         return [
             [['priority', 'type'], 'integer'],
             [['handler_class', 'priority', 'type'], 'required'],
-            ['packed_json_params', 'default', 'value' => '{}']
+            ['packed_json_params', 'default', 'value' => '{}'],
+            [
+                ['context_id'],
+                'in',
+                'range' => array_keys(call_user_func([Yii::$app->multilingual->modelsMap['Context'], 'getListData']))
+            ],
         ];
     }
 
@@ -255,6 +267,7 @@ class Warehouse extends \yii\db\ActiveRecord implements WarehouseInterface
             'id' => Yii::t('dotplant.store', 'ID'),
             'type' => Yii::t('dotplant.store', 'Type'),
             'priority' => Yii::t('dotplant.store', 'Priority'),
+            'context_id' => Yii::t('dotplant.store', 'Context'),
         ];
     }
 

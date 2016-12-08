@@ -158,6 +158,7 @@ abstract class Price implements PriceInterface
      * @param string $priceType
      * @param bool $withDiscount
      * @param bool $convertIsoCode
+     * @param null|int $contextId
      *
      * @return array
      *  [
@@ -178,17 +179,18 @@ abstract class Price implements PriceInterface
      *      'warehouseId' => 1,
      *   ]
      */
-    public function getMinPrice($priceType = PriceInterface::TYPE_RETAIL, $withDiscount = true, $convertIsoCode = false)
-    {
-        $priceKey = implode(':', [
-            'MinPrice',
-            $priceType,
-            $this->getGoods()->id,
-            $convertIsoCode,
-            $withDiscount
-        ]);
+    public function getMinPrice(
+        $priceType = PriceInterface::TYPE_RETAIL,
+        $withDiscount = true,
+        $convertIsoCode = false,
+        $contextId = null
+    ) {
+        $priceKey = implode(
+            ':',
+            ['MinPrice', $priceType, $this->getGoods()->id, $convertIsoCode, $withDiscount, $contextId]
+        );
         if (empty(self::$_price[$priceKey]) === true) {
-            $warehouses = Warehouse::getWarehouses($this->getGoods()->id);
+            $warehouses = Warehouse::getWarehouses($this->getGoods()->id, true, true, $contextId);
             self::$_price[$priceKey] = array_reduce(
                 $warehouses,
                 function ($minPrice, $warehouse) use ($priceType, $withDiscount, $convertIsoCode) {

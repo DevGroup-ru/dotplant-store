@@ -17,12 +17,16 @@ $this->params['breadcrumbs'] = [
     ['label' => Yii::t('dotplant.store', 'Warehouses'), 'url' => ['index']],
     $this->title,
 ];
+$contexts = call_user_func([Yii::$app->multilingual->modelsMap['Context'], 'getListData']);
 
 ?>
 <?php $form = ActiveForm::begin([]); ?>
     <div class="box">
         <div class="box-body">
-            <?= $form->field($model, 'priority') ?>
+            <?=
+            $form->field($model, 'context_id')
+                ->dropDownList($contexts)
+            ?>
             <?=
             $form
                 ->field($model, 'type')
@@ -30,6 +34,7 @@ $this->params['breadcrumbs'] = [
             ?>
             <?= $form->field($model, 'handler_class') ?>
             <?= $form->field($model, 'packed_json_params')->widget(Jsoneditor::class) ?>
+            <?= $form->field($model, 'priority') ?>
             <?=
             DevGroup\Multilingual\widgets\MultilingualFormTabs::widget(
                 [

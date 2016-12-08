@@ -70,11 +70,15 @@ class BundlePrice extends Price
     /**
      * @inheritdoc
      */
-    public function getMinPrice($priceType = PriceInterface::TYPE_RETAIL, $withDiscount = true, $convertIsoCode = false)
-    {
+    public function getMinPrice(
+        $priceType = PriceInterface::TYPE_RETAIL,
+        $withDiscount = true,
+        $convertIsoCode = false,
+        $contextId = null
+    ) {
         $this->_lastPriceKey = implode(
             ':',
-            ['MinPrice', $priceType, $this->getGoods()->id, $convertIsoCode, $withDiscount]
+            ['MinPrice', $priceType, $this->getGoods()->id, $convertIsoCode, $withDiscount, $contextId]
         );
         if (!isset(self::$_price[$this->_lastPriceKey])) {
             $price = false;
@@ -82,7 +86,7 @@ class BundlePrice extends Price
                 if ($child->is_active == 0) {
                     continue;
                 }
-                if (($childPrice = $child->getMinPrice($priceType, $withDiscount, $convertIsoCode)) === false) {
+                if (($childPrice = $child->getMinPrice($priceType, $withDiscount, $convertIsoCode, $contextId)) === false) {
                     $price = false;
                     break;
                 }

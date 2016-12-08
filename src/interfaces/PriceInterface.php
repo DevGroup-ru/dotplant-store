@@ -12,7 +12,6 @@ use DotPlant\Store\models\price\Price;
  */
 interface PriceInterface
 {
-
     const TYPE_RETAIL = 'retail';
     const TYPE_WHOLESALE = 'wholesale';
     const TYPE_SELLER = 'seller';
@@ -26,7 +25,7 @@ interface PriceInterface
 
     public function getPrice($warehouseId, $priceType, $withDiscount, $convertIsoCode);
 
-    public function getMinPrice($priceType, $withDiscount, $convertIsoCode);
+    public function getMinPrice($priceType, $withDiscount, $convertIsoCode, $contextId = null);
 
     public function setPrice($price);
 
@@ -41,5 +40,4 @@ interface PriceInterface
     public function getGoods();
 
     public function isWithDiscount();
-
 }

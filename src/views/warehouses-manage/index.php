@@ -11,6 +11,7 @@ use yii\widgets\Pjax;
 
 $this->title = Yii::t('dotplant.store', 'Warehouses');
 $this->params['breadcrumbs'][] = $this->title;
+$contexts = call_user_func([Yii::$app->multilingual->modelsMap['Context'], 'getListData']);
 
 ?>
 <div class="box">
@@ -27,6 +28,15 @@ $this->params['breadcrumbs'][] = $this->title;
                         'gridContainerId' => 'warehouses-grid',
                     ],
                     'id',
+                    [
+                        'attribute' => 'context_id',
+                        'label' => Yii::t('dotplant.store', 'Context'),
+                        'value' => function ($model, $key, $index, $column) use ($contexts) {
+                            return isset($contexts[$model->{$column->attribute}])
+                                ? $contexts[$model->{$column->attribute}]
+                                : Yii::t('dotplant.store', 'Unknown');
+                        },
+                    ],
                     'name',
                     [
                         'class' => \DevGroup\AdminUtils\columns\ActionColumn::class,

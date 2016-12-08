@@ -30,7 +30,6 @@ use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Url;
 
 /**
  * This is the model class for table "{{%dotplant_goods}}".
@@ -348,9 +347,10 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
     public function getMinPrice(
         $priceType = PriceInterface::TYPE_RETAIL,
         $withDiscount = true,
-        $convertIsoCode = false
+        $convertIsoCode = false,
+        $contextId = null
     ) {
-        return $this->price->getMinPrice($priceType, $withDiscount, $convertIsoCode);
+        return $this->price->getMinPrice($priceType, $withDiscount, $convertIsoCode, $contextId);
     }
 
     /**
