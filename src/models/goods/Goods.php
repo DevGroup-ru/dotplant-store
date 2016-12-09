@@ -25,6 +25,7 @@ use DotPlant\Store\interfaces\PriceInterface;
 use DotPlant\Store\models\price\Price;
 use DotPlant\Store\models\vendor\Vendor;
 use DotPlant\Store\repository\GoodsMainCategoryRepositoryInterface;
+use DotPlant\Store\repository\Yii2DbGoodsMainCategory;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
@@ -528,7 +529,11 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
      */
     public function getMainCategory()
     {
-        return $this->getMainStructure(Yii::$app->multilingual->context_id);
+        return $this->hasOne(BaseStructure::class, ['id' => 'main_structure_id'])->viaTable(
+            Yii2DbGoodsMainCategory::TABLE_NAME,
+            ['goods_id' => 'id']
+        )->where(['context_id' => Yii::$app->multilingual->context_id]);
+//        return $this->getMainStructure(Yii::$app->multilingual->context_id);
     }
 
     /**
@@ -718,7 +723,8 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
     public function getMainStructures()
     {
         $result = [];
-        foreach (Context::getListData() as $key => $item) {
+        $contexts = call_user_func([Yii::$app->multilingual->modelsMap['Context'], 'getListData']);
+        foreach ($contexts as $key => $item) {
             $structureId = $key === '' ? null : $key;
             $result[intval($structureId)] = $this->getMainStructure($structureId);
         }
