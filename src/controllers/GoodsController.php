@@ -9,6 +9,9 @@ use DotPlant\EntityStructure\models\BaseStructure;
 use DotPlant\Monster\Universal\MainEntity;
 use DotPlant\Store\models\goods\Goods;
 use yii;
+use DotPlant\Monster\Universal\ServiceMonsterAction;
+use DotPlant\Monster\models\ServiceEntity;
+use DotPlant\Store\components\GoodsSearchProvider;
 
 class GoodsController extends FrontendController
 {
@@ -36,6 +39,18 @@ class GoodsController extends FrontendController
                     ],
                 ],
             ],
+            'search' => [
+                'class' => SuperAction::class,
+                'actions' => [
+                    [
+                        'class' => ServiceMonsterAction::class,
+                        'serviceTemplateKey' => 'search',
+                        'serviceEntityCallback' => function (ServiceEntity $entity) {
+                            $entity->providers[] = GoodsSearchProvider::class;
+                        },
+                    ],
+                ],
+            ]
         ];
     }
 }
