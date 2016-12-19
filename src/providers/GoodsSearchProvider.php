@@ -1,12 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: user
- * Date: 14.12.16
- * Time: 13:00
- */
 
-namespace DotPlant\Store\components;
+namespace DotPlant\Store\providers;
 
 use DotPlant\Monster\DataEntity\DataEntityProvider;
 use DotPlant\Store\models\goods\CategoryGoods;
@@ -15,7 +9,6 @@ use DevGroup\DataStructure\models\Property;
 use DevGroup\MediaStorage\components\GlideConfigurator;
 use DevGroup\MediaStorage\helpers\MediaHelper;
 use DotPlant\Currencies\helpers\CurrencyHelper;
-use DotPlant\Store\models\goods\GoodsCategory;
 use DotPlant\Store\models\goods\GoodsCategoryExtended;
 use DotPlant\Store\models\price\Price;
 use DotPlant\Store\models\price\ProductPrice;
@@ -25,6 +18,7 @@ use DevGroup\DataStructure\helpers\PropertiesHelper;
 use yii\data\Pagination;
 use yii\data\Sort;
 use DotPlant\EntityStructure\helpers\PaginationHelper;
+use DotPlant\Store\components\Store;
 
 class GoodsSearchProvider extends DataEntityProvider
 {
@@ -66,7 +60,7 @@ class GoodsSearchProvider extends DataEntityProvider
     /**
      * @var string the image property key
      */
-    public $imagePropertyKey = '';
+    public $imagePropertyKey = 'goods_images';
 
     /**
      * @var int thumb width
@@ -79,7 +73,12 @@ class GoodsSearchProvider extends DataEntityProvider
     public $thumbHeight = 175;
 
     /**
-     * @var int goods per page
+     * @var int min goods per page
+     */
+    public $minLimit = 1;
+
+    /**
+     * @var int max goods per page
      */
     public $maxLimit = 12;
 
@@ -128,9 +127,9 @@ class GoodsSearchProvider extends DataEntityProvider
         ];
     }
 
-    private function buildGood($good)
+    private function buildGoods($good)
     {
-        $language_id = \Yii::$app->multilingual->language_id;
+        $languageId = \Yii::$app->multilingual->language_id;
         $currency = CurrencyHelper::getUserCurrency();
 
         if (!empty($this->imagePropertyKey)) {
@@ -144,19 +143,23 @@ class GoodsSearchProvider extends DataEntityProvider
         }
 
         ProductPrice::create($good);
-        $price = $good->getMinPrice(Price::TYPE_RETAIL, true, $currency->iso_code);
+        $price = $good->getMinPrice(
+            Store::isRetail() ? Price::TYPE_RETAIL : Price::TYPE_WHOLESALE,
+            true,
+            $currency->iso_code
+        );
 
         $properties = [];
 
         foreach ($good->propertiesValues as $property_id => $property_value) {
-            if (isset($property_value[$language_id])) {
-                $properties[$good->propertiesAttributes[$property_id]] = $property_value[$language_id][0];
+            if (isset($property_value[$languageId])) {
+                $properties[$good->propertiesAttributes[$property_id]] = $property_value[$languageId][0];
             } else {
                 $properties[$good->propertiesAttributes[$property_id]] = $property_value;
             }
         }
 
-        $parent = $good->getMainCategory()->one();
+        $parent = $good->mainCategory;
 
         $url = Url::toRoute(
             [
@@ -212,13 +215,12 @@ class GoodsSearchProvider extends DataEntityProvider
         return $query->column();
     }
 
-    private function getTree(&$full_section_array, &$sections)
+    private function getTree($full_section_array, &$sections)
     {
         foreach ($sections as $key => $section) {
             if (array_key_exists($section['id'], $full_section_array)) {
                 $sections[$key]['subsections'] = $full_section_array[$section['id']];
                 $this->getTree($full_section_array, $sections[$key]['subsections']);
-                $full_section_array[$section['id']] = true;
             }
         }
         return $sections;
@@ -282,22 +284,11 @@ class GoodsSearchProvider extends DataEntityProvider
         );
     }
 
-    private function getLimit()
-    {
-        $get = \Yii::$app->request->get();
-
-        return (
-        (!empty($get[$this->limitParameter]) && intval($get[$this->limitParameter]) <= $this->maxLimit)
-            ? intval($get[$this->limitParameter])
-            : $this->maxLimit
-        );
-    }
-
     public function getEntities(&$actionData)
     {
         $get = \Yii::$app->request->get();
 
-        if ($get[$this->searchParameter]) {
+        if (isset($get[$this->searchParameter])) {
             $search_phrase = $get[$this->searchParameter];
 
             $query = Goods::find()
@@ -359,7 +350,7 @@ class GoodsSearchProvider extends DataEntityProvider
             $goods_ids = $this->getGoodsIds($countQuery);
             $goods_sections_tree = $this->getGoodsSectionsTree($goods_ids);
 
-            $limit = $this->getLimit();
+            $limit = (!empty($get[$this->limitParameter]) ? intval($get[$this->limitParameter]) : false);
 
             $total_count = $pagerQuery->count();
             $pages = new Pagination(
@@ -367,6 +358,7 @@ class GoodsSearchProvider extends DataEntityProvider
                     'totalCount' => $total_count,
                     'pageParam' => $this->paginationParameter,
                     'defaultPageSize' => $limit,
+                    'pageSizeLimit' => [$this->minLimit, $this->maxLimit]
                 ]
             );
 
@@ -393,13 +385,13 @@ class GoodsSearchProvider extends DataEntityProvider
             $goods_data = [];
             if (!empty($goods)) {
                 PropertiesHelper::fillProperties($goods);
-                $goods_data = array_map(array($this, 'buildGood'), $goods);
+                $goods_data = array_map(array($this, 'buildGoods'), $goods);
             }
         }
 
         $data = [
             $this->blockKey => isset($goods_data) ? $goods_data : [],
-            $this->totalCountKey => isset($total_count) ? $total_count : [],
+            $this->totalCountKey => isset($total_count) ? $total_count : 0,
             $this->paginationKey => isset($pagination) ? $pagination : [],
             $this->categoriesKey => isset($goods_sections_tree) ? $goods_sections_tree : []
         ];

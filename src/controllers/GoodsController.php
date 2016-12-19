@@ -11,7 +11,7 @@ use DotPlant\Store\models\goods\Goods;
 use yii;
 use DotPlant\Monster\Universal\ServiceMonsterAction;
 use DotPlant\Monster\models\ServiceEntity;
-use DotPlant\Store\components\GoodsSearchProvider;
+use DotPlant\Store\providers\GoodsSearchProvider;
 
 class GoodsController extends FrontendController
 {
