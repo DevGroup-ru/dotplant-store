@@ -219,11 +219,6 @@ class GoodsSearchProvider extends DataEntityProvider
         return $sort;
     }
 
-    private function getGoodsIds($query)
-    {
-        return $query->column();
-    }
-
     /**
      * @param $fullSectionArray
      * @param $sections
@@ -351,7 +346,8 @@ class GoodsSearchProvider extends DataEntityProvider
 
             $pagerQuery = clone $query;
 
-            $goodsIds = $this->getGoodsIds($countQuery);
+            $goodsIds = $countQuery->column();
+
             $goodsSectionsTree = $this->getGoodsSectionsTree($goodsIds);
 
             $limit = \Yii::$app->request->get($this->limitParameter, $this->maxLimit);
