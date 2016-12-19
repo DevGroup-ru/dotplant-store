@@ -285,7 +285,8 @@ class GoodsSearchProvider extends DataEntityProvider
 
         return $this->getTree($goodsCategory, $firstCategory);
     }
-
+    
+    // @todo: rewrite this code via search component (yii2-data-structure-tools module)
     public function getEntities(&$actionData)
     {
         if (($searchPhrase = \Yii::$app->request->get($this->searchParameter)) !== null) {
