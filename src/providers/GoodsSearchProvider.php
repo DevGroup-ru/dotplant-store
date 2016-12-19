@@ -82,7 +82,6 @@ class GoodsSearchProvider extends DataEntityProvider
      */
     public $maxLimit = 12;
 
-
     /**
      * @var bool|int parent id
      */
@@ -119,6 +118,9 @@ class GoodsSearchProvider extends DataEntityProvider
     public $sortFields = ['retail_price', 'id'];
 
 
+    /**
+     * @return array
+     */
     public function pack()
     {
         return [
@@ -127,6 +129,10 @@ class GoodsSearchProvider extends DataEntityProvider
         ];
     }
 
+    /**
+     * @param $good
+     * @return array
+     */
     private function buildGoods($good)
     {
         $languageId = \Yii::$app->multilingual->language_id;
@@ -151,11 +157,11 @@ class GoodsSearchProvider extends DataEntityProvider
 
         $properties = [];
 
-        foreach ($good->propertiesValues as $property_id => $property_value) {
-            if (isset($property_value[$languageId])) {
-                $properties[$good->propertiesAttributes[$property_id]] = $property_value[$languageId][0];
+        foreach ($good->propertiesValues as $propertyId => $propertyValue) {
+            if (isset($propertyValue[$languageId])) {
+                $properties[$good->propertiesAttributes[$propertyId]] = $propertyValue[$languageId][0];
             } else {
-                $properties[$good->propertiesAttributes[$property_id]] = $property_value;
+                $properties[$good->propertiesAttributes[$propertyId]] = $propertyValue;
             }
         }
 
@@ -189,14 +195,17 @@ class GoodsSearchProvider extends DataEntityProvider
         ];
     }
 
+    /**
+     * @return Sort
+     */
     private function getSort()
     {
         $attributes = [];
 
-        foreach ($this->sortFields as $sort_field) {
-            $attributes[$sort_field] = [
-                'asc' => [$sort_field => SORT_ASC],
-                'desc' => [$sort_field => SORT_DESC],
+        foreach ($this->sortFields as $sortField) {
+            $attributes[$sortField] = [
+                'asc' => [$sortField => SORT_ASC],
+                'desc' => [$sortField => SORT_DESC],
             ];
         }
 
@@ -215,35 +224,44 @@ class GoodsSearchProvider extends DataEntityProvider
         return $query->column();
     }
 
-    private function getTree($full_section_array, &$sections)
+    /**
+     * @param $fullSectionArray
+     * @param $sections
+     * @return mixed
+     */
+    private function getTree($fullSectionArray, &$sections)
     {
         foreach ($sections as $key => $section) {
-            if (array_key_exists($section['id'], $full_section_array)) {
-                $sections[$key]['subsections'] = $full_section_array[$section['id']];
-                $this->getTree($full_section_array, $sections[$key]['subsections']);
+            if (array_key_exists($section['id'], $fullSectionArray)) {
+                $sections[$key]['subsections'] = $fullSectionArray[$section['id']];
+                $this->getTree($fullSectionArray, $sections[$key]['subsections']);
             }
         }
         return $sections;
     }
 
-    private function getGoodsSectionsTree($goods_ids)
+    /**
+     * @param $goodsIds
+     * @return mixed
+     */
+    private function getGoodsSectionsTree($goodsIds)
     {
-        $category_goods_models = CategoryGoods::find()
+        $categoryGoodsModels = CategoryGoods::find()
             ->select('structure_id')
             ->addSelect('goods_id')
             ->where(
                 [
-                    'goods_id' => $goods_ids
+                    'goods_id' => $goodsIds
                 ]
             )
             ->all();
 
-        $category_goods = [];
-        foreach ($category_goods_models as $section) {
-            $category_goods[$section->structure_id][] = $section->goods_id;
+        $categoryGoods = [];
+        foreach ($categoryGoodsModels as $section) {
+            $categoryGoods[$section->structure_id][] = $section->goods_id;
         }
 
-        $goods_category_models = BaseStructure::find()
+        $goodsCategoryModels = BaseStructure::find()
             ->innerJoin(
                 GoodsCategoryExtended::tableName(),
                 GoodsCategoryExtended::tableName() . '.[[model_id]] = ' . BaseStructure::tableName() . '.[[id]]'
@@ -256,40 +274,26 @@ class GoodsSearchProvider extends DataEntityProvider
             )
             ->all();
 
-        $goods_category = [];
+        $goodsCategory = [];
 
-        foreach ($goods_category_models as $section) {
-            $goods_category[$section->parent_id][] = [
+        foreach ($goodsCategoryModels as $section) {
+            $goodsCategory[$section->parent_id][] = [
                 'name' => $section->defaultTranslation->name,
                 'id' => $section->id,
                 'parentId' => $section->parent_id,
                 'slug' => $section->defaultTranslation->slug,
-                'count' => isset($category_goods[$section->id]) ? count($category_goods[$section->id]) : 0
+                'count' => isset($categoryGoods[$section->id]) ? count($categoryGoods[$section->id]) : 0
             ];
         }
 
-        $first_category = reset($goods_category);
+        $firstCategory = reset($goodsCategory);
 
-        return $this->getTree($goods_category, $first_category);
-    }
-
-    private function getParentId()
-    {
-        $get = \Yii::$app->request->get();
-
-        return (
-        (!empty($get[$this->parentIdParameter]) && intval($get[$this->parentIdParameter]) > 0)
-            ? intval($get[$this->parentIdParameter])
-            : $this->parentId
-        );
+        return $this->getTree($goodsCategory, $firstCategory);
     }
 
     public function getEntities(&$actionData)
     {
-        $get = \Yii::$app->request->get();
-
-        if (isset($get[$this->searchParameter])) {
-            $search_phrase = $get[$this->searchParameter];
+        if (($searchPhrase = \Yii::$app->request->get($this->searchParameter)) !== null) {
 
             $query = Goods::find()
                 ->distinct()
@@ -299,27 +303,27 @@ class GoodsSearchProvider extends DataEntityProvider
                 )
                 ->where(
                     [
-                        'like', '[[name]]', $search_phrase
+                        'like', '[[name]]', $searchPhrase
                     ]
                 )
                 ->orWhere(
                     [
-                        'like', '[[description]]', $search_phrase
+                        'like', '[[description]]', $searchPhrase
                     ]
                 )
                 ->orWhere(
                     [
-                        'like', '[[announce]]', $search_phrase
+                        'like', '[[announce]]', $searchPhrase
                     ]
                 )
                 ->orWhere(
                     [
-                        'like', '[[value_string]]', $search_phrase
+                        'like', '[[value_string]]', $searchPhrase
                     ]
                 )
                 ->orWhere(
                     [
-                        'like', '[[value_text]]', $search_phrase
+                        'like', '[[value_text]]', $searchPhrase
                     ]
                 )
                 ->andWhere(
@@ -331,31 +335,31 @@ class GoodsSearchProvider extends DataEntityProvider
 
             $countQuery = clone $query;
 
-            $parent_id = $this->getParentId();
+            $parentId = \Yii::$app->request->get($this->parentIdParameter, $this->parentId);
 
-            if ($parent_id !== false) {
+            if ($parentId !== false) {
                 $query->innerJoin(
                     CategoryGoods::tableName(),
                     CategoryGoods::tableName() . '.[[goods_id]] = ' . Goods::tableName() . '.[[id]]'
                 )
                     ->andWhere(
                         [
-                            'structure_id' => $parent_id
+                            'structure_id' => $parentId
                         ]
                     );
             }
 
             $pagerQuery = clone $query;
 
-            $goods_ids = $this->getGoodsIds($countQuery);
-            $goods_sections_tree = $this->getGoodsSectionsTree($goods_ids);
+            $goodsIds = $this->getGoodsIds($countQuery);
+            $goodsSectionsTree = $this->getGoodsSectionsTree($goodsIds);
 
-            $limit = (!empty($get[$this->limitParameter]) ? intval($get[$this->limitParameter]) : false);
+            $limit = \Yii::$app->request->get($this->limitParameter, $this->maxLimit);
 
-            $total_count = $pagerQuery->count();
+            $totalCount = $pagerQuery->count();
             $pages = new Pagination(
                 [
-                    'totalCount' => $total_count,
+                    'totalCount' => $totalCount,
                     'pageParam' => $this->paginationParameter,
                     'defaultPageSize' => $limit,
                     'pageSizeLimit' => [$this->minLimit, $this->maxLimit]
@@ -382,18 +386,18 @@ class GoodsSearchProvider extends DataEntityProvider
                 ->limit($pages->getLimit())
                 ->all();
 
-            $goods_data = [];
+            $goodsData = [];
             if (!empty($goods)) {
                 PropertiesHelper::fillProperties($goods);
-                $goods_data = array_map(array($this, 'buildGoods'), $goods);
+                $goodsData = array_map(array($this, 'buildGoods'), $goods);
             }
         }
 
         $data = [
-            $this->blockKey => isset($goods_data) ? $goods_data : [],
-            $this->totalCountKey => isset($total_count) ? $total_count : 0,
+            $this->blockKey => isset($goodsData) ? $goodsData : [],
+            $this->totalCountKey => isset($totalCount) ? $totalCount : 0,
             $this->paginationKey => isset($pagination) ? $pagination : [],
-            $this->categoriesKey => isset($goods_sections_tree) ? $goods_sections_tree : []
+            $this->categoriesKey => isset($goodsSectionsTree) ? $goodsSectionsTree : []
         ];
 
         return [
