@@ -4,14 +4,14 @@ namespace DotPlant\Store\controllers;
 
 use DevGroup\AdminUtils\controllers\BaseController;
 use DevGroup\AdminUtils\Helper;
-use DevGroup\DataStructure\models\Property;
 use DevGroup\DataStructure\models\PropertyGroup;
 use DevGroup\DataStructure\models\StaticValue;
-use DotPlant\EntityStructure\models\BaseStructure;
 use DotPlant\Store\models\filters\FilterSetsModel;
+use DotPlant\Store\models\filters\FiltersRepository;
 use DotPlant\Store\models\filters\FilterStaticValueModel;
 use DotPlant\Store\models\filters\StructureFilterSets;
 use DotPlant\Store\models\filters\StructureFilterValue;
+use DotPlant\Store\Module;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -22,6 +22,16 @@ use yii\web\Response;
 
 class FilterSetsManageController extends BaseController
 {
+    /**
+     * @var FiltersRepository
+     */
+    private $filtersRepository;
+
+    public function __construct($id, Module $module, FiltersRepository $filtersRepository, array $config = [])
+    {
+        parent::__construct($id, $module, $config);
+        $this->filtersRepository = $filtersRepository;
+    }
 
     public function behaviors()
     {
@@ -79,7 +89,7 @@ class FilterSetsManageController extends BaseController
         $this->guardPropertyExist($propertyId);
         $this->guardPropertyGroupExist($propertyGroupId);
         $this->guardSetNotExist($entityId, $propertyId, $propertyGroupId);
-        $this->addSet($entityId, $propertyId, $propertyGroupId);
+        $this->filtersRepository->createSet($entityId, $propertyId, $propertyGroupId);
         return $this->redirect($returnUrl);
     }
 
@@ -87,7 +97,7 @@ class FilterSetsManageController extends BaseController
     {
         list($entityId, $propertyGroupId, $propertyId) = explode('.', $indx);
         $this->guardSetIsExist($entityId, $propertyId, $propertyGroupId);
-        $set = $this->getFilterSet($entityId, $propertyId, $propertyGroupId);
+        $set = $this->filtersRepository->getFilterSet($entityId, $propertyId, $propertyGroupId);
         $set->delete();
     }
 
@@ -97,7 +107,9 @@ class FilterSetsManageController extends BaseController
         $indx = Yii::$app->request->post('editableKey');
         list($entityId, $propertyGroupId, $propertyId) = explode('.', $indx);
         $this->guardSetIsExist($entityId, $propertyId, $propertyGroupId);
-        return $this->updateSet($entityId, $propertyId, $propertyGroupId);
+        $attribute = Yii::$app->request->post('editableAttribute');
+        $value = $this->processValue(Yii::$app->request->post($attribute));
+        return $this->filtersRepository->updateSet($entityId, $propertyId, $propertyGroupId, $attribute, $value);
     }
 
     public function actionUpdateSetValue()
@@ -106,7 +118,7 @@ class FilterSetsManageController extends BaseController
         $indx = Yii::$app->request->post('editableKey');
         $attribute = Yii::$app->request->post('editableAttribute');
         $value = $this->processValue(Yii::$app->request->post($attribute));
-        return $this->updateSetValue($indx, $attribute, $value);
+        return $this->filtersRepository->updateSetValue($indx, $attribute, $value);
 
     }
 
@@ -116,7 +128,7 @@ class FilterSetsManageController extends BaseController
         /**
          * @var $propertyGroups PropertyGroup[]
          */
-        $propertyGroups = PropertyGroup::find()->all();
+        $propertyGroups = $this->filtersRepository->getAllPropertyGroups();
         $result = [];
         $attached = $this->getAttachedFilterSets($entityId);
         foreach ($propertyGroups as $propertyGroup) {
@@ -143,9 +155,7 @@ class FilterSetsManageController extends BaseController
         /**
          * @var $filterSetsFromDb FilterSetsModel[]
          */
-        $filterSetsFromDb = FilterSetsModel::find()->where(['structure_id' => $entityId])->orderBy(
-            ['sort_order' => SORT_ASC]
-        )->with(['property', 'group'])->all();
+        $filterSetsFromDb = $this->filtersRepository->getFilterSetByEntityId($entityId);
         $sets = [];
         foreach ($filterSetsFromDb as $filterSetFromDb) {
             /**
@@ -153,28 +163,18 @@ class FilterSetsManageController extends BaseController
              */
             // @todo разделить код работающий с базой и с моделями
 
-            $filterSetValuesFromDb = FilterStaticValueModel::find()->where(
-                ['filter_set_id' => $filterSetFromDb->id]
-            )->with('staticValue')->orderBy(['sort_order' => SORT_ASC])->all();
+            $filterSetValuesFromDb = $this->filtersRepository->getFilterStaticValuesByFilterSet($filterSetFromDb);
             $filterStaticValuesIds = ArrayHelper::getColumn($filterSetValuesFromDb, 'static_value_id');
             /**
              * @var $staticValuesNotInFilter StaticValue[]
              */
-            $staticValuesNotInFilter = StaticValue::find()->where(['not in', 'id', $filterStaticValuesIds])->andWhere(
-                ['property_id' => $filterSetFromDb->property->id]
-            )->all();
+            $staticValuesNotInFilter = $this->filtersRepository->getStaticValuesNotInFilter(
+                $filterStaticValuesIds,
+                $filterSetFromDb
+            );
             if (count($staticValuesNotInFilter) > 0) {
                 foreach ($staticValuesNotInFilter as $staticValue) {
-                    $model = new FilterStaticValueModel();
-                    $model->setAttributes(
-                        [
-                            'static_value_id' => $staticValue->id,
-                            'sort_order' => $staticValue->sort_order,
-                            'display' => 0,
-                            'filter_set_id' => $filterSetFromDb->id,
-                        ]
-                    );
-                    $model->save();
+                    $model = $this->filtersRepository->createFilterStaticValue($staticValue, $filterSetFromDb);
                     $filterSetValuesFromDb[] = $model;
                 }
             }
@@ -227,15 +227,10 @@ class FilterSetsManageController extends BaseController
         return $result;
     }
 
-    private function getEntity($entityId)
-    {
-        return BaseStructure::findOne($entityId);
-    }
-
     private function guardEntityExist($entityId)
     {
         if ($entityId !== null) {
-            $entity = $this->getEntity($entityId);
+            $entity = $this->filtersRepository->getEntity($entityId);
             if ($entity === null) {
                 throw new NotFoundHttpException(\Yii::t('app', 'Entity not exist'));
             }
@@ -244,7 +239,7 @@ class FilterSetsManageController extends BaseController
 
     private function guardSetIsExist($entityId, $propertyId, $propertyGroupId)
     {
-        $filterSet = $this->getFilterSet($entityId, $propertyId, $propertyGroupId);
+        $filterSet = $this->filtersRepository->getFilterSet($entityId, $propertyId, $propertyGroupId);
         if ($filterSet === null) {
             throw new \DomainException(\Yii::t('app', 'Filter set not exist'));
         }
@@ -252,7 +247,7 @@ class FilterSetsManageController extends BaseController
 
     private function guardSetNotExist($entityId, $propertyId, $propertyGroupId)
     {
-        $filterSet = $this->getFilterSet($entityId, $propertyId, $propertyGroupId);
+        $filterSet = $this->filtersRepository->getFilterSet($entityId, $propertyId, $propertyGroupId);
         if ($filterSet !== null) {
             throw new \DomainException(\Yii::t('app', 'Filter set already exist'));
         }
@@ -260,7 +255,7 @@ class FilterSetsManageController extends BaseController
 
     private function guardPropertyExist($propertyId)
     {
-        $property = Property::findOne($propertyId);
+        $property = $this->filtersRepository->getProperty($propertyId);
         if ($property === null) {
             throw new NotFoundHttpException(\Yii::t('app', 'Property not exist'));
         }
@@ -268,30 +263,10 @@ class FilterSetsManageController extends BaseController
 
     private function guardPropertyGroupExist($propertyGroupId)
     {
-        $property = PropertyGroup::findOne($propertyGroupId);
+        $property = $this->filtersRepository->getPropertyGroup($propertyGroupId);
         if ($property === null) {
             throw new NotFoundHttpException(\Yii::t('app', 'Property group not exist'));
         }
-    }
-
-    private function getNextSortOrderForSet()
-    {
-        return 0;
-    }
-
-    /**
-     * @param $entityId
-     * @param $propertyId
-     * @param $propertyGroupId
-     *
-     * @return array|null|\yii\db\ActiveRecord
-     */
-    private function getFilterSet($entityId, $propertyId, $propertyGroupId)
-    {
-        $filterSet = FilterSetsModel::find()->where(
-            ['structure_id' => $entityId, 'property_id' => $propertyId, 'group_id' => $propertyGroupId]
-        )->one();
-        return $filterSet;
     }
 
     private function processValue($value)
@@ -302,96 +277,5 @@ class FilterSetsManageController extends BaseController
             return 1;
         }
         return $value;
-    }
-
-    /**
-     * @param $entityId
-     * @param $propertyId
-     * @param $propertyGroupId
-     */
-    private function addSet($entityId, $propertyId, $propertyGroupId)
-    {
-        $filterSet = new FilterSetsModel();
-        $filterSet->loadDefaultValues();
-        $filterSet->setAttributes(
-            [
-                'structure_id' => $entityId,
-                'property_id' => $propertyId,
-                'group_id' => $propertyGroupId,
-                'sort_order' => $this->getNextSortOrderForSet(),
-            ]
-        );
-        $filterSet->save();
-    }
-
-    /**
-     * @param $entityId
-     * @param $propertyId
-     * @param $propertyGroupId
-     *
-     * @return mixed
-     */
-    private function updateSet($entityId, $propertyId, $propertyGroupId): mixed
-    {
-        $set = $this->getFilterSet($entityId, $propertyId, $propertyGroupId);
-        $attribute = Yii::$app->request->post('editableAttribute');
-        $value = $this->processValue(Yii::$app->request->post($attribute));
-        $set->setAttribute($attribute, $value);
-        $set->save();
-        // @todo think about frontend edit messages
-        return $set->getAttribute($attribute);
-    }
-
-    private function updateSetValue($indx, $attribute, $value)
-    {
-        list($filterSetId, $staticValueId) = explode('.', $indx);
-        $this->guardSetStaticValueExist($filterSetId, $staticValueId);
-        $this->guardStaticValueExist($staticValueId);
-        $staticValueAttributesList = ['value' => 'name', 'slug' => 'slug'];
-        if (array_key_exists($attribute, $staticValueAttributesList)) {
-            $staticValue = $this->getStaticValue($staticValueId);
-            $staticValue->getTranslation()->setAttribute($staticValueAttributesList[$attribute], $value);
-            $staticValue->getTranslation()->save();
-            return $staticValue->getTranslation()->getAttribute($staticValueAttributesList[$attribute]);
-        }
-        $filterStaticValue = $this->getFilterStaticValue($filterSetId, $staticValueId);
-        $filterStaticValue->setAttribute($attribute, $value);
-        $filterStaticValue->save();
-        return $filterStaticValue->getAttribute($attribute);
-    }
-
-    private function guardSetStaticValueExist($filterSetId, $staticValueId)
-    {
-        $value = $this->getFilterStaticValue($filterSetId, $staticValueId);
-        if ($value === null) {
-            throw new NotFoundHttpException(\Yii::t('app', 'Filter static value not exist'));
-        }
-    }
-
-    /**
-     * @param $filterSetId
-     * @param $staticValueId
-     *
-     * @return FilterStaticValueModel
-     */
-    private function getFilterStaticValue($filterSetId, $staticValueId)
-    {
-        $value = FilterStaticValueModel::findOne(
-            ['filter_set_id' => $filterSetId, 'static_value_id' => $staticValueId]
-        );
-        return $value;
-    }
-
-    private function getStaticValue($staticValueId)
-    {
-        return StaticValue::findOne($staticValueId);
-    }
-
-    private function guardStaticValueExist($staticValueId)
-    {
-        $staticValue = $this->getStaticValue($staticValueId);
-        if ($staticValue === null) {
-            throw new NotFoundHttpException(\Yii::t('app', 'Static value not exist'));
-        }
     }
 }
