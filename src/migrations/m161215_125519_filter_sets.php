@@ -42,13 +42,19 @@ class m161215_125519_filter_sets extends Migration
                 'id' => $this->primaryKey(),
                 'structure_id' => $this->integer()->notNull(),
                 'property_id' => $this->integer()->notNull(),
-                'sort_order' => $this->integer()->notNull(),
-                'delegate_to_child' => $this->integer()->notNull(),
+                'sort_order' => $this->integer()->notNull()->defaultValue(0),
+                'delegate_to_child' => $this->integer(1)->notNull()->defaultValue(0),
                 'group_id' => $this->integer()->notNull(),
             ],
             $tableOptions
         );
 
+        $this->createIndex(
+            'idx-filter_sets',
+            FilterSetsModel::tableName(),
+            ['structure_id', 'property_id', 'group_id'],
+            true
+        );
         $this->addForeignKey(
             'fk-dotplant_store_filter_sets-structure_id-dotplant_structure-id',
             FilterSetsModel::tableName(),
@@ -82,8 +88,8 @@ class m161215_125519_filter_sets extends Migration
             [
                 'id' => $this->primaryKey(),
                 'static_value_id' => $this->integer()->notNull(),
-                'sort_order' => $this->integer()->notNull(),
-                'display' => $this->integer()->notNull(),
+                'sort_order' => $this->integer()->notNull()->defaultValue(0),
+                'display' => $this->integer(1)->notNull()->defaultValue(0),
                 'filter_set_id' => $this->integer()->notNull(),
             ],
             $tableOptions

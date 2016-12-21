@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\models\filters;
 
+use arogachev\sortable\behaviors\numerical\ContinuousNumericalSortableBehavior;
 use DevGroup\DataStructure\models\Property;
 use DevGroup\DataStructure\models\PropertyGroup;
 use DotPlant\EntityStructure\models\BaseStructure;
@@ -25,6 +26,15 @@ use yii\db\ActiveRecord;
  */
 class FilterSetsModel extends ActiveRecord
 {
+    public function behaviors()
+    {
+        return [
+            'sortable' => [
+               'class' => ContinuousNumericalSortableBehavior::class,
+                'sortAttribute' => 'sort_order',
+            ],
+        ];
+    }
 
     /**
      * @inheritdoc
