@@ -12,7 +12,7 @@ use yii\base\Object;
  */
 class FilterRouteHandler extends Object implements AdditionalRouteHandlerInterface
 {
-    public $route = 'store/goods/filter';
+    public $route = 'universal/show-with-properties';
 
     /**
      * @inheritdoc
