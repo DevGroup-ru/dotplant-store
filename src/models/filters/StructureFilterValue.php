@@ -42,4 +42,9 @@ class StructureFilterValue
     {
         return $this->value === $value->value && $this->slug === $value->slug && $this->sort_order === $value->sort_order && $this->display === $value->display;
     }
+
+    public function getSlug()
+    {
+        return $this->slug;
+    }
 }

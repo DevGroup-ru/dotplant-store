@@ -2,6 +2,8 @@
 
 namespace DotPlant\Store\models\filters;
 
+use yii\helpers\ArrayHelper;
+
 class StructureFilterSets
 {
     private $structureId;
@@ -122,4 +124,104 @@ class StructureFilterSets
     {
         return $this->delegateToChild;
     }
+
+    /**
+     * @param string $slug
+     *
+     * @return null|string
+     */
+    public function getFilterValueIndxBySlug($slug)
+    {
+        foreach ($this->filterValues as $indx => $filterValue) {
+            if ($filterValue->getSlug() === $slug) {
+                return $indx;
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * @param $entityId
+     * @param FiltersRepository $filtersRepository
+     * @param bool $createNotInFilter
+     *
+     * @return array
+     */
+    public static function getAttachedFilterSets(
+        $entityId,
+        FiltersRepository $filtersRepository,
+        $createNotInFilter = true
+    ) {
+        $filterSetsFromDb = $filtersRepository->getFilterSetByEntityId($entityId);
+        return self::createByDataFromBd($entityId, $filtersRepository, $createNotInFilter, $filterSetsFromDb);
+    }
+
+    /**
+     * @param $entityId
+     * @param FiltersRepository $filtersRepository
+     *
+     * @return array|static[]
+     */
+    public static function getAttachedFilterSetsByParent($entityId, FiltersRepository $filtersRepository)
+    {
+        $filterSetsFromDb = $filtersRepository->getDelegatedByParentFilterSets($entityId);
+        return self::createByDataFromBd($entityId, $filtersRepository, false, $filterSetsFromDb);
+    }
+
+    /**
+     * @param $entityId
+     * @param FiltersRepository $filtersRepository
+     * @param $createNotInFilter
+     * @param $filterSetsFromDb
+     *
+     * @return array|static[]
+     */
+    private static function createByDataFromBd(
+        $entityId,
+        FiltersRepository $filtersRepository,
+        $createNotInFilter,
+        $filterSetsFromDb
+    ) {
+        $sets = [];
+        foreach ($filterSetsFromDb as $filterSetFromDb) {
+            $filterSetValuesFromDb = $filtersRepository->getFilterStaticValuesByFilterSet($filterSetFromDb);
+            if ($createNotInFilter) {
+                $filterStaticValuesIds = ArrayHelper::getColumn($filterSetValuesFromDb, 'static_value_id');
+                $staticValuesNotInFilter = $filtersRepository->getStaticValuesNotInFilter(
+                    $filterStaticValuesIds,
+                    $filterSetFromDb
+                );
+                if (count($staticValuesNotInFilter) > 0) {
+                    foreach ($staticValuesNotInFilter as $staticValue) {
+                        $model = $filtersRepository->createFilterStaticValue($staticValue, $filterSetFromDb);
+                        $filterSetValuesFromDb[] = $model;
+                    }
+                }
+            }
+            $values = [];
+            foreach ($filterSetValuesFromDb as $filterSetValueFromDb) {
+                $indx = implode('.', [$filterSetValueFromDb->filter_set_id, $filterSetValueFromDb->static_value_id]);
+                $values[$indx] = (new StructureFilterValue(
+                    $filterSetValueFromDb->staticValue->name,
+                    $filterSetValueFromDb->staticValue->slug,
+                    $filterSetValueFromDb->sort_order,
+                    boolval($filterSetValueFromDb->display)
+                ));
+            }
+            $indx = "$entityId.{$filterSetFromDb->group->id}.{$filterSetFromDb->property->id}";
+            $sets[$indx] = (new static(
+                $filterSetFromDb->property->name,
+                $filterSetFromDb->group->internal_name,
+                $entityId,
+                $filterSetFromDb->property_id,
+                $filterSetFromDb->sort_order,
+                boolval($filterSetFromDb->delegate_to_child),
+                $filterSetFromDb->group_id,
+                $values
+            ));
+        }
+        return $sets;
+    }
+
 }

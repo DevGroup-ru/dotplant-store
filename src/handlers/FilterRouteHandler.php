@@ -4,7 +4,10 @@ namespace DotPlant\Store\handlers;
 
 use DevGroup\DataStructure\models\StaticValue;
 use DotPlant\EntityStructure\interfaces\AdditionalRouteHandlerInterface;
+use DotPlant\Store\models\filters\StructureFilterSets;
+use DotPlant\Store\models\filters\StructureFilterValue;
 use yii\base\Object;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class FilterRouteHandler
@@ -31,23 +34,18 @@ class FilterRouteHandler extends Object implements AdditionalRouteHandlerInterfa
                 ];
                 $valuesCount += count($values);
             }
-            $slugs = StaticValue::find()
-                ->select(['slug'])
-                ->where(
-                    [
-                        'and',
-                        ['language_id' => 1],
-                        $condition,
-                    ]
-                )
-                ->orderBy(
-                    [
-                        'property_id' => SORT_ASC,
-                        'model_id' => SORT_ASC,
-                    ]
-                )
-                ->asArray(true)
-                ->column();
+            $slugs = StaticValue::find()->select(['slug'])->where(
+                [
+                    'and',
+                    ['language_id' => 1],
+                    $condition,
+                ]
+            )->orderBy(
+                [
+                    'property_id' => SORT_ASC,
+                    'model_id' => SORT_ASC,
+                ]
+            )->asArray(true)->column();
             if (count($slugs) == $valuesCount) {
                 return [
                     'isHandled' => true,
@@ -65,21 +63,16 @@ class FilterRouteHandler extends Object implements AdditionalRouteHandlerInterfa
     public function parseUrl($structureId, $slugs)
     {
         // @todo: check a slugs ordering
-        // @todo: check allowed filters for a current category
         $properties = [];
         foreach ($slugs as $index => $slug) {
-            $row = StaticValue::find()
-                ->where(['slug' => $slug])
-                ->asArray(true)
-                ->one();
+            $row = $this->getStructureFilterValue($structureId, $slug);
             if ($row === null) {
                 return ['isHandled' => false];
             }
-            if (isset($properties[$row['property_id']])) {
-                $properties[$row['property_id']][] = $row['id'];
-            } else {
-                $properties[$row['property_id']] = [$row['id']];
+            if (!isset($properties[$row['property_id']])) {
+                $properties[$row['property_id']] = [];
             }
+            $properties[$row['property_id']][] = $row['static_value_id'];
         }
         return [
             'isHandled' => true,
@@ -90,5 +83,37 @@ class FilterRouteHandler extends Object implements AdditionalRouteHandlerInterfa
                 'properties' => $properties,
             ],
         ];
+    }
+
+    /**
+     * @param integer $structureId
+     * @param string $slug
+     *
+     * @return array|null
+     */
+    private function getStructureFilterValue($structureId, $slug)
+    {
+        /**
+         * @var StructureFilterSets[] $filterSets
+         */
+        $filterSets = ArrayHelper::merge(
+            \Yii::$container->invoke(
+                [StructureFilterSets::class, 'getAttachedFilterSetsByParent'],
+                ['entityId' => $structureId]
+            ),
+            \Yii::$container->invoke(
+                [StructureFilterSets::class, 'getAttachedFilterSets'],
+                ['entityId' => $structureId]
+            )
+        );
+        foreach ($filterSets as $indx => $filterSet) {
+            $filterSetValueIndx = $filterSet->getFilterValueIndxBySlug($slug);
+            if($filterSetValueIndx !== null){
+                list($filterSetId, $staticValueId) = explode('.', $filterSetValueIndx);
+                list($entityId, $propertyGroupId, $propertyId) = explode('.', $indx);
+                return ['property_id' => $propertyId, 'static_value_id' => $staticValueId];
+            }
+        }
+        return null;
     }
 }
