@@ -15,6 +15,8 @@ class StructureFilterSets
     private $propertyName;
     private $propertyGroupName;
 
+    private $filterSetId;
+
     /**
      * StructureFilterSets constructor.
      *
@@ -210,7 +212,7 @@ class StructureFilterSets
                 ));
             }
             $indx = "$entityId.{$filterSetFromDb->group->id}.{$filterSetFromDb->property->id}";
-            $sets[$indx] = (new static(
+            $set = new static(
                 $filterSetFromDb->property->name,
                 $filterSetFromDb->group->internal_name,
                 $entityId,
@@ -219,9 +221,32 @@ class StructureFilterSets
                 boolval($filterSetFromDb->delegate_to_child),
                 $filterSetFromDb->group_id,
                 $values
-            ));
+            );
+            $set->filterSetId = $filterSetFromDb->id;
+            $sets[$indx] = $set;
         }
         return $sets;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPropertyId()
+    {
+        return $this->propertyId;
+    }
+
+    public function getSlugsByStaticValuesIds($values)
+    {
+        $slugs = [];
+        foreach ($values as $value) {
+            $indx = implode('.', [$this->filterSetId, $value]);
+            if (!array_key_exists($indx, $this->filterValues)) {
+                return false;
+            }
+            $slugs[] = $this->filterValues[$indx]->getSlug();
+        }
+        return $slugs;
     }
 
 }
