@@ -59,6 +59,23 @@ class FiltersRepository
     }
 
     /**
+     * @param $entityId
+     *
+     * @return array|FilterSetsModel[]
+     */
+    public function getDelegatedByParentFilterSets($entityId)
+    {
+        $entity = $this->getEntity($entityId);
+        $parentIds = $entity->getParentsIds();
+        $filterSetsFromDb = FilterSetsModel::find()->where(
+            ['structure_id' => $parentIds, 'delegate_to_child' => 1]
+        )->orderBy(
+            ['sort_order' => SORT_ASC]
+        )->with(['property', 'group'])->all();
+        return $filterSetsFromDb;
+    }
+
+    /**
      * @param $filterSetFromDb
      *
      * @return array|FilterStaticValueModel[]

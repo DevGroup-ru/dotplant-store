@@ -3,6 +3,7 @@
 namespace DotPlant\Store\models;
 
 use DevGroup\ExtensionsManager\models\BaseConfigurationModel;
+use DotPlant\Store\models\filters\FiltersRepository;
 use DotPlant\Store\models\order\OrderStatus;
 use DotPlant\Store\models\order\OrderStatusTranslation;
 use DotPlant\Store\Module;
@@ -137,6 +138,9 @@ class StoreConfiguration extends BaseConfigurationModel
             'container' => [
                 'definitions' => [
                     GoodsMainCategoryRepositoryInterface::class => Yii2DbGoodsMainCategory::class,
+                ],
+                'singletons' => [
+                    FiltersRepository::class
                 ]
             ]
         ];

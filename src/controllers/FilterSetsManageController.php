@@ -5,17 +5,12 @@ namespace DotPlant\Store\controllers;
 use DevGroup\AdminUtils\controllers\BaseController;
 use DevGroup\AdminUtils\Helper;
 use DevGroup\DataStructure\models\PropertyGroup;
-use DevGroup\DataStructure\models\StaticValue;
-use DotPlant\Store\models\filters\FilterSetsModel;
 use DotPlant\Store\models\filters\FiltersRepository;
-use DotPlant\Store\models\filters\FilterStaticValueModel;
 use DotPlant\Store\models\filters\StructureFilterSets;
-use DotPlant\Store\models\filters\StructureFilterValue;
 use DotPlant\Store\Module;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -75,7 +70,10 @@ class FilterSetsManageController extends BaseController
                 [
                     'parentId' => $id,
                     'selectorData' => $this->getSelectorDataFromSet($this->getAvailableSets($id), $id),
-                    'filterSets' => $this->getAttachedFilterSets($id),
+                    'filterSets' => Yii::$container->invoke(
+                        [StructureFilterSets::class, 'getAttachedFilterSets'],
+                        ['entityId' => $id]
+                    ),
                 ]
             );
         } else {
@@ -119,7 +117,6 @@ class FilterSetsManageController extends BaseController
         $attribute = Yii::$app->request->post('editableAttribute');
         $value = $this->processValue(Yii::$app->request->post($attribute));
         return $this->filtersRepository->updateSetValue($indx, $attribute, $value);
-
     }
 
 
@@ -130,7 +127,10 @@ class FilterSetsManageController extends BaseController
          */
         $propertyGroups = $this->filtersRepository->getAllPropertyGroups();
         $result = [];
-        $attached = $this->getAttachedFilterSets($entityId);
+        $attached = Yii::$container->invoke(
+            [StructureFilterSets::class, 'getAttachedFilterSets'],
+            ['entityId' => $entityId]
+        );
         foreach ($propertyGroups as $propertyGroup) {
             $result[$propertyGroup->id] = [
                 'id' => $propertyGroup->id,
@@ -148,59 +148,6 @@ class FilterSetsManageController extends BaseController
             }
         }
         return $result;
-    }
-
-    private function getAttachedFilterSets($entityId)
-    {
-        /**
-         * @var $filterSetsFromDb FilterSetsModel[]
-         */
-        $filterSetsFromDb = $this->filtersRepository->getFilterSetByEntityId($entityId);
-        $sets = [];
-        foreach ($filterSetsFromDb as $filterSetFromDb) {
-            /**
-             * @var $filterSetValuesFromDb FilterStaticValueModel[]
-             */
-            // @todo разделить код работающий с базой и с моделями
-
-            $filterSetValuesFromDb = $this->filtersRepository->getFilterStaticValuesByFilterSet($filterSetFromDb);
-            $filterStaticValuesIds = ArrayHelper::getColumn($filterSetValuesFromDb, 'static_value_id');
-            /**
-             * @var $staticValuesNotInFilter StaticValue[]
-             */
-            $staticValuesNotInFilter = $this->filtersRepository->getStaticValuesNotInFilter(
-                $filterStaticValuesIds,
-                $filterSetFromDb
-            );
-            if (count($staticValuesNotInFilter) > 0) {
-                foreach ($staticValuesNotInFilter as $staticValue) {
-                    $model = $this->filtersRepository->createFilterStaticValue($staticValue, $filterSetFromDb);
-                    $filterSetValuesFromDb[] = $model;
-                }
-            }
-            $values = [];
-            foreach ($filterSetValuesFromDb as $filterSetValueFromDb) {
-                $indx = implode('.', [$filterSetValueFromDb->filter_set_id, $filterSetValueFromDb->static_value_id]);
-                $values[$indx] = (new StructureFilterValue(
-                    $filterSetValueFromDb->staticValue->name,
-                    $filterSetValueFromDb->staticValue->slug,
-                    $filterSetValueFromDb->sort_order,
-                    boolval($filterSetValueFromDb->display)
-                ));
-            }
-            $indx = "$entityId.{$filterSetFromDb->group->id}.{$filterSetFromDb->property->id}";
-            $sets[$indx] = (new StructureFilterSets(
-                $filterSetFromDb->property->name,
-                $filterSetFromDb->group->internal_name,
-                $entityId,
-                $filterSetFromDb->property_id,
-                $filterSetFromDb->sort_order,
-                boolval($filterSetFromDb->delegate_to_child),
-                $filterSetFromDb->group_id,
-                $values
-            ));
-        }
-        return $sets;
     }
 
     private function getSelectorDataFromSet(array $groups, $entityId)
