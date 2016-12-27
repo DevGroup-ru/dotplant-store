@@ -129,7 +129,7 @@ class FilterRouteHandler extends Object implements AdditionalRouteHandlerInterfa
             foreach ($filterSets as $filterSet) {
                 if ($filterSet->getPropertyId() == $propertyId) {
                     $newSlugs = $filterSet->getSlugsByStaticValuesIds($values);
-                    if ($slugs === false) {
+                    if ($newSlugs === false) {
                         return false;
                     }
                     $slugs = ArrayHelper::merge($slugs, $newSlugs);
