@@ -133,7 +133,7 @@ class FilterRouteHandler extends Object implements AdditionalRouteHandlerInterfa
                         return false;
                     }
                     $slugs = ArrayHelper::merge($slugs, $newSlugs);
-                    break 2;
+                    break;
                 }
             }
         }
