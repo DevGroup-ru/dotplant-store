@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\providers;
 
+use DevGroup\DataStructure\search\components\Search;
 use DotPlant\Monster\DataEntity\DataEntityProvider;
 use DotPlant\Store\models\goods\CategoryGoods;
 use DotPlant\Store\models\goods\Goods;
@@ -12,6 +13,7 @@ use DotPlant\Currencies\helpers\CurrencyHelper;
 use DotPlant\Store\models\goods\GoodsCategoryExtended;
 use DotPlant\Store\models\price\Price;
 use DotPlant\Store\models\price\ProductPrice;
+use DotPlant\Store\models\warehouse\GoodsWarehouse;
 use yii\helpers\Url;
 use DotPlant\EntityStructure\models\BaseStructure;
 use DevGroup\DataStructure\helpers\PropertiesHelper;
@@ -19,6 +21,7 @@ use yii\data\Pagination;
 use yii\data\Sort;
 use DotPlant\EntityStructure\helpers\PaginationHelper;
 use DotPlant\Store\components\Store;
+use DotPlant\Store\models\warehouse\Warehouse;
 
 class GoodsSearchProvider extends DataEntityProvider
 {
@@ -106,6 +109,11 @@ class GoodsSearchProvider extends DataEntityProvider
      * @var string the limit get parameter
      */
     public $parentIdParameter = 'parent-id';
+
+    /**
+     * @var string the filter by the property get parameter
+     */
+    public $propertyParameter = 'properties';
 
     /**
      * @var string the sort get parameter
@@ -290,47 +298,74 @@ class GoodsSearchProvider extends DataEntityProvider
     public function getEntities(&$actionData)
     {
         if (($searchPhrase = \Yii::$app->request->get($this->searchParameter)) !== null) {
+            $limit = \Yii::$app->request->get($this->limitParameter) !== null ? \Yii::$app->request->get($this->limitParameter) : $this->maxLimit;
+            $bs = new Search();
+            $q = $bs->search(
+                Goods::class,
+                [
+                    'limit' => $limit
+                ]
+            );
+
+            $mainEntityAttributes = ['type' => Goods::TYPE_PRODUCT];
+
+            $q->pagination(
+                [
+                    'class' => Pagination::class
+                ]
+            )->mainEntityAttributes(
+                $mainEntityAttributes
+            );
+
+            if (($filterProperties = \Yii::$app->request->get($this->propertyParameter)) !== null) {
+                $q->properties([Goods::class => $filterProperties]);
+            }
+
+            $pagesQuery = clone $q;
+            $pages = $pagesQuery->getPagination();
 
             $query = Goods::find()
                 ->distinct()
-                ->innerJoin(
-                    '{{%dotplant_store_goods_eav}}',
-                    '{{%dotplant_store_goods_eav}}.[[model_id]] = ' . Goods::tableName() . '.[[id]]'
+                ->select($q->query()->query->select)
+                ->leftJoin(
+                    Goods::eavTable(),
+                    Goods::eavTable() . '.[[model_id]] = ' . Goods::tableName() . '.[[id]]'
                 )
-                ->where(
+                ->filterWhere(
                     [
                         'like', '[[name]]', $searchPhrase
                     ]
                 )
-                ->orWhere(
+                ->orFilterWhere(
                     [
                         'like', '[[description]]', $searchPhrase
                     ]
                 )
-                ->orWhere(
+                ->orFilterWhere(
                     [
                         'like', '[[announce]]', $searchPhrase
                     ]
                 )
-                ->orWhere(
+                ->orFilterWhere(
                     [
                         'like', '[[value_string]]', $searchPhrase
                     ]
                 )
-                ->orWhere(
+                ->orFilterWhere(
                     [
                         'like', '[[value_text]]', $searchPhrase
                     ]
                 )
-                ->andWhere(
+                ->andFilterWhere(
                     [
                         'is_active' => 1,
-                        'is_deleted' => 0
+                        'is_deleted' => 0,
+                        Goods::getTranslationTableName() . '.[[language_id]]' => \Yii::$app->multilingual->language_id
                     ]
-                );
+                )
+                ->andFilterWhere($q->query()->query->where);
 
             $countQuery = clone $query;
-
             $parentId = \Yii::$app->request->get($this->parentIdParameter, $this->parentId);
 
             if ($parentId !== false) {
@@ -345,23 +380,10 @@ class GoodsSearchProvider extends DataEntityProvider
                     );
             }
 
-            $pagerQuery = clone $query;
-
             $goodsIds = $countQuery->column();
-
             $goodsSectionsTree = $this->getGoodsSectionsTree($goodsIds);
-
-            $limit = \Yii::$app->request->get($this->limitParameter, $this->maxLimit);
-
+            $pagerQuery = clone $query;
             $totalCount = $pagerQuery->count();
-            $pages = new Pagination(
-                [
-                    'totalCount' => $totalCount,
-                    'pageParam' => $this->paginationParameter,
-                    'defaultPageSize' => $limit,
-                    'pageSizeLimit' => [$this->minLimit, $this->maxLimit]
-                ]
-            );
 
             if (isset($pages)) {
                 $pagination = PaginationHelper::getItems($pages);
@@ -369,8 +391,8 @@ class GoodsSearchProvider extends DataEntityProvider
 
 
             $query->leftJoin(
-                '{{%dotplant_store_goods_warehouse}}',
-                '{{%dotplant_store_goods}}.[[id]] = {{%dotplant_store_goods_warehouse}}.[[goods_id]]'
+                GoodsWarehouse::tableName(),
+                Goods::tableName() . '.[[id]] = ' . GoodsWarehouse::tableName() . '.[[goods_id]]'
             );
 
             $sort = $this->getSort();
