@@ -13,6 +13,7 @@ use DotPlant\Currencies\helpers\CurrencyHelper;
 use DotPlant\Store\models\goods\GoodsCategoryExtended;
 use DotPlant\Store\models\price\Price;
 use DotPlant\Store\models\price\ProductPrice;
+use DotPlant\Store\models\warehouse\GoodsWarehouse;
 use yii\helpers\Url;
 use DotPlant\EntityStructure\models\BaseStructure;
 use DevGroup\DataStructure\helpers\PropertiesHelper;
@@ -20,6 +21,7 @@ use yii\data\Pagination;
 use yii\data\Sort;
 use DotPlant\EntityStructure\helpers\PaginationHelper;
 use DotPlant\Store\components\Store;
+use DotPlant\Store\models\warehouse\Warehouse;
 
 class GoodsSearchProvider extends DataEntityProvider
 {
@@ -322,45 +324,47 @@ class GoodsSearchProvider extends DataEntityProvider
             $pagesQuery = clone $q;
             $pages = $pagesQuery->getPagination();
 
-            $q->query()->query->distinct()
+            $query = Goods::find()
+                ->distinct()
+                ->select($q->query()->query->select)
                 ->leftJoin(
-                    '{{%dotplant_store_goods_eav}}',
-                    '{{%dotplant_store_goods_eav}}.[[model_id]] = ' . Goods::tableName() . '.[[id]]'
+                    Goods::eavTable(),
+                    Goods::eavTable() . '.[[model_id]] = ' . Goods::tableName() . '.[[id]]'
                 )
-                ->where(
+                ->filterWhere(
                     [
                         'like', '[[name]]', $searchPhrase
                     ]
                 )
-                ->orWhere(
+                ->orFilterWhere(
                     [
                         'like', '[[description]]', $searchPhrase
                     ]
                 )
-                ->orWhere(
+                ->orFilterWhere(
                     [
                         'like', '[[announce]]', $searchPhrase
                     ]
                 )
-                ->orWhere(
+                ->orFilterWhere(
                     [
                         'like', '[[value_string]]', $searchPhrase
                     ]
                 )
-                ->orWhere(
+                ->orFilterWhere(
                     [
                         'like', '[[value_text]]', $searchPhrase
                     ]
                 )
-                ->andWhere(
+                ->andFilterWhere(
                     [
                         'is_active' => 1,
                         'is_deleted' => 0,
-                        '{{%dotplant_store_goods_translation}}.[[language_id]]' => \Yii::$app->multilingual->language_id
+                        Goods::getTranslationTableName() . '.[[language_id]]' => \Yii::$app->multilingual->language_id
                     ]
-                );
+                )
+                ->andFilterWhere($q->query()->query->where);
 
-            $query = $q->query()->query;
             $countQuery = clone $query;
             $parentId = \Yii::$app->request->get($this->parentIdParameter, $this->parentId);
 
@@ -387,8 +391,8 @@ class GoodsSearchProvider extends DataEntityProvider
 
 
             $query->leftJoin(
-                '{{%dotplant_store_goods_warehouse}}',
-                '{{%dotplant_store_goods}}.[[id]] = {{%dotplant_store_goods_warehouse}}.[[goods_id]]'
+                GoodsWarehouse::tableName(),
+                Goods::tableName() . '.[[id]] = ' . GoodsWarehouse::tableName() . '.[[goods_id]]'
             );
 
             $sort = $this->getSort();
