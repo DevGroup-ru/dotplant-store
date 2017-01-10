@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\providers;
 
+use DevGroup\DataStructure\search\components\Search;
 use DotPlant\Monster\DataEntity\DataEntityProvider;
 use DotPlant\Store\models\goods\CategoryGoods;
 use DotPlant\Store\models\goods\Goods;
@@ -106,6 +107,11 @@ class GoodsSearchProvider extends DataEntityProvider
      * @var string the limit get parameter
      */
     public $parentIdParameter = 'parent-id';
+
+    /**
+     * @var string the filter by the property get parameter
+     */
+    public $propertyParameter = 'properties';
 
     /**
      * @var string the sort get parameter
@@ -290,10 +296,34 @@ class GoodsSearchProvider extends DataEntityProvider
     public function getEntities(&$actionData)
     {
         if (($searchPhrase = \Yii::$app->request->get($this->searchParameter)) !== null) {
+            $limit = \Yii::$app->request->get($this->limitParameter) !== null ? \Yii::$app->request->get($this->limitParameter) : $this->maxLimit;
+            $bs = new Search();
+            $q = $bs->search(
+                Goods::class,
+                [
+                    'limit' => $limit
+                ]
+            );
 
-            $query = Goods::find()
-                ->distinct()
-                ->innerJoin(
+            $mainEntityAttributes = ['type' => Goods::TYPE_PRODUCT];
+
+            $q->pagination(
+                [
+                    'class' => Pagination::class
+                ]
+            )->mainEntityAttributes(
+                $mainEntityAttributes
+            );
+
+            if (($filterProperties = \Yii::$app->request->get($this->propertyParameter)) !== null) {
+                $q->properties([Goods::class => $filterProperties]);
+            }
+
+            $pagesQuery = clone $q;
+            $pages = $pagesQuery->getPagination();
+
+            $q->query()->query->distinct()
+                ->leftJoin(
                     '{{%dotplant_store_goods_eav}}',
                     '{{%dotplant_store_goods_eav}}.[[model_id]] = ' . Goods::tableName() . '.[[id]]'
                 )
@@ -325,12 +355,13 @@ class GoodsSearchProvider extends DataEntityProvider
                 ->andWhere(
                     [
                         'is_active' => 1,
-                        'is_deleted' => 0
+                        'is_deleted' => 0,
+                        '{{%dotplant_store_goods_translation}}.[[language_id]]' => \Yii::$app->multilingual->language_id
                     ]
                 );
 
+            $query = $q->query()->query;
             $countQuery = clone $query;
-
             $parentId = \Yii::$app->request->get($this->parentIdParameter, $this->parentId);
 
             if ($parentId !== false) {
@@ -345,23 +376,10 @@ class GoodsSearchProvider extends DataEntityProvider
                     );
             }
 
-            $pagerQuery = clone $query;
-
             $goodsIds = $countQuery->column();
-
             $goodsSectionsTree = $this->getGoodsSectionsTree($goodsIds);
-
-            $limit = \Yii::$app->request->get($this->limitParameter, $this->maxLimit);
-
+            $pagerQuery = clone $query;
             $totalCount = $pagerQuery->count();
-            $pages = new Pagination(
-                [
-                    'totalCount' => $totalCount,
-                    'pageParam' => $this->paginationParameter,
-                    'defaultPageSize' => $limit,
-                    'pageSizeLimit' => [$this->minLimit, $this->maxLimit]
-                ]
-            );
 
             if (isset($pages)) {
                 $pagination = PaginationHelper::getItems($pages);
