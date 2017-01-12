@@ -3,6 +3,7 @@
 namespace DotPlant\Store\models\vendor;
 
 use DevGroup\AdminUtils\traits\FetchModels;
+use DevGroup\DataStructure\traits\PropertiesTrait;
 use DevGroup\Entity\traits\BaseActionsInfoTrait;
 use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SeoTrait;
@@ -12,6 +13,10 @@ use DevGroup\Multilingual\traits\MultilingualTrait;
 use DevGroup\TagDependencyHelper\CacheableActiveRecord;
 use DevGroup\TagDependencyHelper\NamingHelper;
 use DevGroup\TagDependencyHelper\TagDependencyTrait;
+use DotPlant\EntityStructure\interfaces\MainEntitySeoInterface;
+use DotPlant\EntityStructure\models\BaseStructure;
+use DotPlant\EntityStructure\traits\MainEntitySeoTrait;
+use DotPlant\Monster\Universal\MonsterEntityTrait;
 use Yii;
 use yii\behaviors\SluggableBehavior;
 use yii\caching\TagDependency;
@@ -33,7 +38,7 @@ use yii\helpers\Inflector;
  * @property integer $is_deleted
  * @property string $packed_json_data
  */
-class Vendor extends ActiveRecord
+class Vendor extends ActiveRecord implements MainEntitySeoInterface
 {
     use MultilingualTrait;
     use TagDependencyTrait;
@@ -42,8 +47,16 @@ class Vendor extends ActiveRecord
     use SeoTrait;
     use SoftDeleteTrait;
     use BaseActionsInfoTrait;
+    use PropertiesTrait;
+    use MonsterEntityTrait;
+    use MainEntitySeoTrait;
 
     public static $listCache;
+
+    public $template_id;
+    public $providers = [];
+    public $content = [];
+    public $layout_id;
 
     /**
      * @inheritdoc
@@ -234,5 +247,29 @@ class Vendor extends ActiveRecord
         }
         static::getArrayList(true);
         return $vendor->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSeoTitle()
+    {
+        // TODO: Implement getSeoTitle() method.
+    }
+
+    /**
+     * @return string
+     */
+    public function getSeoMetaDescription()
+    {
+        // TODO: Implement getSeoMetaDescription() method.
+    }
+
+    /**
+     * @return array
+     */
+    public function getSeoBreadcrumbs()
+    {
+        // TODO: Implement getSeoBreadcrumbs() method.
     }
 }

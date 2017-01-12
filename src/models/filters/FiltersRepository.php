@@ -130,7 +130,7 @@ class FiltersRepository
      *
      * @return FilterStaticValueModel
      */
-    public function createFilterStaticValue($staticValue, $filterSetFromDb): FilterStaticValueModel
+    public function createFilterStaticValue($staticValue, $filterSetFromDb)
     {
         $model = new FilterStaticValueModel();
         $model->setAttributes(
