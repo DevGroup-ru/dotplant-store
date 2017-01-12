@@ -250,26 +250,13 @@ class Vendor extends ActiveRecord implements MainEntitySeoInterface
     }
 
     /**
-     * @return string
-     */
-    public function getSeoTitle()
-    {
-        // TODO: Implement getSeoTitle() method.
-    }
-
-    /**
-     * @return string
-     */
-    public function getSeoMetaDescription()
-    {
-        // TODO: Implement getSeoMetaDescription() method.
-    }
-
-    /**
      * @return array
      */
     public function getSeoBreadcrumbs()
     {
-        // TODO: Implement getSeoBreadcrumbs() method.
+        $breadcrumbs[] = [
+            'label' => $this->defaultTranslation->breadcrumbs_label,
+        ];
+        return $breadcrumbs;
     }
 }
