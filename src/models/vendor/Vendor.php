@@ -3,6 +3,7 @@
 namespace DotPlant\Store\models\vendor;
 
 use DevGroup\AdminUtils\traits\FetchModels;
+use DevGroup\DataStructure\behaviors\HasProperties;
 use DevGroup\DataStructure\traits\PropertiesTrait;
 use DevGroup\Entity\traits\BaseActionsInfoTrait;
 use DevGroup\Entity\traits\EntityTrait;
@@ -14,11 +15,9 @@ use DevGroup\TagDependencyHelper\CacheableActiveRecord;
 use DevGroup\TagDependencyHelper\NamingHelper;
 use DevGroup\TagDependencyHelper\TagDependencyTrait;
 use DotPlant\EntityStructure\interfaces\MainEntitySeoInterface;
-use DotPlant\EntityStructure\models\BaseStructure;
 use DotPlant\EntityStructure\traits\MainEntitySeoTrait;
 use DotPlant\Monster\Universal\MonsterEntityTrait;
 use Yii;
-use yii\behaviors\SluggableBehavior;
 use yii\caching\TagDependency;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
@@ -72,6 +71,10 @@ class Vendor extends ActiveRecord implements MainEntitySeoInterface
             'CacheableActiveRecord' => [
                 'class' => CacheableActiveRecord::class,
             ],
+            'properties' => [
+                'class' => HasProperties::class,
+                'autoFetchProperties' => true,
+            ],
         ];
     }
 
@@ -83,17 +86,25 @@ class Vendor extends ActiveRecord implements MainEntitySeoInterface
         return '{{%dotplant_store_vendor}}';
     }
 
+    public function rules()
+    {
+        return $this->getRules();
+    }
+
     /**
      * @inheritdoc
      */
     public function getRules()
     {
-        return [
-            [['name'], 'required'],
-            [['created_at', 'created_by', 'updated_at', 'updated_by', 'is_deleted'], 'integer'],
-            [['packed_json_data'], 'string'],
-            [['name'], 'string', 'max' => 255],
-        ];
+        return ArrayHelper::merge(
+            [
+                [['name'], 'required'],
+                [['created_at', 'created_by', 'updated_at', 'updated_by', 'is_deleted'], 'integer'],
+                [['packed_json_data'], 'string'],
+                [['name'], 'string', 'max' => 255],
+            ],
+            $this->propertiesRules()
+        );
     }
 
     /**
