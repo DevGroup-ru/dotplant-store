@@ -378,7 +378,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
             ],
             'properties' => [
                 'class' => HasProperties::class,
-                //                'autoFetchProperties' => true,
+                                'autoFetchProperties' => true,
             ],
         ];
     }

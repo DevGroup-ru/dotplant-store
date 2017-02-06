@@ -71,7 +71,7 @@ class Order extends \yii\db\ActiveRecord
     {
         return [
             'properties' => [
-                'class' => \DevGroup\DataStructure\behaviors\HasProperties::class, // Альтернативная версия
+                'class' => \DevGroup\DataStructure\behaviors\HasProperties::class,
                 'autoFetchProperties' => true,
             ],
         ];
@@ -150,7 +150,10 @@ class Order extends \yii\db\ActiveRecord
      */
     public function scenarios()
     {
-        $baseActionsInfoAttributes = ['created_by', 'created_at', 'updated_by', 'updated_at', 'user_id'];
+        $baseActionsInfoAttributes = ArrayHelper::merge(
+            ['created_by', 'created_at', 'updated_by', 'updated_at', 'user_id'],
+            $this->propertiesAttributes
+        );
         $notBaseAttributes = [
             'order-creation' => [
                     'context_id',
