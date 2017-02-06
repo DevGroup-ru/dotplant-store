@@ -71,6 +71,7 @@ class OrderSingleStepProvider extends DataEntityProvider
         if ($order === null) {
             throw new BadRequestHttpException();
         }
+        $order->autoSaveProperties = true;
         // check cart
         if ($order->isNewRecord) {
             $cart = Store::getCart(false);

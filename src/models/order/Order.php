@@ -5,6 +5,7 @@ namespace DotPlant\Store\models\order;
 use DevGroup\Entity\traits\BaseActionsInfoTrait;
 use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SoftDeleteTrait;
+use DevGroup\TagDependencyHelper\TagDependencyTrait;
 use DotPlant\Store\components\RelationQueryByLanguage;
 use DotPlant\Store\components\SortByContextLanguageExpression;
 use DotPlant\Store\events\AfterOrderManagerChangeEvent;
@@ -13,6 +14,7 @@ use DotPlant\Store\events\OrderEvent;
 use DotPlant\Store\Module;
 use Yii;
 use yii\db\ActiveQuery;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%dotplant_store_order}}".
@@ -52,6 +54,8 @@ class Order extends \yii\db\ActiveRecord
     use EntityTrait;
     use BaseActionsInfoTrait;
     use SoftDeleteTrait;
+    use TagDependencyTrait;
+    use \DevGroup\DataStructure\traits\PropertiesTrait;
 
     private $_cart = false;
 
@@ -63,69 +67,82 @@ class Order extends \yii\db\ActiveRecord
         return '{{%dotplant_store_order}}';
     }
 
+    public function behaviors()
+    {
+        return [
+            'properties' => [
+                'class' => \DevGroup\DataStructure\behaviors\HasProperties::class, // Альтернативная версия
+                'autoFetchProperties' => true,
+            ],
+        ];
+    }
+
     /**
      * @inheritdoc
      */
     public function getRules()
     {
-        return [
-            [['context_id', 'status_id', 'currency_iso_code'], 'required'],
-            [['manager_id'], 'required', 'on' => 'backend-order-updating'],
+        return ArrayHelper::merge(
             [
+                [['context_id', 'status_id', 'currency_iso_code'], 'required'],
+                [['manager_id'], 'required', 'on' => 'backend-order-updating'],
                 [
-                    'context_id',
-                    'status_id',
-                    'delivery_id',
-                    'payment_id',
-                    'is_retail',
-                    'manager_id',
-                    'promocode_id',
-                    'created_by',
-                    'created_at',
-                    'updated_by',
-                    'updated_at',
-                    'forming_time',
-                    'is_deleted',
-                    'user_id',
+                    [
+                        'context_id',
+                        'status_id',
+                        'delivery_id',
+                        'payment_id',
+                        'is_retail',
+                        'manager_id',
+                        'promocode_id',
+                        'created_by',
+                        'created_at',
+                        'updated_by',
+                        'updated_at',
+                        'forming_time',
+                        'is_deleted',
+                        'user_id',
+                    ],
+                    'integer'
                 ],
-                'integer'
-            ],
-            [
                 [
-                    'items_count',
-                    'total_price_with_discount',
-                    'total_price_without_discount',
-                    'promocode_discount',
-                    'rate_to_main_currency'
+                    [
+                        'items_count',
+                        'total_price_with_discount',
+                        'total_price_without_discount',
+                        'promocode_discount',
+                        'rate_to_main_currency'
+                    ],
+                    'number'
                 ],
-                'number'
+                [['currency_iso_code'], 'string', 'max' => 3],
+                [['promocode_name'], 'string', 'max' => 255],
+                [['hash'], 'string', 'max' => 32],
+                [['hash'], 'unique'],
+                [
+                    ['payment_id'],
+                    'exist',
+                    'skipOnError' => true,
+                    'targetClass' => Payment::className(),
+                    'targetAttribute' => ['payment_id' => 'id']
+                ],
+                [
+                    ['delivery_id'],
+                    'exist',
+                    'skipOnError' => true,
+                    'targetClass' => Delivery::className(),
+                    'targetAttribute' => ['delivery_id' => 'id']
+                ],
+                [
+                    ['status_id'],
+                    'exist',
+                    'skipOnError' => true,
+                    'targetClass' => OrderStatus::className(),
+                    'targetAttribute' => ['status_id' => 'id']
+                ],
             ],
-            [['currency_iso_code'], 'string', 'max' => 3],
-            [['promocode_name'], 'string', 'max' => 255],
-            [['hash'], 'string', 'max' => 32],
-            [['hash'], 'unique'],
-            [
-                ['payment_id'],
-                'exist',
-                'skipOnError' => true,
-                'targetClass' => Payment::className(),
-                'targetAttribute' => ['payment_id' => 'id']
-            ],
-            [
-                ['delivery_id'],
-                'exist',
-                'skipOnError' => true,
-                'targetClass' => Delivery::className(),
-                'targetAttribute' => ['delivery_id' => 'id']
-            ],
-            [
-                ['status_id'],
-                'exist',
-                'skipOnError' => true,
-                'targetClass' => OrderStatus::className(),
-                'targetAttribute' => ['status_id' => 'id']
-            ],
-        ];
+            $this->propertiesRules()
+        );
     }
 
     /**

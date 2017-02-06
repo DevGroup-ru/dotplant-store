@@ -88,6 +88,7 @@ class OrdersManageController extends Controller
         } else {
             $model = $this->findModel($id);
         }
+        $model->autoSaveProperties = true;
         $hasAccess = ($model->isNewRecord && Yii::$app->user->can('dotplant-store-order-create'))
             || (!$model->isNewRecord && Yii::$app->user->can('dotplant-store-order-edit'));
         $model->scenario = 'backend-order-updating';
