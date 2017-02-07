@@ -42,9 +42,12 @@ $this->params['breadcrumbs'] = [
                 <div class="tab-pane active" id="order-data">
                     <div class="row">
                         <div class="col-xs-12 col-md-3">
-                            <?= $form->field($model, 'status_id')->dropDownList(OrderStatus::listData($model->context_id)) ?>
-                            <?= $form->field($model, 'delivery_id')->dropDownList(Delivery::listData($model->context_id)) ?>
-                            <?= $form->field($model, 'payment_id')->dropDownList(Payment::listData($model->context_id)) ?>
+                            <?= $form->field($model,
+                                'status_id')->dropDownList(OrderStatus::listData($model->context_id)) ?>
+                            <?= $form->field($model,
+                                'delivery_id')->dropDownList(Delivery::listData($model->context_id)) ?>
+                            <?= $form->field($model,
+                                'payment_id')->dropDownList(Payment::listData($model->context_id)) ?>
                             <?=
                             $form
                                 ->field($model, 'manager_id')
@@ -81,20 +84,7 @@ $this->params['breadcrumbs'] = [
                             ?>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-xs-12 col-md-8">
-                            <?=
-                            \DotPlant\Store\widgets\common\OrderItems::widget(
-                                [
-                                    'model' => $model,
-                                ]
-                            )
-                            ?>
-                        </div>
-                        <div class="col-xs-12 col-md-4">
-                            <p>There will be managers chat here</p>
-                        </div>
-                    </div>
+
                 </div>
                 <div class="tab-pane" id="order-properties">
                     <?= PropertiesForm::widget([
@@ -106,16 +96,36 @@ $this->params['breadcrumbs'] = [
         </div>
     </div>
     <?php if ($hasAccess) : ?>
-    <div class="box-footer">
-        <div class="pull-right">
-            <?=
-            Html::submitButton(
-                Yii::t('dotplant.store', $model->isNewRecord ? 'Create' : 'Update'),
-                ['class' => 'btn btn-primary']
-            )
-            ?>
+        <div class="box-footer">
+            <div class="pull-right">
+                <?=
+                Html::submitButton(
+                    Yii::t('dotplant.store', $model->isNewRecord ? 'Create' : 'Update'),
+                    ['class' => 'btn btn-primary']
+                )
+                ?>
+            </div>
         </div>
-    </div>
     <?php endif; ?>
 </div>
-<?php ActiveForm::end();
+<?php ActiveForm::end(); ?>
+
+
+<div class="box">
+    <div class="box-body">
+        <div class="row">
+            <div class="col-xs-12 col-md-8">
+                <?=
+                \DotPlant\Store\widgets\common\OrderItems::widget(
+                    [
+                        'model' => $model,
+                    ]
+                )
+                ?>
+            </div>
+            <div class="col-xs-12 col-md-4">
+                <p>There will be managers chat here</p>
+            </div>
+        </div>
+    </div>
+</div>

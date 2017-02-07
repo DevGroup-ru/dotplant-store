@@ -5,8 +5,10 @@ namespace DotPlant\Store\controllers;
 use app\vendor\dotplant\store\src\helpers\OrderHelper;
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\helpers\BackendHelper;
+use DotPlant\Store\models\goods\Goods;
 use DotPlant\Store\models\order\Order;
 use DotPlant\Store\models\order\OrderItem;
+use DotPlant\Store\models\warehouse\GoodsWarehouse;
 use Yii;
 use yii\base\UnknownMethodException;
 use yii\data\ActiveDataProvider;
@@ -36,7 +38,7 @@ class OrdersManageController extends Controller
                         'roles' => ['dotplant-store-order-view'],
                     ],
                     [
-                        'actions' => ['remove-item', 'add-item'],
+                        'actions' => ['remove-item', 'add-item', 'edit-items'],
                         'allow' => true,
                         'roles' => ['dotplant-store-order-edit'],
                     ],
@@ -118,6 +120,13 @@ class OrdersManageController extends Controller
     }
 
 
+    /**
+     * @param $order_id
+     * @param $item_id
+     * @param $returnUrl
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
     public function actionRemoveItem($order_id, $item_id, $returnUrl)
     {
 
@@ -128,7 +137,7 @@ class OrdersManageController extends Controller
              * @var $orderItem OrderItem
              */
             if (OrderHelper::removeItem($order, $orderItem)) {
-                $this->redirect([$returnUrl]);
+                return $this->redirect([$returnUrl]);
             }
             throw new UnknownMethodException('Order item has not removed');
         }
@@ -137,9 +146,48 @@ class OrdersManageController extends Controller
     }
 
 
-    public function actionAddItem()
+    /**
+     * @param $order_id
+     * @param bool|false $goods_id
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionAddItem($order_id, $goods_id = false)
     {
 
+        $values = [];
+        $goods = null;
+        $prices = [];
+        $order = $this->findModel($order_id);
+        if ($goods_id !== false && ($goods = Goods::get($goods_id))) {
+            $values[$goods->id] = $goods->name;
+            $prices = GoodsWarehouse::find()
+                ->indexBy('warehouse_id')
+                ->where(['goods_id' => $goods->id])
+                ->all();
+
+            $request = Yii::$app->request;
+
+            if ($request->isPost &&
+                ($quantity = $request->post('quantity', false)) &&
+                ($warehouse_id = $request->post('warehouse_id', false))
+            ) {
+                OrderHelper::addItem($order, $goods, $warehouse_id, $quantity);
+                return $this->redirect(['/store/orders-manage/edit', 'id' => $order_id]);
+            }
+
+
+        }
+
+
+        return $this->render('add-item', [
+                'order_id' => $order_id,
+                'values' => $values,
+                'goods_id' => $goods_id,
+                'goods' => $goods,
+                'prices' => $prices
+            ]
+        );
     }
 
 
@@ -172,4 +220,25 @@ class OrdersManageController extends Controller
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
+
+    /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionEditItems($id)
+    {
+        $model = $this->findModel($id);
+        $itemsIds = Yii::$app->request->post('id', []);
+        $action = Yii::$app->request->post('action', false);
+        if (empty($model) == false && empty($itemsIds) === false && empty($action) === false) {
+            switch ($action) {
+                case 'move_to_new_order':
+                    OrderHelper::separate($model->id, $itemsIds);
+                    break;
+            }
+        }
+        return $this->redirect(['/store/orders-manage/edit', 'id' => $id]);
+    }
+
 }

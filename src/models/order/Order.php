@@ -152,7 +152,7 @@ class Order extends \yii\db\ActiveRecord
     {
         $baseActionsInfoAttributes = ArrayHelper::merge(
             ['created_by', 'created_at', 'updated_by', 'updated_at', 'user_id'],
-            $this->propertiesAttributes
+            ($this->propertiesAttributes !== null ? $this->propertiesAttributes : [])
         );
         $notBaseAttributes = [
             'order-creation' => [

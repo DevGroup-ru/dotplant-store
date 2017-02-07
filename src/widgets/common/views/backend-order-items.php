@@ -10,13 +10,19 @@
 use DevGroup\AdminUtils\Helper;
 use DotPlant\Currencies\helpers\CurrencyHelper;
 use yii\helpers\Html;
+use yii\widgets\ActiveForm;
 
 $currency = CurrencyHelper::findCurrencyByIso($model->currency_iso_code);
 
 ?>
+
+
+
+<?php $form = ActiveForm::begin(['action' => ['/store/orders-manage/edit-items', 'id' => $model->id]]); ?>
 <table class="table table-bordered table-condensed table-striped">
     <thead>
     <tr>
+        <th></th>
         <th><?= Yii::t('dotplant.store', 'Name') ?></th>
         <th><?= Yii::t('dotplant.store', 'Quantity') ?></th>
         <th><?= Yii::t('dotplant.store', 'Price with discount') ?></th>
@@ -27,6 +33,7 @@ $currency = CurrencyHelper::findCurrencyByIso($model->currency_iso_code);
     <tbody>
     <?php foreach ($items as $item) : ?>
         <tr>
+            <td><?= Html::checkbox('id[]', false, ['value' => $item['id']]); ?></td>
             <td><?= $item['name'] ?></td>
             <td><?= $item['quantity'] ?></td>
             <td><?= CurrencyHelper::format($item['total_price_with_discount'], $currency) ?></td>
@@ -47,14 +54,14 @@ $currency = CurrencyHelper::findCurrencyByIso($model->currency_iso_code);
     <?php endforeach; ?>
     <?php if ($delivery !== null) : ?>
         <tr>
-            <td colspan="2"><?= Yii::t('dotplant.store', 'Delivery') ?>: <?= $delivery['name'] ?></td>
+            <td colspan="3"><?= Yii::t('dotplant.store', 'Delivery') ?>: <?= $delivery['name'] ?></td>
             <td><?= CurrencyHelper::format($delivery['total_price_with_discount'], $currency) ?></td>
             <td><?= CurrencyHelper::format($delivery['total_price_without_discount'], $currency) ?></td>
             <td></td>
         </tr>
     <?php endif; ?>
     <tr class="warning">
-        <th><?= Yii::t('dotplant.store', 'Summary') ?></th>
+        <th colspan="2"><?= Yii::t('dotplant.store', 'Summary') ?></th>
         <th><?= $model->items_count ?></th>
         <th><?= CurrencyHelper::format($model->total_price_with_discount, $currency) ?></th>
         <th><?= CurrencyHelper::format($model->total_price_without_discount, $currency) ?></th>
@@ -63,3 +70,21 @@ $currency = CurrencyHelper::findCurrencyByIso($model->currency_iso_code);
 
     </tbody>
 </table>
+<?php if ($model->transactions() == []) : ?>
+    <?= Html::submitButton(
+        Yii::t('dotplant.store', 'Move to new order'),
+        [
+            'name' => 'action',
+            'value' => 'move_to_new_order',
+            'class' => 'btn btn-warning'
+        ]
+    ); ?>
+    <?= Html::a(
+        Yii::t('dotplant.store', 'Add new item'),
+        ['/store/orders-manage/add-item', 'order_id' => $model->id],
+        [
+            'class' => 'btn btn-primary'
+        ]
+    ) ?>
+<?php endif; ?>
+<?php $form->end(); ?>

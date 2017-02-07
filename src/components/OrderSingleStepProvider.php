@@ -106,6 +106,7 @@ class OrderSingleStepProvider extends DataEntityProvider
         $orderDeliveryInformationIsValid = $orderDeliveryInformation->load(
             Yii::$app->request->post()
         ) && $orderDeliveryInformation->validate();
+
         $orderIsValid = $order->load(Yii::$app->request->post()) && $order->validate();
         $userId = null;
         if ($orderDeliveryInformationIsValid && $orderIsValid) {
