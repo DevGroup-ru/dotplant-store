@@ -14,6 +14,7 @@ use yii\base\UnknownMethodException;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\helpers\Html;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -137,6 +138,15 @@ class OrdersManageController extends Controller
              * @var $orderItem OrderItem
              */
             if (OrderHelper::removeItem($order, $orderItem)) {
+
+                Yii::$app->session->setFlash(
+                    'orderItemsBlock',
+                    Yii::t(
+                        'dotplant.store',
+                        'Item has been removed'
+                    )
+                );
+
                 return $this->redirect([$returnUrl]);
             }
             throw new UnknownMethodException('Order item has not removed');
@@ -172,7 +182,15 @@ class OrdersManageController extends Controller
                 ($quantity = $request->post('quantity', false)) &&
                 ($warehouse_id = $request->post('warehouse_id', false))
             ) {
-                OrderHelper::addItem($order, $goods, $warehouse_id, $quantity);
+                if (OrderHelper::addItem($order, $goods, $warehouse_id, $quantity)) {
+                    Yii::$app->session->setFlash(
+                        'orderItemsBlock',
+                        Yii::t(
+                            'dotplant.store',
+                            'Item added to the order'
+                        )
+                    );
+                }
                 return $this->redirect(['/store/orders-manage/edit', 'id' => $order_id]);
             }
 
@@ -234,7 +252,19 @@ class OrdersManageController extends Controller
         if (empty($model) == false && empty($itemsIds) === false && empty($action) === false) {
             switch ($action) {
                 case 'move_to_new_order':
-                    OrderHelper::separate($model->id, $itemsIds);
+                    if (false !== $newOrderId = OrderHelper::separate($model->id, $itemsIds)) {
+                        Yii::$app->session->setFlash(
+                            'orderItemsBlock',
+                            Yii::t(
+                                'dotplant.store',
+                                'Show new order {link}',
+                                [
+                                    'link' => Html::a('Order :' . $newOrderId,
+                                        ['/store/orders-manage/edit', 'id' => $newOrderId])
+                                ]
+                            )
+                        );
+                    }
                     break;
             }
         }
