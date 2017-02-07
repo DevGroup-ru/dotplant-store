@@ -2,10 +2,13 @@
 
 namespace DotPlant\Store\controllers;
 
+use app\vendor\dotplant\store\src\helpers\OrderHelper;
 use DotPlant\Store\exceptions\OrderException;
 use DotPlant\Store\helpers\BackendHelper;
 use DotPlant\Store\models\order\Order;
+use DotPlant\Store\models\order\OrderItem;
 use Yii;
+use yii\base\UnknownMethodException;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -31,6 +34,11 @@ class OrdersManageController extends Controller
                         'actions' => ['index', 'edit'],
                         'allow' => true,
                         'roles' => ['dotplant-store-order-view'],
+                    ],
+                    [
+                        'actions' => ['remove-item', 'add-item'],
+                        'allow' => true,
+                        'roles' => ['dotplant-store-order-edit'],
                     ],
                     [
                         'actions' => ['delete'],
@@ -108,6 +116,32 @@ class OrdersManageController extends Controller
             ]
         );
     }
+
+
+    public function actionRemoveItem($order_id, $item_id, $returnUrl)
+    {
+
+        $order = $this->findModel($order_id);
+
+        if (null !== $orderItem = OrderItem::findOne($item_id)) {
+            /**
+             * @var $orderItem OrderItem
+             */
+            if (OrderHelper::removeItem($order, $orderItem)) {
+                $this->redirect([$returnUrl]);
+            }
+            throw new UnknownMethodException('Order item has not removed');
+        }
+        throw new NotFoundHttpException('The requested page does not exist.');
+
+    }
+
+
+    public function actionAddItem()
+    {
+
+    }
+
 
     /**
      * Deletes an existing Order model.
