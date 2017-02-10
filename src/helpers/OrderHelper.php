@@ -23,9 +23,10 @@ class OrderHelper
      * @param Goods $goods
      * @param $warehouse_id
      * @param int $quantity
+     * @param bool $changed_by_manager
      * @return bool
      */
-    public static function addItem(Order $order, Goods $goods, $warehouse_id, $quantity = 1)
+    public static function addItem(Order $order, Goods $goods, $warehouse_id, $quantity = 1, $changed_by_manager = false)
     {
 
         $cart = new Cart();
@@ -48,6 +49,7 @@ class OrderHelper
             'goods_id' => $goods->id,
             'warehouse_id' => $warehouse_id,
             'quantity' => $quantity,
+            'changed_by_manager' => $changed_by_manager
         ]);
 
         $orderItem->populateRelation('cart', $cart);
