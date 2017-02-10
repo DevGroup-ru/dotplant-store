@@ -58,7 +58,7 @@ class OrderItem extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['cart_id', 'order_id', 'goods_id', 'warehouse_id'], 'integer'],
+            [['cart_id', 'order_id', 'goods_id', 'warehouse_id', 'change_by_manager'], 'integer'],
             [['quantity', 'original_quantity', 'total_price_with_discount', 'total_price_without_discount', 'seller_price'], 'number'],
             [
                 ['warehouse_id'],
@@ -122,6 +122,7 @@ class OrderItem extends \yii\db\ActiveRecord
             'total_price_with_discount' => Yii::t('dotplant.store', 'Total price with discount'),
             'total_price_without_discount' => Yii::t('dotplant.store', 'Total price without discount'),
             'seller_price' => Yii::t('dotplant.store', 'Seller price'),
+            'change_by_manager' => Yii::t('dotplant.store', 'Change by manager'),
         ];
     }
 

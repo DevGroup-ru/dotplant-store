@@ -182,7 +182,7 @@ class OrdersManageController extends Controller
                 ($quantity = $request->post('quantity', false)) &&
                 ($warehouse_id = $request->post('warehouse_id', false))
             ) {
-                if (OrderHelper::addItem($order, $goods, $warehouse_id, $quantity)) {
+                if (OrderHelper::addItem($order, $goods, $warehouse_id, $quantity, true)) {
                     Yii::$app->session->setFlash(
                         'orderItemsBlock',
                         Yii::t(
