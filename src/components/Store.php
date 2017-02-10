@@ -2,6 +2,7 @@
 
 namespace DotPlant\Store\components;
 
+use DevGroup\DataStructure\helpers\PropertiesHelper;
 use DotPlant\Currencies\helpers\CurrencyHelper;
 use DotPlant\Store\events\RetailCheckEvent;
 use DotPlant\Store\exceptions\OrderException;
@@ -141,6 +142,8 @@ class Store
             $orderCurrency = CurrencyHelper::findCurrencyByIso($cart->currency_iso_code);
             $mainCurrency = CurrencyHelper::getMainCurrency();
             $order = new Order;
+            $orders = [$order];
+            PropertiesHelper::fillProperties($orders);
             $order->scenario = 'order-creation';
             $order->setAttributes(
                 $cart->getAttributes(
