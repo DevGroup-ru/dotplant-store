@@ -18,6 +18,9 @@ $this->params['breadcrumbs'] = [
     $this->title,
 ];
 $contexts = call_user_func([Yii::$app->multilingual->modelsMap['Context'], 'getListData']);
+array_walk($contexts, function(&$item, $key){
+    $item = Yii::t('dotplant.store', $item);
+});
 
 ?>
 <?php $form = ActiveForm::begin([]); ?>
@@ -32,8 +35,8 @@ $contexts = call_user_func([Yii::$app->multilingual->modelsMap['Context'], 'getL
                 ->field($model, 'type')
                 ->dropDownList(Warehouse::getTypes())
             ?>
-            <?= $form->field($model, 'handler_class') ?>
-            <?= $form->field($model, 'packed_json_params')->widget(Jsoneditor::class) ?>
+            <?= $form->field($model, 'handler_class')->label(Yii::t('dotplant.store', 'Handler Class')) ?>
+            <?= $form->field($model, 'packed_json_params')->widget(Jsoneditor::class)->label(Yii::t('dotplant.store', 'Packed Json Params')) ?>
             <?= $form->field($model, 'priority') ?>
             <?=
             DevGroup\Multilingual\widgets\MultilingualFormTabs::widget(

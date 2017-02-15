@@ -91,6 +91,9 @@ class Payment extends \yii\db\ActiveRecord
     public static function listData($contextId = null)
     {
         $condition = $contextId === null ? ['is_active' => 1] : ['context_id' => [0, $contextId], 'is_active' => 1];
+        if (($languageId = \Yii::$app->multilingual->language_id) > 0) {
+            $condition['language_id'] = $languageId;
+        }
         return (new MultilingualListDataQuery(static::class))
             ->where($condition)
             ->column();

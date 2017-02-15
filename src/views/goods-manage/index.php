@@ -93,6 +93,7 @@ HTML;
                 'columns' => [
                     [
                         'attribute' => 'name',
+                        'label' => Yii::t('dotplant.store', 'Name'),
                         'options' => [
                             'width' => '20%',
                         ],
@@ -111,7 +112,7 @@ HTML;
                             'width' => '15%',
                         ],
                     ],
-                    'is_active:boolean',
+                    'is_active:boolean:' . Yii::t('dotplant.store', 'Is Active'),
                     [
                         'attribute' => 'is_deleted',
                         'label' => Yii::t('dotplant.store', 'Show deleted?'),
