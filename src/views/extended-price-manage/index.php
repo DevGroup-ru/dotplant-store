@@ -5,7 +5,7 @@ use yii\grid\DataColumn;
 use yii\grid\GridView;
 use yii\helpers\Html;
 
-$this->title = Yii::t('app', 'Extended price');
+$this->title = Yii::t('dotplant.store', 'Extended price');
 
 $this->params['breadcrumbs'][] = $this->title;
 $buttons = Yii::$app->user->can('dotplant-store-extended-price-create') ?

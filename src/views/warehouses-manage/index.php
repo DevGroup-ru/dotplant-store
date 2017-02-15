@@ -33,13 +33,13 @@ $contexts = call_user_func([Yii::$app->multilingual->modelsMap['Context'], 'getL
                         'label' => Yii::t('dotplant.store', 'Context'),
                         'value' => function ($model, $key, $index, $column) use ($contexts) {
                             return isset($contexts[$model->{$column->attribute}])
-                                ? $contexts[$model->{$column->attribute}]
+                                ? Yii::t('dotplant.store', $contexts[$model->{$column->attribute}])
                                 : Yii::t('dotplant.store', 'Unknown');
                         },
                     ],
-                    'name',
+                    'name:text:' . Yii::t('dotplant.store', 'Name'),
                     [
-                        'class' => \DevGroup\AdminUtils\columns\ActionColumn::class,
+                        'class' => \DevGroup\AdminUtils\columns\ActionColumn::class
                     ],
                 ],
             ]

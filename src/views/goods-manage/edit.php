@@ -157,7 +157,7 @@ $event = new ModelEditForm($form, $goods);
                                 <?php if ($tableHead === true) : ?>
                                     <tr>
                                         <td>
-                                            <?= $price->warehouse->getAttributeLabel('name') ?>
+                                            <?= Yii::t('dotplant.store', $price->warehouse->getAttributeLabel('name')) ?>
                                         </td>
                                         <td>
                                             <?= $price->getAttributeLabel('currency_iso_code'); ?>

@@ -18,6 +18,7 @@ $url = \yii\helpers\Url::to(
         '/structure/entity-manage/goods-autocomplete'
     ]
 );
+$this->title = \Yii::t('dotplant.store', 'Add new item');
 ?>
 <div class="box">
     <div class="box-body">

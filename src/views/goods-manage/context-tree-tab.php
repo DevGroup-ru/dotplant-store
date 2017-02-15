@@ -48,4 +48,4 @@ echo $data['tree']['form']->field(
     'mainStructures[' . $contextIdVal . ']'
 )->dropDownList(
     ArrayHelper::map($categoriesByContextId, 'id', 'name')
-);
+)->label(Yii::t('dotplant.store', 'Main Structures'));
