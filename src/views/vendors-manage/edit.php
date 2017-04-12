@@ -28,7 +28,7 @@ $this->params['breadcrumbs'] = [
                 <?= MultilingualFormTabs::widget(
                     [
                         'model' => $model,
-                        'childView' => '@DotPlant/Store/views/vendor-manage/_multilingual-part.php',
+                        'childView' => '@DotPlant/Store/views/vendors-manage/_multilingual-part.php',
                         'form' => $form,
                     ]
                 )
