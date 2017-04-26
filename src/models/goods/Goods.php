@@ -6,6 +6,7 @@ use DevGroup\AdminUtils\traits\FetchModels;
 use DevGroup\DataStructure\behaviors\HasProperties;
 use DevGroup\DataStructure\search\base\SearchableEntity;
 use DevGroup\DataStructure\traits\PropertiesTrait;
+use DevGroup\Entity\traits\BaseActionsInfoTrait;
 use DevGroup\Entity\traits\EntityTrait;
 use DevGroup\Entity\traits\SeoTrait;
 use DevGroup\Entity\traits\SoftDeleteTrait;
@@ -66,7 +67,7 @@ class Goods extends ActiveRecord implements GoodsInterface, GoodsTypesInterface,
     use SeoTrait;
     use MonsterEntityTrait;
     use MainEntitySeoTrait;
-
+    use BaseActionsInfoTrait;
 
     /**
      *
