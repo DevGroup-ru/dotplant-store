@@ -17,11 +17,12 @@ class Option extends Goods
     protected $priceClass = OptionPrice::class;
 
     protected $visibilityType = null;
-    protected $isMeasurable = null;
+    protected $isMeasurable = true;
     protected $isDownloadable = null;
-    protected $isFilterable = null;
+    protected $isFilterable = false;
     protected $isService = null;
-    protected $isOption = null;
+    protected $isOption = true;
     protected $isPart = null;
     protected $hasOptions = null;
+    protected $hasChild = false;
 }
