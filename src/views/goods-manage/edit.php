@@ -116,6 +116,7 @@ $event = new ModelEditForm($form, $goods);
                         Vendor::getArrayList(),
                         ['prompt' => Yii::t('dotplant.store', 'Choose vendor')]
                     ) ?>
+                    <?= $form->field($goods, 'inner_sku') ?>
                     <?= $form->field($goods, 'sku') ?>
                     <?php if (true === $undefinedType) : ?>
                         <?= $form->field($goods, 'type')->dropDownList($goodsTypes) ?>
