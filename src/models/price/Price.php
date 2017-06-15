@@ -54,7 +54,7 @@ abstract class Price implements PriceInterface
             }
             self::$_priceMap[$priceClass] = $price;
         } else {
-            $price = self::$_priceMap[$priceClass];
+            $price = clone self::$_priceMap[$priceClass];
         }
 
         /* @var $price Price */
