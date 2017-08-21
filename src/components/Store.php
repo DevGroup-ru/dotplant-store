@@ -112,7 +112,10 @@ class Store
                 []
             );
         }
-        return Order::findAll(['user_id' => $userId]);
+        return Order::find()
+            ->where(['user_id' => $userId])
+            ->orderBy(['id' => SORT_DESC])
+            ->all();
     }
 
     /**
